@@ -77,3 +77,6 @@ pnpm-lock.yaml
 # Test results
 test-results/
 junit.xml
+
+# Performance test results
+apps/api/test/performance/results/
