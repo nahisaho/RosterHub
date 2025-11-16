@@ -1,0 +1,64 @@
+# Development environment overrides
+global:
+  namespace: rosterhub-dev
+
+api:
+  replicaCount: 1
+
+  image:
+    tag: "dev-latest"
+
+  ingress:
+    hosts:
+      - host: api-dev.rosterhub.example.com
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - secretName: rosterhub-api-dev-tls
+        hosts:
+          - api-dev.rosterhub.example.com
+
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "50m"
+    limits:
+      memory: "256Mi"
+      cpu: "250m"
+
+  autoscaling:
+    enabled: false
+
+config:
+  nodeEnv: "development"
+  logLevel: "debug"
+  swaggerEnabled: "true"
+  debugHttpLogging: "true"
+  databaseQueryLogging: "true"
+  corsAllowedOrigins: "*"
+  rateLimitDefault: "10000"
+
+postgresql:
+  persistence:
+    size: 5Gi
+
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "50m"
+    limits:
+      memory: "512Mi"
+      cpu: "500m"
+
+redis:
+  persistence:
+    size: 1Gi
+
+  resources:
+    requests:
+      memory: "64Mi"
+      cpu: "25m"
+    limits:
+      memory: "256Mi"
+      cpu: "250m"

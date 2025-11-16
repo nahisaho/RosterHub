@@ -1,0 +1,197 @@
+---
+# PostgreSQL StatefulSet
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres
+  labels:
+    app: rosterhub
+    component: postgres
+spec:
+  serviceName: postgres
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rosterhub
+      component: postgres
+  template:
+    metadata:
+      labels:
+        app: rosterhub
+        component: postgres
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 999  # postgres user
+        fsGroup: 999
+
+      containers:
+        - name: postgres
+          image: postgres:15-alpine
+          imagePullPolicy: IfNotPresent
+
+          ports:
+            - name: postgres
+              containerPort: 5432
+              protocol: TCP
+
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secrets
+                  key: postgres-user
+
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secrets
+                  key: postgres-password
+
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secrets
+                  key: postgres-db
+
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pgdata
+
+            # Performance tuning
+            - name: POSTGRES_INITDB_ARGS
+              value: "--encoding=UTF8 --locale=C"
+
+          # Health checks
+          livenessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - $(POSTGRES_USER)
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+
+          readinessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - $(POSTGRES_USER)
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 2
+
+          # Resource limits
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "2Gi"
+              cpu: "1000m"
+
+          # Persistent volume
+          volumeMounts:
+            - name: postgres-data
+              mountPath: /var/lib/postgresql/data
+
+            - name: postgres-config
+              mountPath: /etc/postgresql/postgresql.conf
+              subPath: postgresql.conf
+              readOnly: true
+
+      volumes:
+        - name: postgres-config
+          configMap:
+            name: postgres-config
+
+  volumeClaimTemplates:
+    - metadata:
+        name: postgres-data
+        labels:
+          app: rosterhub
+          component: postgres
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        storageClassName: standard  # Change to your storage class
+        resources:
+          requests:
+            storage: 20Gi
+
+---
+# PostgreSQL Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  labels:
+    app: rosterhub
+    component: postgres
+spec:
+  type: ClusterIP
+  clusterIP: None  # Headless service for StatefulSet
+  ports:
+    - port: 5432
+      targetPort: postgres
+      protocol: TCP
+      name: postgres
+  selector:
+    app: rosterhub
+    component: postgres
+
+---
+# PostgreSQL ConfigMap
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-config
+  labels:
+    app: rosterhub
+    component: postgres
+data:
+  postgresql.conf: |
+    # Connection settings
+    max_connections = 100
+    shared_buffers = 256MB
+
+    # WAL settings
+    wal_level = replica
+    max_wal_senders = 3
+    wal_keep_size = 1GB
+
+    # Query tuning
+    effective_cache_size = 1GB
+    maintenance_work_mem = 128MB
+    work_mem = 8MB
+
+    # Checkpoints
+    checkpoint_completion_target = 0.9
+    checkpoint_timeout = 10min
+    max_wal_size = 1GB
+    min_wal_size = 80MB
+
+    # Logging
+    logging_collector = on
+    log_directory = 'pg_log'
+    log_filename = 'postgresql-%Y-%m-%d_%H%M%S.log'
+    log_rotation_age = 1d
+    log_rotation_size = 100MB
+    log_line_prefix = '%t [%p]: [%l-1] user=%u,db=%d,app=%a,client=%h '
+    log_min_duration_statement = 1000  # Log queries > 1s
+    log_checkpoints = on
+    log_connections = on
+    log_disconnections = on
+    log_duration = off
+    log_lock_waits = on
+
+    # Performance
+    random_page_cost = 1.1  # SSD
+    effective_io_concurrency = 200
+
+    # Autovacuum
+    autovacuum = on
+    autovacuum_max_workers = 3
+    autovacuum_naptime = 1min

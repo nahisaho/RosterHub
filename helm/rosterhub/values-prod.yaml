@@ -1,0 +1,82 @@
+# Production environment overrides
+global:
+  namespace: rosterhub
+
+api:
+  replicaCount: 3
+
+  image:
+    tag: "v1.0.0"
+
+  ingress:
+    annotations:
+      nginx.ingress.kubernetes.io/cors-allow-origin: "https://rosterhub.example.com,https://app.rosterhub.example.com"
+    hosts:
+      - host: api.rosterhub.example.com
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - secretName: rosterhub-api-tls
+        hosts:
+          - api.rosterhub.example.com
+
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "250m"
+    limits:
+      memory: "1Gi"
+      cpu: "1000m"
+
+  autoscaling:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 20
+    targetCPUUtilizationPercentage: 60
+    targetMemoryUtilizationPercentage: 70
+
+config:
+  nodeEnv: "production"
+  logLevel: "warn"
+  swaggerEnabled: "false"
+  debugHttpLogging: "false"
+  databaseQueryLogging: "false"
+  corsAllowedOrigins: "https://rosterhub.example.com,https://app.rosterhub.example.com"
+  rateLimitDefault: "10000"
+  auditLogRetentionDays: "365"
+
+postgresql:
+  persistence:
+    size: 100Gi
+    storageClass: "premium-ssd"
+
+  resources:
+    requests:
+      memory: "1Gi"
+      cpu: "500m"
+    limits:
+      memory: "4Gi"
+      cpu: "2000m"
+
+  config:
+    maxConnections: "200"
+    sharedBuffers: "1GB"
+    effectiveCacheSize: "3GB"
+    maintenanceWorkMem: "256MB"
+
+redis:
+  persistence:
+    size: 20Gi
+    storageClass: "premium-ssd"
+
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "250m"
+    limits:
+      memory: "2Gi"
+      cpu: "1000m"
+
+  config:
+    maxmemory: "1gb"

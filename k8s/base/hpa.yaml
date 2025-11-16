@@ -1,0 +1,84 @@
+---
+# Horizontal Pod Autoscaler for API
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: rosterhub-api
+  labels:
+    app: rosterhub
+    component: api
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: rosterhub-api
+
+  minReplicas: 2
+  maxReplicas: 10
+
+  metrics:
+    # CPU-based scaling
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+
+    # Memory-based scaling
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80
+
+    # Custom metrics (Prometheus-based)
+    # Requires Prometheus Adapter to be installed
+    # https://github.com/kubernetes-sigs/prometheus-adapter
+    - type: Pods
+      pods:
+        metric:
+          name: http_requests_per_second
+        target:
+          type: AverageValue
+          averageValue: "1000"  # Scale when > 1000 req/s per pod
+
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300  # 5 minutes
+      policies:
+        - type: Percent
+          value: 50  # Scale down max 50% of current pods
+          periodSeconds: 60
+        - type: Pods
+          value: 1  # Or scale down 1 pod at a time
+          periodSeconds: 60
+      selectPolicy: Min  # Use the policy that results in slower scale down
+
+    scaleUp:
+      stabilizationWindowSeconds: 60  # 1 minute
+      policies:
+        - type: Percent
+          value: 100  # Scale up max 100% of current pods
+          periodSeconds: 30
+        - type: Pods
+          value: 2  # Or scale up 2 pods at a time
+          periodSeconds: 30
+      selectPolicy: Max  # Use the policy that results in faster scale up
+
+---
+# PodDisruptionBudget for high availability
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: rosterhub-api
+  labels:
+    app: rosterhub
+    component: api
+spec:
+  minAvailable: 1  # Always keep at least 1 pod running
+  selector:
+    matchLabels:
+      app: rosterhub
+      component: api

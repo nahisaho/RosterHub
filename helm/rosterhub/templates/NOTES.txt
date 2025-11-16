@@ -1,0 +1,132 @@
+Thank you for installing {{ .Chart.Name }}!
+
+Your release is named {{ .Release.Name }}.
+
+To learn more about the release, try:
+
+  $ helm status {{ .Release.Name }} --namespace {{ .Values.global.namespace }}
+  $ helm get all {{ .Release.Name }} --namespace {{ .Values.global.namespace }}
+
+🚀 RosterHub API has been deployed!
+
+{{- if .Values.api.ingress.enabled }}
+
+📍 Access URL:
+{{- range .Values.api.ingress.hosts }}
+  {{- range .paths }}
+  https://{{ $.Values.api.ingress.hosts.host }}{{ .path }}
+  {{- end }}
+{{- end }}
+
+{{- else }}
+
+To access the API, run these commands:
+
+  export POD_NAME=$(kubectl get pods --namespace {{ .Values.global.namespace }} -l "app={{ .Values.api.name }}" -o jsonpath="{.items[0].metadata.name}")
+  export CONTAINER_PORT=$(kubectl get pod --namespace {{ .Values.global.namespace }} $POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}")
+  echo "Visit http://127.0.0.1:8080 to use your application"
+  kubectl --namespace {{ .Values.global.namespace }} port-forward $POD_NAME 8080:$CONTAINER_PORT
+
+{{- end }}
+
+📊 Check deployment status:
+
+  $ kubectl get pods -n {{ .Values.global.namespace }}
+  $ kubectl get svc -n {{ .Values.global.namespace }}
+  $ kubectl get ingress -n {{ .Values.global.namespace }}
+
+📝 View logs:
+
+  API logs:
+  $ kubectl logs -n {{ .Values.global.namespace }} -l app={{ .Values.api.name }} --tail=100 -f
+
+  PostgreSQL logs:
+  $ kubectl logs -n {{ .Values.global.namespace }} -l app={{ .Values.postgresql.name }} --tail=100 -f
+
+  Redis logs:
+  $ kubectl logs -n {{ .Values.global.namespace }} -l app={{ .Values.redis.name }} --tail=100 -f
+
+{{- if .Values.api.autoscaling.enabled }}
+
+🔄 Horizontal Pod Autoscaler is enabled:
+  Min replicas: {{ .Values.api.autoscaling.minReplicas }}
+  Max replicas: {{ .Values.api.autoscaling.maxReplicas }}
+  Target CPU: {{ .Values.api.autoscaling.targetCPUUtilizationPercentage }}%
+  Target Memory: {{ .Values.api.autoscaling.targetMemoryUtilizationPercentage }}%
+
+Check HPA status:
+  $ kubectl get hpa -n {{ .Values.global.namespace }}
+
+{{- end }}
+
+⚙️  Configuration:
+  Environment: {{ .Values.config.nodeEnv }}
+  Log Level: {{ .Values.config.logLevel }}
+  Swagger Enabled: {{ .Values.config.swaggerEnabled }}
+  CORS Origins: {{ .Values.config.corsAllowedOrigins }}
+
+{{- if eq .Values.config.swaggerEnabled "true" }}
+
+📚 API Documentation:
+{{- range .Values.api.ingress.hosts }}
+  Swagger UI: https://{{ .host }}/api/docs
+  OpenAPI JSON: https://{{ .host }}/api/docs-json
+{{- end }}
+
+{{- end }}
+
+⚠️  Important Notes:
+
+{{- if or (eq .Values.secrets.postgresPassword "") (eq .Values.secrets.redisPassword "") (eq .Values.secrets.jwtSecret "") }}
+
+  ❌ CRITICAL: Some secrets are not set!
+
+  Please set all required secrets:
+    - secrets.postgresPassword
+    - secrets.redisPassword
+    - secrets.jwtSecret
+
+  You can update the release with:
+    $ helm upgrade {{ .Release.Name }} . \
+      --namespace {{ .Values.global.namespace }} \
+      --set secrets.postgresPassword="$(openssl rand -base64 32)" \
+      --set secrets.redisPassword="$(openssl rand -base64 32)" \
+      --set secrets.jwtSecret="$(openssl rand -base64 32)"
+
+{{- end }}
+
+{{- if eq .Values.config.nodeEnv "production" }}
+{{- if eq .Values.config.swaggerEnabled "true" }}
+
+  ⚠️  WARNING: Swagger is enabled in production!
+  Consider disabling it for security:
+    --set config.swaggerEnabled=false
+
+{{- end }}
+{{- if eq .Values.config.corsAllowedOrigins "*" }}
+
+  ⚠️  WARNING: CORS is set to allow all origins in production!
+  Consider restricting to specific origins:
+    --set config.corsAllowedOrigins="https://yourapp.com"
+
+{{- end }}
+{{- end }}
+
+🔗 Useful Commands:
+
+  Upgrade release:
+    $ helm upgrade {{ .Release.Name }} . --namespace {{ .Values.global.namespace }}
+
+  Rollback release:
+    $ helm rollback {{ .Release.Name }} --namespace {{ .Values.global.namespace }}
+
+  View release history:
+    $ helm history {{ .Release.Name }} --namespace {{ .Values.global.namespace }}
+
+  Delete release:
+    $ helm uninstall {{ .Release.Name }} --namespace {{ .Values.global.namespace }}
+
+📖 Documentation: https://docs.rosterhub.example.com
+🐛 Report Issues: https://github.com/rosterhub/rosterhub/issues
+
+Happy RosterHub-ing! 🎉

@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rosterhub-config
+data:
+  log-level: "debug"
+  swagger-enabled: "true"
+  debug-http-logging: "true"
+  database-query-logging: "true"
+  cors-allowed-origins: "*"

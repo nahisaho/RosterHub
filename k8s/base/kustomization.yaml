@@ -1,0 +1,48 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: rosterhub
+
+# Common labels applied to all resources
+commonLabels:
+  app: rosterhub
+  managed-by: kustomize
+
+# Resources to deploy
+resources:
+  - api-deployment.yaml
+  - api-service.yaml
+  - postgres-statefulset.yaml
+  - redis-statefulset.yaml
+  - configmap.yaml
+  - hpa.yaml
+
+# ConfigMap generator (alternative to configmap.yaml)
+# Uncomment to use generator instead of static configmap
+# configMapGenerator:
+#   - name: rosterhub-config
+#     literals:
+#       - log-level=info
+#       - cors-enabled=true
+
+# Secret generator (for development only - use sealed secrets in production)
+# Uncomment and modify for development environment
+# secretGenerator:
+#   - name: rosterhub-secrets
+#     literals:
+#       - database-url=postgresql://rosterhub:password@postgres:5432/rosterhub
+#       - redis-url=redis://:password@redis:6379/0
+#       - jwt-secret=development-secret-change-in-production
+
+# Images (for easy image tag updates)
+images:
+  - name: rosterhub/api
+    newName: rosterhub/api
+    newTag: latest
+
+# Namespace creation
+# Uncomment to auto-create namespace
+# namespace: rosterhub
+
+# Transformers
+# Add labels, annotations, etc.

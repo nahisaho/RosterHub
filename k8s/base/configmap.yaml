@@ -1,0 +1,66 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rosterhub-config
+  labels:
+    app: rosterhub
+data:
+  # Application configuration
+  log-level: "info"
+  api-base-path: "/"
+
+  # CORS configuration
+  cors-enabled: "true"
+  cors-allowed-origins: "*"
+  cors-allowed-methods: "GET,POST,PUT,DELETE,PATCH,OPTIONS"
+  cors-allow-credentials: "true"
+
+  # Rate limiting
+  rate-limit-enabled: "true"
+  rate-limit-default: "1000"
+  rate-limit-window: "3600"
+
+  # File upload configuration
+  csv-max-file-size: "52428800"  # 50 MB
+  csv-temp-dir: "/tmp"
+  csv-batch-size: "1000"
+
+  # Background jobs (BullMQ)
+  bullmq-concurrency: "5"
+  bullmq-job-timeout: "1800000"  # 30 minutes
+  bullmq-job-retention-completed: "7"
+  bullmq-job-retention-failed: "30"
+
+  # Logging & Monitoring
+  audit-logging-enabled: "true"
+  audit-log-retention-days: "90"
+  metrics-enabled: "true"
+  metrics-interval: "60000"  # 1 minute
+
+  # OneRoster configuration
+  oneroster-version: "v1p2"
+  oneroster-japan-profile-enabled: "true"
+  oneroster-max-filter-complexity: "10"
+  oneroster-max-limit: "1000"
+
+  # Feature flags
+  feature-csv-import-enabled: "true"
+  feature-csv-export-enabled: "true"
+  feature-delta-api-enabled: "true"
+  feature-field-selection-enabled: "true"
+
+  # Swagger/OpenAPI
+  swagger-enabled: "false"  # Disable in production
+  swagger-path: "/api/docs"
+
+  # Database configuration (non-sensitive)
+  database-pool-min: "2"
+  database-pool-max: "20"
+  database-pool-timeout: "30"
+  database-timeout: "10000"
+
+  # Redis configuration (non-sensitive)
+  redis-db: "0"
+  redis-timeout: "5000"
+  redis-api-key-ttl: "300"
+  redis-entity-cache-ttl: "300"

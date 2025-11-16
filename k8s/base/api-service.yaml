@@ -1,0 +1,82 @@
+---
+# Service for API
+apiVersion: v1
+kind: Service
+metadata:
+  name: rosterhub-api
+  labels:
+    app: rosterhub
+    component: api
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app: rosterhub
+    component: api
+
+---
+# ServiceAccount for API pods
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: rosterhub-api
+  labels:
+    app: rosterhub
+    component: api
+
+---
+# Ingress for external access
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: rosterhub-api
+  labels:
+    app: rosterhub
+    component: api
+  annotations:
+    # NGINX Ingress Controller annotations
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+
+    # Rate limiting
+    nginx.ingress.kubernetes.io/limit-rps: "100"
+    nginx.ingress.kubernetes.io/limit-connections: "50"
+
+    # CORS
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/cors-allow-methods: "GET, POST, PUT, DELETE, PATCH, OPTIONS"
+    nginx.ingress.kubernetes.io/cors-allow-credentials: "true"
+
+    # Timeouts
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "60"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "60"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "60"
+
+    # Client body size (for CSV uploads)
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+
+    # SSL/TLS (cert-manager)
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - api.rosterhub.example.com
+      secretName: rosterhub-api-tls
+  rules:
+    - host: api.rosterhub.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: rosterhub-api
+                port:
+                  number: 80

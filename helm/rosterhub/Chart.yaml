@@ -1,0 +1,25 @@
+apiVersion: v2
+name: rosterhub
+description: A Helm chart for RosterHub OneRoster API
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
+
+keywords:
+  - oneroster
+  - education
+  - api
+  - rostering
+
+maintainers:
+  - name: RosterHub Team
+    email: team@rosterhub.example.com
+
+home: https://github.com/rosterhub/rosterhub
+sources:
+  - https://github.com/rosterhub/rosterhub
+
+dependencies: []
+
+annotations:
+  category: Education
