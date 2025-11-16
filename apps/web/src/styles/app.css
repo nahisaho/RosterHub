@@ -1,0 +1,305 @@
+/**
+ * RosterHub CSV Manager - App Styles
+ */
+
+:root {
+  --primary-color: #2196F3;
+  --success-color: #4CAF50;
+  --warning-color: #FFA500;
+  --error-color: #F44336;
+  --bg-color: #f5f5f5;
+  --card-bg: #ffffff;
+  --text-primary: #333333;
+  --text-secondary: #666666;
+  --border-color: #dddddd;
+  --shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-primary);
+  line-height: 1.6;
+}
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header */
+.app-header {
+  background-color: var(--primary-color);
+  color: white;
+  padding: 2rem;
+  box-shadow: var(--shadow);
+}
+
+.header-content h1 {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.header-content .subtitle {
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
+
+/* Navigation */
+.app-nav {
+  background-color: var(--card-bg);
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  gap: 1rem;
+  padding: 0 2rem;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  text-decoration: none;
+  color: var(--text-primary);
+  border-bottom: 3px solid transparent;
+  transition: all 0.3s;
+}
+
+.nav-link:hover {
+  background-color: var(--bg-color);
+  border-bottom-color: var(--primary-color);
+}
+
+.nav-link svg {
+  stroke-width: 2;
+}
+
+/* Main Content */
+.app-main {
+  flex: 1;
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* Common Components */
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.form-group select,
+.form-group input[type="text"],
+.form-group input[type="datetime-local"] {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.radio-group label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: normal;
+}
+
+button {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-upload,
+.btn-export {
+  background-color: var(--primary-color);
+  color: white;
+  width: 100%;
+  margin-top: 1rem;
+}
+
+.btn-upload:hover:not(:disabled),
+.btn-export:hover:not(:disabled) {
+  background-color: #1976D2;
+}
+
+/* CSV Upload */
+.upload-area {
+  border: 2px dashed var(--border-color);
+  border-radius: 8px;
+  padding: 3rem;
+  text-align: center;
+  background-color: var(--card-bg);
+  transition: all 0.3s;
+}
+
+.upload-area.dragging {
+  border-color: var(--primary-color);
+  background-color: #E3F2FD;
+}
+
+.upload-prompt svg,
+.file-info svg {
+  margin: 0 auto 1rem;
+  color: var(--text-secondary);
+}
+
+.btn-browse {
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
+  background-color: var(--primary-color);
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* Job Monitor */
+.monitor-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.header-actions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.job-table {
+  width: 100%;
+  background-color: var(--card-bg);
+  border-collapse: collapse;
+  box-shadow: var(--shadow);
+}
+
+.job-table th,
+.job-table td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.job-table th {
+  background-color: var(--bg-color);
+  font-weight: 600;
+}
+
+.job-table tr:hover {
+  background-color: var(--bg-color);
+  cursor: pointer;
+}
+
+.job-table tr.selected {
+  background-color: #E3F2FD;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  color: white;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.progress-container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.progress-bar {
+  flex: 1;
+  height: 8px;
+  background-color: var(--bg-color);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  transition: width 0.3s;
+}
+
+.progress-text {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+/* Error Message */
+.error-message {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  background-color: #FFEBEE;
+  border: 1px solid var(--error-color);
+  border-radius: 4px;
+  color: var(--error-color);
+  margin: 1rem 0;
+}
+
+/* Help Text */
+.help-text {
+  background-color: var(--card-bg);
+  padding: 1.5rem;
+  border-radius: 4px;
+  margin-top: 2rem;
+}
+
+.help-text h3 {
+  margin-bottom: 0.5rem;
+}
+
+.help-text ul {
+  margin-left: 1.5rem;
+}
+
+.info-box {
+  background-color: #E3F2FD;
+  padding: 1.5rem;
+  border-radius: 4px;
+  border-left: 4px solid var(--primary-color);
+  margin-top: 2rem;
+}
+
+/* Footer */
+.app-footer {
+  background-color: var(--card-bg);
+  border-top: 1px solid var(--border-color);
+  padding: 1.5rem;
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
