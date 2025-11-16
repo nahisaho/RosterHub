@@ -83,6 +83,22 @@ enum CsvImportStatus {
   failed
 }
 
+enum WebhookEvent {
+  csv_import_completed
+  csv_import_failed
+  csv_import_processing
+  entity_created
+  entity_updated
+  entity_deleted
+}
+
+enum WebhookDeliveryStatus {
+  pending
+  success
+  failed
+  retrying
+}
+
 // ============================================
 // OneRoster Core Entities
 // ============================================
@@ -472,6 +488,62 @@ model CsvImportJob {
   @@index([createdBy])
 
   @@map("csv_import_jobs")
+}
+
+/// Webhook entity (webhook subscription management)
+model Webhook {
+  id                 String          @id @default(uuid()) @db.Uuid
+  url                String          @db.VarChar(500)
+  events             WebhookEvent[]
+  secret             String          @db.VarChar(255)
+  isActive           Boolean         @default(true)
+  organizationId     String          @db.VarChar(255)
+  createdAt          DateTime        @default(now()) @db.Timestamptz
+  updatedAt          DateTime        @updatedAt @db.Timestamptz
+  lastTriggeredAt    DateTime?       @db.Timestamptz
+
+  // Retry configuration
+  maxRetries         Int             @default(3)
+  retryBackoff       Int             @default(60) // seconds
+
+  // Relationships
+  deliveries         WebhookDelivery[]
+
+  // Indexes
+  @@index([organizationId])
+  @@index([isActive])
+
+  @@map("webhooks")
+}
+
+/// Webhook Delivery entity (webhook delivery tracking and retry)
+model WebhookDelivery {
+  id                 String                  @id @default(uuid()) @db.Uuid
+  webhookId          String                  @db.Uuid
+  event              WebhookEvent
+  payload            Json                    @db.JsonB
+  status             WebhookDeliveryStatus   @default(pending)
+  attempts           Int                     @default(0)
+  maxAttempts        Int                     @default(3)
+  lastAttemptAt      DateTime?               @db.Timestamptz
+  nextRetryAt        DateTime?               @db.Timestamptz
+  responseStatus     Int?
+  responseBody       String?                 @db.Text
+  errorMessage       String?                 @db.Text
+  createdAt          DateTime                @default(now()) @db.Timestamptz
+  completedAt        DateTime?               @db.Timestamptz
+
+  // Relationships
+  webhook            Webhook                 @relation(fields: [webhookId], references: [id], onDelete: Cascade)
+
+  // Indexes
+  @@index([webhookId])
+  @@index([status])
+  @@index([event])
+  @@index([nextRetryAt])
+  @@index([createdAt])
+
+  @@map("webhook_deliveries")
 }
 
 // ============================================
