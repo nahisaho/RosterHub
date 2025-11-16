@@ -1,0 +1,488 @@
+// ============================================
+// Prisma Schema - RosterHub
+// OneRoster Japan Profile 1.2.2 Integration Hub
+// ============================================
+// Database: PostgreSQL 15+
+// ORM: Prisma 5.x
+// Created: 2025-11-14
+// Specification: OneRoster Japan Profile 1.2.2
+// ============================================
+
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["fullTextSearch", "fullTextIndex"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// Enums (OneRoster Specification)
+// ============================================
+
+enum StatusType {
+  active
+  tobedeleted
+  inactive
+}
+
+enum UserRole {
+  student
+  teacher
+  staff
+  administrator
+}
+
+enum OrgType {
+  department
+  school
+  district
+  local
+  state
+  national
+}
+
+enum ClassType {
+  homeroom
+  scheduled
+}
+
+enum EnrollmentRole {
+  primary
+  secondary
+  aide
+}
+
+enum AcademicSessionType {
+  gradingPeriod
+  semester
+  schoolYear
+  term
+}
+
+enum Sex {
+  male
+  female
+  other
+  unknown
+}
+
+enum AuditAction {
+  CREATE
+  UPDATE
+  DELETE
+  READ
+}
+
+enum CsvImportStatus {
+  pending
+  processing
+  completed
+  failed
+}
+
+// ============================================
+// OneRoster Core Entities
+// ============================================
+
+/// User entity (students, teachers, staff, administrators)
+/// OneRoster Specification: Section 4.3 Users
+model User {
+  id                 String      @id @default(uuid()) @db.Uuid
+  sourcedId          String      @unique @db.VarChar(255)
+  dateCreated        DateTime    @default(now()) @db.Timestamptz
+  dateLastModified   DateTime    @updatedAt @db.Timestamptz
+  status             StatusType  @default(active)
+
+  // OneRoster required fields
+  enabledUser        Boolean
+  username           String      @db.VarChar(255)
+  userIds            String[]    @db.VarChar(255)
+  givenName          String      @db.VarChar(255)
+  familyName         String      @db.VarChar(255)
+  middleName         String?     @db.VarChar(255)
+  role               UserRole
+  identifier         String      @unique @db.VarChar(255)
+  email              String      @db.VarChar(255)
+  sms                String?     @db.VarChar(50)
+  phone              String?     @db.VarChar(50)
+
+  // Japan Profile extensions (metadata.jp.*)
+  metadata           Json?       @db.JsonB
+
+  // Relationships
+  orgs               UserOrg[]
+  agents             UserAgent[] @relation("AgentRelationship")
+  agentOf            UserAgent[] @relation("AgentOf")
+  enrollments        Enrollment[]
+  demographic        Demographic?
+
+  // Indexes
+  @@index([dateLastModified])
+  @@index([status])
+  @@index([role])
+  @@index([email])
+  @@index([identifier])
+
+  @@map("users")
+}
+
+/// User-Agent relationship (e.g., parent-child relationships)
+/// Self-referencing many-to-many through junction table
+model UserAgent {
+  id                 String   @id @default(uuid()) @db.Uuid
+  userSourcedId      String   @db.VarChar(255)
+  agentSourcedId     String   @db.VarChar(255)
+
+  user               User     @relation("AgentRelationship", fields: [userSourcedId], references: [sourcedId], onDelete: Cascade)
+  agent              User     @relation("AgentOf", fields: [agentSourcedId], references: [sourcedId], onDelete: Cascade)
+
+  @@unique([userSourcedId, agentSourcedId])
+  @@index([userSourcedId])
+  @@index([agentSourcedId])
+
+  @@map("user_agents")
+}
+
+/// Organization entity (schools, districts, departments)
+/// OneRoster Specification: Section 4.4 Orgs
+model Org {
+  id                 String      @id @default(uuid()) @db.Uuid
+  sourcedId          String      @unique @db.VarChar(255)
+  dateCreated        DateTime    @default(now()) @db.Timestamptz
+  dateLastModified   DateTime    @updatedAt @db.Timestamptz
+  status             StatusType  @default(active)
+
+  // OneRoster required fields
+  name               String      @db.VarChar(255)
+  type               OrgType
+  identifier         String      @unique @db.VarChar(255)
+
+  // Hierarchical structure
+  parentSourcedId    String?     @db.VarChar(255)
+  parent             Org?        @relation("OrgHierarchy", fields: [parentSourcedId], references: [sourcedId], onDelete: Restrict)
+  children           Org[]       @relation("OrgHierarchy")
+
+  // Japan Profile extensions (metadata.jp.*)
+  metadata           Json?       @db.JsonB
+
+  // Relationships
+  members            UserOrg[]
+  classes            Class[]
+  courses            Course[]
+  enrollments        Enrollment[]
+
+  // Indexes
+  @@index([dateLastModified])
+  @@index([status])
+  @@index([type])
+  @@index([parentSourcedId])
+
+  @@map("orgs")
+}
+
+/// User-Organization membership (many-to-many)
+/// A user can belong to multiple organizations
+model UserOrg {
+  id                 String   @id @default(uuid()) @db.Uuid
+  userSourcedId      String   @db.VarChar(255)
+  orgSourcedId       String   @db.VarChar(255)
+
+  user               User     @relation(fields: [userSourcedId], references: [sourcedId], onDelete: Cascade)
+  org                Org      @relation(fields: [orgSourcedId], references: [sourcedId], onDelete: Cascade)
+
+  @@unique([userSourcedId, orgSourcedId])
+  @@index([userSourcedId])
+  @@index([orgSourcedId])
+
+  @@map("user_orgs")
+}
+
+/// Course entity (course catalog definitions)
+/// OneRoster Specification: Section 4.6 Courses
+model Course {
+  id                 String      @id @default(uuid()) @db.Uuid
+  sourcedId          String      @unique @db.VarChar(255)
+  dateCreated        DateTime    @default(now()) @db.Timestamptz
+  dateLastModified   DateTime    @updatedAt @db.Timestamptz
+  status             StatusType  @default(active)
+
+  // OneRoster required fields
+  title              String      @db.VarChar(255)
+  courseCode         String      @db.VarChar(255)
+  schoolYear         String?     @db.VarChar(50)
+
+  // Relationships
+  schoolSourcedId    String      @db.VarChar(255)
+  school             Org         @relation(fields: [schoolSourcedId], references: [sourcedId], onDelete: Restrict)
+  classes            Class[]
+
+  // Japan Profile extensions (metadata.jp.*)
+  metadata           Json?       @db.JsonB
+
+  // Indexes
+  @@index([dateLastModified])
+  @@index([status])
+  @@index([schoolSourcedId])
+  @@index([courseCode])
+
+  @@map("courses")
+}
+
+/// Class entity (course instances with specific terms/periods)
+/// OneRoster Specification: Section 4.5 Classes
+model Class {
+  id                 String      @id @default(uuid()) @db.Uuid
+  sourcedId          String      @unique @db.VarChar(255)
+  dateCreated        DateTime    @default(now()) @db.Timestamptz
+  dateLastModified   DateTime    @updatedAt @db.Timestamptz
+  status             StatusType  @default(active)
+
+  // OneRoster required fields
+  title              String      @db.VarChar(255)
+  classCode          String      @db.VarChar(255)
+  classType          ClassType
+  location           String?     @db.VarChar(255)
+
+  // Relationships
+  courseSourcedId    String      @db.VarChar(255)
+  course             Course      @relation(fields: [courseSourcedId], references: [sourcedId], onDelete: Restrict)
+
+  schoolSourcedId    String      @db.VarChar(255)
+  school             Org         @relation(fields: [schoolSourcedId], references: [sourcedId], onDelete: Restrict)
+
+  enrollments        Enrollment[]
+  academicSessions   ClassAcademicSession[]
+
+  // Japan Profile extensions (metadata.jp.*)
+  metadata           Json?       @db.JsonB
+
+  // Indexes
+  @@index([dateLastModified])
+  @@index([status])
+  @@index([courseSourcedId])
+  @@index([schoolSourcedId])
+  @@index([classType])
+
+  @@map("classes")
+}
+
+/// Enrollment entity (user-class relationships)
+/// OneRoster Specification: Section 4.7 Enrollments
+model Enrollment {
+  id                 String         @id @default(uuid()) @db.Uuid
+  sourcedId          String         @unique @db.VarChar(255)
+  dateCreated        DateTime       @default(now()) @db.Timestamptz
+  dateLastModified   DateTime       @updatedAt @db.Timestamptz
+  status             StatusType     @default(active)
+
+  // OneRoster required fields
+  role               EnrollmentRole
+  primary            Boolean
+  beginDate          DateTime?      @db.Timestamptz
+  endDate            DateTime?      @db.Timestamptz
+
+  // Relationships
+  userSourcedId      String         @db.VarChar(255)
+  user               User           @relation(fields: [userSourcedId], references: [sourcedId], onDelete: Restrict)
+
+  classSourcedId     String         @db.VarChar(255)
+  class              Class          @relation(fields: [classSourcedId], references: [sourcedId], onDelete: Restrict)
+
+  // Denormalized school reference (performance optimization)
+  schoolSourcedId    String         @db.VarChar(255)
+  school             Org            @relation(fields: [schoolSourcedId], references: [sourcedId], onDelete: Restrict)
+
+  // Japan Profile extensions (metadata.jp.*)
+  metadata           Json?          @db.JsonB
+
+  // Indexes
+  @@unique([userSourcedId, classSourcedId])
+  @@index([dateLastModified])
+  @@index([status])
+  @@index([userSourcedId])
+  @@index([classSourcedId])
+  @@index([schoolSourcedId])
+  @@index([role])
+
+  @@map("enrollments")
+}
+
+/// Academic Session entity (terms, semesters, school years)
+/// OneRoster Specification: Section 4.8 Academic Sessions
+model AcademicSession {
+  id                 String              @id @default(uuid()) @db.Uuid
+  sourcedId          String              @unique @db.VarChar(255)
+  dateCreated        DateTime            @default(now()) @db.Timestamptz
+  dateLastModified   DateTime            @updatedAt @db.Timestamptz
+  status             StatusType          @default(active)
+
+  // OneRoster required fields
+  title              String              @db.VarChar(255)
+  type               AcademicSessionType
+  startDate          DateTime            @db.Timestamptz
+  endDate            DateTime            @db.Timestamptz
+  schoolYear         String              @db.VarChar(50)
+
+  // Hierarchical structure
+  parentSourcedId    String?             @db.VarChar(255)
+  parent             AcademicSession?    @relation("SessionHierarchy", fields: [parentSourcedId], references: [sourcedId], onDelete: Restrict)
+  children           AcademicSession[]   @relation("SessionHierarchy")
+
+  // Relationships
+  classes            ClassAcademicSession[]
+
+  // Japan Profile extensions (metadata.jp.*)
+  metadata           Json?               @db.JsonB
+
+  // Indexes
+  @@index([dateLastModified])
+  @@index([status])
+  @@index([type])
+  @@index([parentSourcedId])
+  @@index([startDate, endDate])
+  @@index([schoolYear])
+
+  @@map("academic_sessions")
+}
+
+/// Class-AcademicSession relationship (many-to-many)
+/// A class can be scheduled in multiple academic sessions
+model ClassAcademicSession {
+  id                      String          @id @default(uuid()) @db.Uuid
+  classSourcedId          String          @db.VarChar(255)
+  academicSessionSourcedId String         @db.VarChar(255)
+
+  class                   Class           @relation(fields: [classSourcedId], references: [sourcedId], onDelete: Cascade)
+  academicSession         AcademicSession @relation(fields: [academicSessionSourcedId], references: [sourcedId], onDelete: Cascade)
+
+  @@unique([classSourcedId, academicSessionSourcedId])
+  @@index([classSourcedId])
+  @@index([academicSessionSourcedId])
+
+  @@map("class_academic_sessions")
+}
+
+/// Demographic entity (user demographic information)
+/// OneRoster Specification: Section 4.9 Demographics (Japan Profile extension)
+model Demographic {
+  id                 String      @id @default(uuid()) @db.Uuid
+  sourcedId          String      @unique @db.VarChar(255)
+  dateCreated        DateTime    @default(now()) @db.Timestamptz
+  dateLastModified   DateTime    @updatedAt @db.Timestamptz
+  status             StatusType  @default(active)
+
+  // OneRoster optional fields
+  birthDate          DateTime?   @db.Timestamptz
+  sex                Sex?
+
+  // Relationships (1:1 with User)
+  userSourcedId      String      @unique @db.VarChar(255)
+  user               User        @relation(fields: [userSourcedId], references: [sourcedId], onDelete: Cascade)
+
+  // Japan Profile extensions (metadata.jp.*)
+  metadata           Json?       @db.JsonB
+
+  // Indexes
+  @@index([dateLastModified])
+  @@index([status])
+
+  @@map("demographics")
+}
+
+// ============================================
+// System Entities (Non-OneRoster)
+// ============================================
+
+/// API Key entity (API authentication)
+model ApiKey {
+  id                 String    @id @default(uuid()) @db.Uuid
+  key                String    @unique @db.VarChar(255)
+  hashedKey          String    @db.VarChar(255)
+  name               String    @db.VarChar(255)
+  organizationId     String    @db.VarChar(255)
+  ipWhitelist        String[]  @db.VarChar(50)
+  rateLimit          Int       @default(1000)
+  isActive           Boolean   @default(true)
+  expiresAt          DateTime? @db.Timestamptz
+  createdAt          DateTime  @default(now()) @db.Timestamptz
+  lastUsedAt         DateTime? @db.Timestamptz
+
+  // Relationships
+  auditLogs          AuditLog[]
+
+  // Indexes
+  @@index([key])
+  @@index([organizationId])
+  @@index([isActive])
+
+  @@map("api_keys")
+}
+
+/// Audit Log entity (data access and modification tracking)
+model AuditLog {
+  id                 String       @id @default(uuid()) @db.Uuid
+  timestamp          DateTime     @default(now()) @db.Timestamptz
+  action             AuditAction
+  entityType         String       @db.VarChar(50)
+  entitySourcedId    String       @db.VarChar(255)
+  userId             String?      @db.VarChar(255)
+  apiKeyId           String?      @db.Uuid
+  ipAddress          String       @db.VarChar(50)
+  requestMethod      String       @db.VarChar(10)
+  requestPath        String       @db.VarChar(500)
+  requestBody        Json?        @db.JsonB
+  responseStatus     Int
+  changes            Json?        @db.JsonB
+
+  // Relationships
+  apiKey             ApiKey?      @relation(fields: [apiKeyId], references: [id], onDelete: SetNull)
+
+  // Indexes
+  @@index([timestamp])
+  @@index([entityType, entitySourcedId])
+  @@index([userId])
+  @@index([action])
+  @@index([apiKeyId])
+
+  @@map("audit_logs")
+}
+
+/// CSV Import Job entity (background job tracking)
+model CsvImportJob {
+  id                 String          @id @default(uuid()) @db.Uuid
+  status             CsvImportStatus @default(pending)
+  fileName           String          @db.VarChar(255)
+  fileSize           Int
+  totalRecords       Int?
+  processedRecords   Int             @default(0)
+  successRecords     Int             @default(0)
+  failedRecords      Int             @default(0)
+  errors             Json?           @db.JsonB
+  startedAt          DateTime?       @db.Timestamptz
+  completedAt        DateTime?       @db.Timestamptz
+  createdAt          DateTime        @default(now()) @db.Timestamptz
+  createdBy          String          @db.VarChar(255)
+
+  // Indexes
+  @@index([status])
+  @@index([createdAt])
+  @@index([createdBy])
+
+  @@map("csv_import_jobs")
+}
+
+// ============================================
+// Notes
+// ============================================
+// 1. All OneRoster entities use UUID for internal primary key (id)
+//    and string sourcedId for OneRoster identifier (unique)
+// 2. dateLastModified is auto-updated via @updatedAt for Delta API
+// 3. Soft deletes via status='tobedeleted' (no physical deletes)
+// 4. Japan Profile extensions stored in metadata JSONB column
+// 5. All foreign keys use sourcedId references (not internal UUID)
+// 6. Indexes optimized for Delta API (dateLastModified) and common queries
+// 7. Many-to-many relationships use explicit junction tables
+// 8. Hierarchical relationships use self-referencing foreign keys

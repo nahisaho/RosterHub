@@ -1,0 +1,597 @@
+# OneRoster API Endpoints (Japan Profile 1.2.2)
+# This file contains path definitions for main REST API endpoints
+
+paths:
+  # ============================================================
+  # Users Endpoints
+  # ============================================================
+
+  /users:
+    get:
+      summary: List all users
+      description: |
+        Retrieve a list of all users with pagination, filtering, and sorting support.
+
+        **Delta/Incremental Sync**:
+        Use `filter=dateLastModified>={timestamp}` to fetch only changed records since last sync.
+
+        **Examples**:
+        - All users: `GET /users`
+        - Active students: `GET /users?filter=role='student' AND status='active'`
+        - Changed since Jan 1: `GET /users?filter=dateLastModified>=2025-01-01T00:00:00Z`
+      operationId: listUsers
+      tags:
+        - users
+      parameters:
+        - $ref: '#/components/parameters/limitParam'
+        - $ref: '#/components/parameters/offsetParam'
+        - $ref: '#/components/parameters/filterParam'
+        - $ref: '#/components/parameters/sortParam'
+        - $ref: '#/components/parameters/fieldsParam'
+      responses:
+        '200':
+          description: Successful response
+          headers:
+            X-Total-Count:
+              schema:
+                type: integer
+              description: Total number of records
+              example: 1523
+            Link:
+              schema:
+                type: string
+              description: Pagination links (next, prev)
+              example: '<https://api.rosterhub.example.com/ims/oneroster/v1p2/users?offset=100&limit=100>; rel="next"'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  users:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/User'
+              examples:
+                activeStudents:
+                  summary: Active students
+                  value:
+                    users:
+                      - sourcedId: "user_stu001"
+                        status: "active"
+                        dateLastModified: "2025-11-14T10:30:00Z"
+                        dateCreated: "2025-11-01T09:00:00Z"
+                        enabledUser: true
+                        username: "taro.yamada"
+                        userIds: ["STU20250001"]
+                        givenName: "太郎"
+                        familyName: "山田"
+                        middleName: null
+                        role: "student"
+                        identifier: "STU20250001"
+                        email: "taro.yamada@example.school.jp"
+                        sms: null
+                        phone: null
+                        metadata:
+                          jp:
+                            kanaGivenName: "たろう"
+                            kanaFamilyName: "やまだ"
+                            kanaMiddleName: null
+                            homeClass: "class_hr_7a"
+                            gender: "male"
+                            attendanceNumber: 15
+                        orgs:
+                          - href: "https://api.rosterhub.example.com/ims/oneroster/v1p2/orgs/org_school001"
+                            sourcedId: "org_school001"
+                            type: "org"
+                        agents:
+                          - href: "https://api.rosterhub.example.com/ims/oneroster/v1p2/users/user_parent001"
+                            sourcedId: "user_parent001"
+                            type: "user"
+                        grades: ["7"]
+                        password: null
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /users/{sourcedId}:
+    get:
+      summary: Get user by ID
+      description: Retrieve detailed information about a specific user by sourcedId.
+      operationId: getUser
+      tags:
+        - users
+      parameters:
+        - $ref: '#/components/parameters/sourcedIdParam'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: '#/components/schemas/User'
+              example:
+                user:
+                  sourcedId: "user_stu001"
+                  status: "active"
+                  dateLastModified: "2025-11-14T10:30:00Z"
+                  dateCreated: "2025-11-01T09:00:00Z"
+                  enabledUser: true
+                  username: "taro.yamada"
+                  userIds: ["STU20250001"]
+                  givenName: "太郎"
+                  familyName: "山田"
+                  middleName: null
+                  role: "student"
+                  identifier: "STU20250001"
+                  email: "taro.yamada@example.school.jp"
+                  sms: null
+                  phone: null
+                  metadata:
+                    jp:
+                      kanaGivenName: "たろう"
+                      kanaFamilyName: "やまだ"
+                      kanaMiddleName: null
+                      homeClass: "class_hr_7a"
+                      gender: "male"
+                      attendanceNumber: 15
+                  orgs:
+                    - href: "https://api.rosterhub.example.com/ims/oneroster/v1p2/orgs/org_school001"
+                      sourcedId: "org_school001"
+                      type: "org"
+                  agents:
+                    - href: "https://api.rosterhub.example.com/ims/oneroster/v1p2/users/user_parent001"
+                      sourcedId: "user_parent001"
+                      type: "user"
+                  grades: ["7"]
+                  password: null
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # ============================================================
+  # Orgs Endpoints
+  # ============================================================
+
+  /orgs:
+    get:
+      summary: List all organizations
+      description: |
+        Retrieve a list of all organizations (schools, districts, departments) with pagination and filtering.
+
+        **Delta/Incremental Sync**:
+        Use `filter=dateLastModified>={timestamp}` to fetch only changed records.
+      operationId: listOrgs
+      tags:
+        - orgs
+      parameters:
+        - $ref: '#/components/parameters/limitParam'
+        - $ref: '#/components/parameters/offsetParam'
+        - $ref: '#/components/parameters/filterParam'
+        - $ref: '#/components/parameters/sortParam'
+        - $ref: '#/components/parameters/fieldsParam'
+      responses:
+        '200':
+          description: Successful response
+          headers:
+            X-Total-Count:
+              schema:
+                type: integer
+              description: Total number of records
+              example: 45
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  orgs:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Org'
+              example:
+                orgs:
+                  - sourcedId: "org_school001"
+                    status: "active"
+                    dateLastModified: "2025-11-14T10:30:00Z"
+                    dateCreated: "2025-11-01T09:00:00Z"
+                    name: "東京都立第一高等学校"
+                    type: "school"
+                    identifier: "SCH001"
+                    metadata:
+                      jp:
+                        address: "東京都千代田区霞が関1-1-1"
+                        postalCode: "100-0013"
+                        phoneNumber: "03-1234-5678"
+                    parent:
+                      href: "https://api.rosterhub.example.com/ims/oneroster/v1p2/orgs/org_district001"
+                      sourcedId: "org_district001"
+                      type: "org"
+                    children: []
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /orgs/{sourcedId}:
+    get:
+      summary: Get organization by ID
+      description: Retrieve detailed information about a specific organization by sourcedId.
+      operationId: getOrg
+      tags:
+        - orgs
+      parameters:
+        - $ref: '#/components/parameters/sourcedIdParam'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  org:
+                    $ref: '#/components/schemas/Org'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # ============================================================
+  # Classes Endpoints
+  # ============================================================
+
+  /classes:
+    get:
+      summary: List all classes
+      description: |
+        Retrieve a list of all classes with pagination and filtering.
+
+        **Delta/Incremental Sync**:
+        Use `filter=dateLastModified>={timestamp}` to fetch only changed records.
+      operationId: listClasses
+      tags:
+        - classes
+      parameters:
+        - $ref: '#/components/parameters/limitParam'
+        - $ref: '#/components/parameters/offsetParam'
+        - $ref: '#/components/parameters/filterParam'
+        - $ref: '#/components/parameters/sortParam'
+        - $ref: '#/components/parameters/fieldsParam'
+      responses:
+        '200':
+          description: Successful response
+          headers:
+            X-Total-Count:
+              schema:
+                type: integer
+              description: Total number of records
+              example: 320
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  classes:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Class'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /classes/{sourcedId}:
+    get:
+      summary: Get class by ID
+      description: Retrieve detailed information about a specific class by sourcedId.
+      operationId: getClass
+      tags:
+        - classes
+      parameters:
+        - $ref: '#/components/parameters/sourcedIdParam'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  class:
+                    $ref: '#/components/schemas/Class'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # ============================================================
+  # Courses Endpoints
+  # ============================================================
+
+  /courses:
+    get:
+      summary: List all courses
+      description: Retrieve a list of all courses with pagination and filtering.
+      operationId: listCourses
+      tags:
+        - courses
+      parameters:
+        - $ref: '#/components/parameters/limitParam'
+        - $ref: '#/components/parameters/offsetParam'
+        - $ref: '#/components/parameters/filterParam'
+        - $ref: '#/components/parameters/sortParam'
+        - $ref: '#/components/parameters/fieldsParam'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  courses:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Course'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /courses/{sourcedId}:
+    get:
+      summary: Get course by ID
+      description: Retrieve detailed information about a specific course by sourcedId.
+      operationId: getCourse
+      tags:
+        - courses
+      parameters:
+        - $ref: '#/components/parameters/sourcedIdParam'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  course:
+                    $ref: '#/components/schemas/Course'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # ============================================================
+  # Enrollments Endpoints
+  # ============================================================
+
+  /enrollments:
+    get:
+      summary: List all enrollments
+      description: Retrieve a list of all enrollments with pagination and filtering.
+      operationId: listEnrollments
+      tags:
+        - enrollments
+      parameters:
+        - $ref: '#/components/parameters/limitParam'
+        - $ref: '#/components/parameters/offsetParam'
+        - $ref: '#/components/parameters/filterParam'
+        - $ref: '#/components/parameters/sortParam'
+        - $ref: '#/components/parameters/fieldsParam'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  enrollments:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Enrollment'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /enrollments/{sourcedId}:
+    get:
+      summary: Get enrollment by ID
+      description: Retrieve detailed information about a specific enrollment by sourcedId.
+      operationId: getEnrollment
+      tags:
+        - enrollments
+      parameters:
+        - $ref: '#/components/parameters/sourcedIdParam'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  enrollment:
+                    $ref: '#/components/schemas/Enrollment'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # ============================================================
+  # Academic Sessions Endpoints
+  # ============================================================
+
+  /academicSessions:
+    get:
+      summary: List all academic sessions
+      description: Retrieve a list of all academic sessions (school years, terms, semesters).
+      operationId: listAcademicSessions
+      tags:
+        - academicSessions
+      parameters:
+        - $ref: '#/components/parameters/limitParam'
+        - $ref: '#/components/parameters/offsetParam'
+        - $ref: '#/components/parameters/filterParam'
+        - $ref: '#/components/parameters/sortParam'
+        - $ref: '#/components/parameters/fieldsParam'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  academicSessions:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AcademicSession'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /academicSessions/{sourcedId}:
+    get:
+      summary: Get academic session by ID
+      description: Retrieve detailed information about a specific academic session by sourcedId.
+      operationId: getAcademicSession
+      tags:
+        - academicSessions
+      parameters:
+        - $ref: '#/components/parameters/sourcedIdParam'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  academicSession:
+                    $ref: '#/components/schemas/AcademicSession'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # ============================================================
+  # Demographics Endpoints
+  # ============================================================
+
+  /demographics:
+    get:
+      summary: List all demographics
+      description: Retrieve a list of all demographic records.
+      operationId: listDemographics
+      tags:
+        - demographics
+      parameters:
+        - $ref: '#/components/parameters/limitParam'
+        - $ref: '#/components/parameters/offsetParam'
+        - $ref: '#/components/parameters/filterParam'
+        - $ref: '#/components/parameters/sortParam'
+        - $ref: '#/components/parameters/fieldsParam'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  demographics:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Demographic'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /demographics/{sourcedId}:
+    get:
+      summary: Get demographic by ID
+      description: Retrieve detailed information about a specific demographic record by sourcedId.
+      operationId: getDemographic
+      tags:
+        - demographics
+      parameters:
+        - $ref: '#/components/parameters/sourcedIdParam'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  demographic:
+                    $ref: '#/components/schemas/Demographic'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'

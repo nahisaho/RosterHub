@@ -1,0 +1,5 @@
+"sourcedId","status","dateLastModified","name","type","identifier","parentSourcedId","metadata.jp.kanaName","metadata.jp.orgCode"
+"org-e2e-001","active","2025-01-15","東京都立高校","school","tokyo-hs-001","","トウキョウトリツコウコウ","TKY-HS-001"
+"org-e2e-main-test","active","2025-11-16","E2E Test Main Organization","school","e2e-main-org-001","",,
+"org-e2e-002","active","2025-01-16","大阪市立中学校","school","osaka-jhs-001","","オオサカシリツチュウガッコウ","OSK-JHS-001"
+"org-e2e-003","tobedeleted","2025-01-17","京都府教育委員会","district","kyoto-board-001","","キョウトフキョウイクイインカイ","KYT-BOARD-001"

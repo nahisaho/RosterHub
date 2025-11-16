@@ -1,0 +1,427 @@
+# CSV Import/Export API Endpoints
+# This file contains CSV management endpoints
+
+paths:
+  # ============================================================
+  # CSV Import Endpoint
+  # ============================================================
+
+  /csv/import:
+    post:
+      summary: Upload OneRoster CSV files
+      description: |
+        Upload OneRoster Japan Profile 1.2.2 CSV files for bulk import.
+
+        **Supported Files**:
+        - manifest.csv (required)
+        - users.csv
+        - orgs.csv
+        - classes.csv
+        - courses.csv
+        - enrollments.csv
+        - academicSessions.csv
+        - demographics.csv
+
+        **File Requirements**:
+        - UTF-8 BOM encoding
+        - OneRoster Japan Profile 1.2.2 format
+        - Maximum file size: 100MB per file
+        - Maximum total size: 500MB
+
+        **Process**:
+        1. File validation (format, size, encoding)
+        2. CSV parsing (streaming for large files)
+        3. Data validation (Japan Profile rules)
+        4. Background job creation (asynchronous processing)
+        5. Job ID returned immediately (202 Accepted)
+
+        **Job Status**:
+        Poll `/csv/jobs/{jobId}` to check import progress.
+
+        **Error Handling**:
+        - Validation errors returned with row number and field details
+        - Partial success: valid records imported, invalid records skipped
+      operationId: importCsv
+      tags:
+        - csv
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - manifest
+              properties:
+                manifest:
+                  type: string
+                  format: binary
+                  description: manifest.csv file (required)
+                users:
+                  type: string
+                  format: binary
+                  description: users.csv file (optional)
+                orgs:
+                  type: string
+                  format: binary
+                  description: orgs.csv file (optional)
+                classes:
+                  type: string
+                  format: binary
+                  description: classes.csv file (optional)
+                courses:
+                  type: string
+                  format: binary
+                  description: courses.csv file (optional)
+                enrollments:
+                  type: string
+                  format: binary
+                  description: enrollments.csv file (optional)
+                academicSessions:
+                  type: string
+                  format: binary
+                  description: academicSessions.csv file (optional)
+                demographics:
+                  type: string
+                  format: binary
+                  description: demographics.csv file (optional)
+      responses:
+        '202':
+          description: Accepted - Import job created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  jobId:
+                    type: string
+                    description: Unique job identifier
+                    example: "job_abc123"
+                  status:
+                    type: string
+                    enum:
+                      - pending
+                      - processing
+                    description: Initial job status
+                    example: "pending"
+                  message:
+                    type: string
+                    description: Success message
+                    example: "CSV import job created. Poll /csv/jobs/job_abc123 for status."
+                  filesReceived:
+                    type: array
+                    items:
+                      type: string
+                    description: List of uploaded CSV files
+                    example: ["manifest.csv", "users.csv", "orgs.csv"]
+              example:
+                jobId: "job_abc123"
+                status: "pending"
+                message: "CSV import job created. Poll /csv/jobs/job_abc123 for status."
+                filesReceived: ["manifest.csv", "users.csv", "orgs.csv", "classes.csv"]
+        '400':
+          description: Bad Request - File validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                imsx_codeMajor: "failure"
+                imsx_severity: "error"
+                imsx_description: "manifest.csv is required but not provided"
+                imsx_codeMinor:
+                  imsx_codeMinorField:
+                    - imsx_codeMinorFieldName: "manifest"
+                      imsx_codeMinorFieldValue: "missing_file"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '413':
+          description: Payload Too Large - File size exceeds limit
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                imsx_codeMajor: "failure"
+                imsx_severity: "error"
+                imsx_description: "File size exceeds maximum limit of 100MB"
+                imsx_codeMinor:
+                  imsx_codeMinorField:
+                    - imsx_codeMinorFieldName: "fileSize"
+                      imsx_codeMinorFieldValue: "too_large"
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # ============================================================
+  # CSV Export Endpoint
+  # ============================================================
+
+  /csv/export:
+    get:
+      summary: Download OneRoster CSV files
+      description: |
+        Export data in OneRoster Japan Profile 1.2.2 CSV format.
+
+        **Export Format**:
+        - ZIP archive containing CSV files
+        - UTF-8 BOM encoding
+        - OneRoster Japan Profile 1.2.2 compliant
+
+        **Included Files**:
+        - manifest.csv
+        - users.csv
+        - orgs.csv
+        - classes.csv
+        - courses.csv
+        - enrollments.csv
+        - academicSessions.csv
+        - demographics.csv
+
+        **Filtering**:
+        Use `filter` parameter to export subset of data (e.g., only active records).
+
+        **Performance**:
+        - Streaming export for large datasets
+        - Optimized for 200,000+ records
+        - Progress tracking via job status (for very large exports)
+      operationId: exportCsv
+      tags:
+        - csv
+      parameters:
+        - name: filter
+          in: query
+          description: |
+            Filter expression to limit exported data.
+
+            **Examples**:
+            - `status='active'` (export only active records)
+            - `dateLastModified>=2025-01-01T00:00:00Z` (export changed records)
+          schema:
+            type: string
+          example: "status='active'"
+        - name: entities
+          in: query
+          description: |
+            Comma-separated list of entities to export. Omit for all entities.
+
+            **Valid values**: users, orgs, classes, courses, enrollments, academicSessions, demographics
+          schema:
+            type: string
+          example: "users,orgs,classes"
+      responses:
+        '200':
+          description: Successful export
+          headers:
+            Content-Disposition:
+              schema:
+                type: string
+              description: Attachment filename
+              example: 'attachment; filename="oneroster-export-2025-11-14.zip"'
+            Content-Type:
+              schema:
+                type: string
+              example: "application/zip"
+          content:
+            application/zip:
+              schema:
+                type: string
+                format: binary
+                description: ZIP archive containing CSV files
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  # ============================================================
+  # CSV Job Status Endpoint
+  # ============================================================
+
+  /csv/jobs/{jobId}:
+    get:
+      summary: Get CSV import job status
+      description: |
+        Retrieve the current status of a CSV import job.
+
+        **Job Lifecycle**:
+        1. `pending`: Job created, waiting to start
+        2. `processing`: Job is currently processing
+        3. `completed`: Job finished successfully
+        4. `failed`: Job failed with errors
+        5. `partial_success`: Some records imported, some failed
+
+        **Polling Recommendation**:
+        - Poll every 5 seconds during processing
+        - Stop polling when status is `completed`, `failed`, or `partial_success`
+      operationId: getCsvJobStatus
+      tags:
+        - csv
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          description: Unique job identifier returned from /csv/import
+          schema:
+            type: string
+          example: "job_abc123"
+      responses:
+        '200':
+          description: Job status retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  jobId:
+                    type: string
+                    description: Unique job identifier
+                    example: "job_abc123"
+                  status:
+                    type: string
+                    enum:
+                      - pending
+                      - processing
+                      - completed
+                      - failed
+                      - partial_success
+                    description: Current job status
+                    example: "processing"
+                  progress:
+                    type: object
+                    properties:
+                      totalRecords:
+                        type: integer
+                        description: Total number of records to process
+                        example: 15230
+                      processedRecords:
+                        type: integer
+                        description: Number of records processed so far
+                        example: 8500
+                      successRecords:
+                        type: integer
+                        description: Number of successfully imported records
+                        example: 8450
+                      failedRecords:
+                        type: integer
+                        description: Number of failed records
+                        example: 50
+                      percentComplete:
+                        type: number
+                        format: float
+                        description: Completion percentage (0-100)
+                        example: 55.8
+                  startedAt:
+                    type: string
+                    format: date-time
+                    description: Job start timestamp
+                    example: "2025-11-14T10:30:00Z"
+                  completedAt:
+                    type: string
+                    format: date-time
+                    nullable: true
+                    description: Job completion timestamp (null if not completed)
+                    example: null
+                  errors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        file:
+                          type: string
+                          description: CSV file name
+                          example: "users.csv"
+                        row:
+                          type: integer
+                          description: Row number with error
+                          example: 1523
+                        field:
+                          type: string
+                          description: Field name with error
+                          example: "kanaGivenName"
+                        error:
+                          type: string
+                          description: Error message
+                          example: "Invalid format: must be 全角ひらがな"
+                        value:
+                          type: string
+                          description: Invalid value
+                          example: "タロウ"
+                    description: List of validation errors (max 100 shown)
+              examples:
+                processing:
+                  summary: Job in progress
+                  value:
+                    jobId: "job_abc123"
+                    status: "processing"
+                    progress:
+                      totalRecords: 15230
+                      processedRecords: 8500
+                      successRecords: 8450
+                      failedRecords: 50
+                      percentComplete: 55.8
+                    startedAt: "2025-11-14T10:30:00Z"
+                    completedAt: null
+                    errors: []
+                completed:
+                  summary: Job completed successfully
+                  value:
+                    jobId: "job_abc123"
+                    status: "completed"
+                    progress:
+                      totalRecords: 15230
+                      processedRecords: 15230
+                      successRecords: 15230
+                      failedRecords: 0
+                      percentComplete: 100.0
+                    startedAt: "2025-11-14T10:30:00Z"
+                    completedAt: "2025-11-14T10:45:23Z"
+                    errors: []
+                partialSuccess:
+                  summary: Job completed with errors
+                  value:
+                    jobId: "job_abc123"
+                    status: "partial_success"
+                    progress:
+                      totalRecords: 15230
+                      processedRecords: 15230
+                      successRecords: 15180
+                      failedRecords: 50
+                      percentComplete: 100.0
+                    startedAt: "2025-11-14T10:30:00Z"
+                    completedAt: "2025-11-14T10:45:23Z"
+                    errors:
+                      - file: "users.csv"
+                        row: 1523
+                        field: "kanaGivenName"
+                        error: "Invalid format: must be 全角ひらがな"
+                        value: "タロウ"
+                      - file: "users.csv"
+                        row: 2034
+                        field: "email"
+                        error: "Invalid email format"
+                        value: "invalid-email"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          description: Job not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                imsx_codeMajor: "failure"
+                imsx_severity: "error"
+                imsx_description: "CSV import job 'job_abc123' not found"
+                imsx_codeMinor:
+                  imsx_codeMinorField:
+                    - imsx_codeMinorFieldName: "jobId"
+                      imsx_codeMinorFieldValue: "not_found"
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'

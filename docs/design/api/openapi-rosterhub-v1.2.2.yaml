@@ -1,0 +1,536 @@
+openapi: 3.0.3
+info:
+  title: RosterHub OneRoster Japan Profile API
+  version: 1.2.2
+  description: |
+    **RosterHub OneRoster Japan Profile 1.2.2 API**
+
+    This API provides OneRoster 1.2 Japan Profile compliant REST endpoints for educational data integration.
+    It supports both Bulk API (full dataset access) and Delta/Incremental API (changed records only).
+
+    ## Features
+
+    - **OneRoster Japan Profile 1.2.2 Compliance**: Full support for all Japan Profile entities and fields
+    - **Bulk API**: Retrieve complete datasets with pagination, filtering, and sorting
+    - **Delta/Incremental API**: Fetch only changed records using `dateLastModified` filter
+    - **CSV Import/Export**: Bulk data operations via OneRoster CSV format
+    - **Secure Authentication**: API Key + IP Whitelist protection
+    - **Audit Logging**: Complete traceability of all data access
+
+    ## Base URL
+
+    Production: `https://api.rosterhub.example.com/ims/oneroster/v1p2`
+
+    ## Authentication
+
+    All API requests require:
+    1. **API Key**: Provided in `X-API-Key` header
+    2. **IP Whitelist**: Your IP address must be registered in the whitelist
+
+    ### Obtaining API Keys
+
+    Contact your system administrator to generate an API key for your organization.
+    API keys are scoped to specific organizations and have configurable rate limits.
+
+    ### Example Request
+
+    ```bash
+    curl -H "X-API-Key: your-api-key-here" \
+         https://api.rosterhub.example.com/ims/oneroster/v1p2/users
+    ```
+
+    ## Rate Limiting
+
+    - **Default**: 1000 requests per hour per API key
+    - **Burst**: 100 requests per minute
+    - **Response**: 429 Too Many Requests with `Retry-After` header
+
+    ## Error Handling
+
+    All errors follow OneRoster error response format with detailed error messages.
+    See the Error schemas section for details.
+
+    ## Delta/Incremental Sync
+
+    To fetch only changed records since last sync:
+
+    ```bash
+    GET /users?filter=dateLastModified>=2025-01-01T00:00:00Z
+    ```
+
+    - **New records**: `dateCreated == dateLastModified`
+    - **Updated records**: `dateCreated < dateLastModified`
+    - **Deleted records**: `status='tobedeleted'`
+
+    ## Pagination
+
+    All collection endpoints support pagination:
+
+    - `limit`: Number of records per page (default: 100, max: 1000)
+    - `offset`: Starting record offset (default: 0)
+
+    Response headers include:
+    - `X-Total-Count`: Total number of records
+    - `Link`: Next/Previous page URLs
+
+    ## CSV Operations
+
+    - **Import**: `POST /csv/import` - Upload OneRoster CSV files (multipart/form-data)
+    - **Export**: `GET /csv/export` - Download OneRoster CSV files (UTF-8 BOM)
+    - **Job Status**: `GET /csv/jobs/{jobId}` - Check import job status
+
+  contact:
+    name: RosterHub API Support
+    email: api-support@rosterhub.example.com
+    url: https://docs.rosterhub.example.com
+  license:
+    name: MIT License
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://api.rosterhub.example.com/ims/oneroster/v1p2
+    description: Production server (OneRoster v1.2 endpoints)
+  - url: https://staging-api.rosterhub.example.com/ims/oneroster/v1p2
+    description: Staging server
+  - url: http://localhost:4000/ims/oneroster/v1p2
+    description: Local development server
+
+tags:
+  - name: users
+    description: User operations (students, teachers, staff, administrators)
+  - name: orgs
+    description: Organization operations (schools, districts, departments)
+  - name: classes
+    description: Class operations (courses with specific periods)
+  - name: courses
+    description: Course operations (course catalog)
+  - name: enrollments
+    description: Enrollment operations (user-class relationships)
+  - name: academicSessions
+    description: Academic session operations (terms, semesters, school years)
+  - name: demographics
+    description: Demographic operations (Japan Profile extension)
+  - name: csv
+    description: CSV import/export operations
+
+security:
+  - apiKey: []
+
+components:
+  securitySchemes:
+    apiKey:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: |
+        API Key authentication. Contact your administrator to obtain an API key.
+
+        **Security Features**:
+        - API keys are scoped to specific organizations
+        - IP whitelist verification (your IP must be registered)
+        - Rate limiting (1000 requests/hour default)
+        - Automatic key rotation support
+
+        **Example**:
+        ```
+        X-API-Key: ak_1234567890abcdef1234567890abcdef
+        ```
+
+  parameters:
+    limitParam:
+      name: limit
+      in: query
+      description: Maximum number of records to return (default: 100, max: 1000)
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 1000
+        default: 100
+      example: 100
+
+    offsetParam:
+      name: offset
+      in: query
+      description: Number of records to skip (default: 0)
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+      example: 0
+
+    filterParam:
+      name: filter
+      in: query
+      description: |
+        Filter expression using OneRoster filter syntax.
+
+        **Supported operators**:
+        - `=` (equals)
+        - `!=` (not equals)
+        - `>` (greater than)
+        - `>=` (greater than or equal)
+        - `<` (less than)
+        - `<=` (less than or equal)
+        - `AND` (logical and)
+        - `OR` (logical or)
+
+        **Common filters**:
+        - `dateLastModified>=2025-01-01T00:00:00Z` (Delta API)
+        - `status='active'` (active records only)
+        - `role='student'` (filter by role)
+        - `status!='tobedeleted'` (exclude deleted records)
+
+        **Examples**:
+        ```
+        filter=dateLastModified>=2025-01-01T00:00:00Z
+        filter=role='student' AND status='active'
+        filter=dateLastModified>=2025-01-01T00:00:00Z AND status!='tobedeleted'
+        ```
+      schema:
+        type: string
+      examples:
+        deltaSync:
+          value: "dateLastModified>=2025-01-01T00:00:00Z"
+          summary: Delta sync (changed records since timestamp)
+        activeUsers:
+          value: "status='active'"
+          summary: Active records only
+        students:
+          value: "role='student' AND status='active'"
+          summary: Active students only
+
+    sortParam:
+      name: sort
+      in: query
+      description: |
+        Sort field and order. Prefix with `-` for descending order.
+
+        **Default**: `-dateLastModified` (most recently modified first)
+
+        **Examples**:
+        - `familyName` (ascending by family name)
+        - `-dateLastModified` (descending by last modified date)
+        - `givenName` (ascending by given name)
+      schema:
+        type: string
+      examples:
+        familyName:
+          value: "familyName"
+          summary: Sort by family name (ascending)
+        dateLastModified:
+          value: "-dateLastModified"
+          summary: Sort by last modified date (descending)
+
+    fieldsParam:
+      name: fields
+      in: query
+      description: |
+        Comma-separated list of fields to return. Omit for all fields.
+
+        **Examples**:
+        - `sourcedId,givenName,familyName,email`
+        - `sourcedId,status,dateLastModified`
+      schema:
+        type: string
+      example: "sourcedId,givenName,familyName,email"
+
+    sourcedIdParam:
+      name: sourcedId
+      in: path
+      required: true
+      description: Unique identifier for the resource (OneRoster sourcedId)
+      schema:
+        type: string
+        pattern: '^[a-zA-Z0-9_-]+$'
+      example: "user_abc123"
+
+  schemas:
+    # ============================================================
+    # Base Types (OneRoster Enums)
+    # ============================================================
+
+    StatusType:
+      type: string
+      enum:
+        - active
+        - tobedeleted
+        - inactive
+      description: |
+        Status of the record:
+        - `active`: Currently active record
+        - `tobedeleted`: Marked for deletion (soft delete)
+        - `inactive`: Inactive record (not currently used)
+      example: active
+
+    UserRole:
+      type: string
+      enum:
+        - administrator
+        - aide
+        - guardian
+        - parent
+        - proctor
+        - relative
+        - student
+        - teacher
+      description: |
+        User role:
+        - `student`: Student (生徒)
+        - `teacher`: Teacher (教員)
+        - `administrator`: Administrator (管理者)
+        - `aide`: Teacher's aide (補助教員)
+        - `guardian`: Legal guardian (保護者)
+        - `parent`: Parent (親)
+        - `proctor`: Test proctor (試験監督)
+        - `relative`: Relative (親族)
+      example: student
+
+    OrgType:
+      type: string
+      enum:
+        - department
+        - school
+        - district
+        - local
+        - state
+        - national
+      description: |
+        Organization type:
+        - `school`: School (学校)
+        - `district`: School district (教育委員会)
+        - `department`: Department (部門)
+        - `local`: Local government (市区町村)
+        - `state`: Prefecture (都道府県)
+        - `national`: National (国)
+      example: school
+
+    ClassType:
+      type: string
+      enum:
+        - homeroom
+        - scheduled
+      description: |
+        Class type:
+        - `homeroom`: Homeroom class (ホームルーム)
+        - `scheduled`: Scheduled class (授業クラス)
+      example: scheduled
+
+    SessionType:
+      type: string
+      enum:
+        - gradingPeriod
+        - semester
+        - schoolYear
+        - term
+      description: |
+        Academic session type:
+        - `schoolYear`: School year (学年度)
+        - `semester`: Semester (学期)
+        - `term`: Term (学期)
+        - `gradingPeriod`: Grading period (評価期間)
+      example: schoolYear
+
+    GenderType:
+      type: string
+      enum:
+        - male
+        - female
+        - other
+        - notSpecified
+      description: |
+        Gender (Japan Profile extension):
+        - `male`: Male (男性)
+        - `female`: Female (女性)
+        - `other`: Other (その他)
+        - `notSpecified`: Not specified (未指定)
+      example: notSpecified
+
+    # ============================================================
+    # Common Patterns
+    # ============================================================
+
+    GUIDRef:
+      type: object
+      required:
+        - href
+        - sourcedId
+        - type
+      properties:
+        href:
+          type: string
+          format: uri
+          description: URL reference to the linked resource
+          example: "https://api.rosterhub.example.com/ims/oneroster/v1p2/users/user_abc123"
+        sourcedId:
+          type: string
+          description: Unique identifier of the linked resource
+          example: "user_abc123"
+        type:
+          type: string
+          description: Type of the linked resource
+          example: "user"
+
+    Pagination:
+      type: object
+      required:
+        - limit
+        - offset
+        - total
+      properties:
+        limit:
+          type: integer
+          description: Number of records per page
+          example: 100
+        offset:
+          type: integer
+          description: Starting record offset
+          example: 0
+        total:
+          type: integer
+          description: Total number of records
+          example: 1523
+
+    # ============================================================
+    # Error Response (OneRoster Standard)
+    # ============================================================
+
+    ErrorResponse:
+      type: object
+      required:
+        - imsx_codeMajor
+        - imsx_severity
+        - imsx_description
+      properties:
+        imsx_codeMajor:
+          type: string
+          enum:
+            - failure
+          description: Major code (always "failure" for errors)
+          example: failure
+        imsx_severity:
+          type: string
+          enum:
+            - error
+            - warning
+          description: Severity level
+          example: error
+        imsx_description:
+          type: string
+          description: Human-readable error message
+          example: "Validation error: kanaGivenName must be 全角ひらがな"
+        imsx_codeMinor:
+          type: object
+          properties:
+            imsx_codeMinorField:
+              type: array
+              items:
+                type: object
+                properties:
+                  imsx_codeMinorFieldName:
+                    type: string
+                    description: Field name with error
+                    example: "kanaGivenName"
+                  imsx_codeMinorFieldValue:
+                    type: string
+                    description: Error code
+                    example: "invalid_format"
+
+  responses:
+    BadRequest:
+      description: Bad Request - Validation error or invalid filter syntax
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            imsx_codeMajor: failure
+            imsx_severity: error
+            imsx_description: "Validation error: kanaGivenName must be 全角ひらがな"
+            imsx_codeMinor:
+              imsx_codeMinorField:
+                - imsx_codeMinorFieldName: "kanaGivenName"
+                  imsx_codeMinorFieldValue: "invalid_format"
+
+    Unauthorized:
+      description: Unauthorized - Invalid API key or IP address not whitelisted
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            imsx_codeMajor: failure
+            imsx_severity: error
+            imsx_description: "Invalid API key or IP address not whitelisted"
+            imsx_codeMinor:
+              imsx_codeMinorField:
+                - imsx_codeMinorFieldName: "X-API-Key"
+                  imsx_codeMinorFieldValue: "unauthorized"
+
+    NotFound:
+      description: Not Found - Resource with specified sourcedId does not exist
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            imsx_codeMajor: failure
+            imsx_severity: error
+            imsx_description: "User with sourcedId 'user_abc123' not found"
+            imsx_codeMinor:
+              imsx_codeMinorField:
+                - imsx_codeMinorFieldName: "sourcedId"
+                  imsx_codeMinorFieldValue: "not_found"
+
+    Conflict:
+      description: Conflict - Duplicate sourcedId or constraint violation
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            imsx_codeMajor: failure
+            imsx_severity: error
+            imsx_description: "User with sourcedId 'user_abc123' already exists"
+            imsx_codeMinor:
+              imsx_codeMinorField:
+                - imsx_codeMinorFieldName: "sourcedId"
+                  imsx_codeMinorFieldValue: "duplicate"
+
+    TooManyRequests:
+      description: Too Many Requests - Rate limit exceeded
+      headers:
+        Retry-After:
+          schema:
+            type: integer
+          description: Number of seconds to wait before retrying
+          example: 3600
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            imsx_codeMajor: failure
+            imsx_severity: error
+            imsx_description: "Rate limit exceeded. Please retry after 3600 seconds."
+            imsx_codeMinor:
+              imsx_codeMinorField:
+                - imsx_codeMinorFieldName: "X-API-Key"
+                  imsx_codeMinorFieldValue: "rate_limit_exceeded"
+
+    InternalServerError:
+      description: Internal Server Error - Unexpected server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            imsx_codeMajor: failure
+            imsx_severity: error
+            imsx_description: "Internal server error. Please contact support."
+            imsx_codeMinor:
+              imsx_codeMinorField:
+                - imsx_codeMinorFieldName: "server"
+                  imsx_codeMinorFieldValue: "internal_error"
+
+paths: {}
+# Paths will be added in subsequent parts to avoid file size limit

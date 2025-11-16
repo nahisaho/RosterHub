@@ -1,0 +1,105 @@
+Task ID,Task Name,Sprint,Week,Assignee,Effort (hours),Priority,Dependencies,EARS Requirements,Category,Implementation Status
+TASK-001,Monorepo Initialization (pnpm + Turborepo),Sprint 0,Week 1,Backend Dev 1,4,Critical,None,-,Project Setup,Not Started
+TASK-002,NestJS Project Creation,Sprint 0,Week 1,Backend Dev 1,4,Critical,TASK-001,-,Project Setup,Not Started
+TASK-003,Docker Compose Setup (PostgreSQL + Redis),Sprint 0,Week 1,DevOps,4,Critical,None,NFR-OPS-001,Project Setup,Not Started
+TASK-004,CI/CD Pipeline Setup (GitHub Actions),Sprint 0,Week 1,DevOps,8,High,TASK-002,NFR-OPS-002,Project Setup,Not Started
+TASK-005,ESLint/Prettier Configuration,Sprint 0,Week 1,Backend Dev 1,2,Medium,TASK-002,NFR-MNT-002,Project Setup,Not Started
+TASK-006,Prisma Setup,Sprint 0,Week 1,Backend Dev 2,2,Critical,TASK-003,-,Project Setup,Not Started
+TASK-007,schema.prisma Creation (All Entities),Sprint 0,Week 1,Backend Dev 2,8,Critical,TASK-006,REQ-MDL-001~030,Project Setup,Not Started
+TASK-008,Initial Migration Execution,Sprint 0,Week 1,Backend Dev 2,2,Critical,TASK-007,-,Project Setup,Not Started
+TASK-009,Seed Data Creation (1000 records),Sprint 0,Week 1,Backend Dev 2,4,Medium,TASK-008,-,Project Setup,Not Started
+TASK-010,README.md Update,Sprint 0,Week 1,PM,2,Low,TASK-002,-,Project Setup,Not Started
+TASK-011,UserRepository Implementation,Sprint 1,Week 2,Backend Dev 1,6,Critical,TASK-008,REQ-MDL-001~005,Database Layer,Not Started
+TASK-012,OrgRepository Implementation,Sprint 1,Week 2,Backend Dev 1,6,Critical,TASK-008,REQ-MDL-006~010,Database Layer,Not Started
+TASK-013,ClassRepository Implementation,Sprint 1,Week 2,Backend Dev 1,6,Critical,TASK-008,REQ-MDL-011~015,Database Layer,Not Started
+TASK-014,CourseRepository Implementation,Sprint 1,Week 2,Backend Dev 2,6,Critical,TASK-008,REQ-MDL-016~020,Database Layer,Not Started
+TASK-015,EnrollmentRepository Implementation,Sprint 1,Week 2,Backend Dev 2,6,Critical,TASK-008,REQ-MDL-021~025,Database Layer,Not Started
+TASK-016,AcademicSessionRepository Implementation,Sprint 1,Week 2,Backend Dev 2,4,Critical,TASK-008,REQ-MDL-026~028,Database Layer,Not Started
+TASK-017,DemographicRepository Implementation,Sprint 2,Week 3,Backend Dev 1,4,Critical,TASK-008,REQ-MDL-029~030,Database Layer,Not Started
+TASK-018,ApiKeyRepository Implementation,Sprint 2,Week 3,Backend Dev 2,4,High,TASK-008,REQ-SEC-001~005,Database Layer,Not Started
+TASK-019,AuditLogRepository Implementation,Sprint 2,Week 3,Backend Dev 1,4,High,TASK-008,REQ-CMP-001~005,Database Layer,Not Started
+TASK-020,CsvImportJobRepository Implementation,Sprint 2,Week 3,Backend Dev 2,4,Medium,TASK-008,REQ-CSV-001~020,Database Layer,Not Started
+TASK-021,Repository Unit Tests,Sprint 2,Week 3,QA,16,High,TASK-011~020,-,Database Layer,Not Started
+TASK-022,Test Data Creation (10000 records),Sprint 2,Week 3,Backend Dev 2,4,Medium,TASK-009,-,Database Layer,Not Started
+TASK-023,UsersController Implementation (CRUD),Sprint 3,Week 4,Backend Dev 1,8,Critical,TASK-011,REQ-API-001~010,Core Entities,Not Started
+TASK-024,UsersService Implementation,Sprint 3,Week 4,Backend Dev 1,8,Critical,TASK-011,REQ-API-001~010,Core Entities,Not Started
+TASK-025,User DTOs Implementation (Create/Update/Response),Sprint 3,Week 4,Backend Dev 1,4,Critical,TASK-023,REQ-API-001~010,Core Entities,Not Started
+TASK-026,OrgsController Implementation,Sprint 3,Week 4,Backend Dev 2,6,Critical,TASK-012,REQ-API-001~010,Core Entities,Not Started
+TASK-027,OrgsService Implementation,Sprint 3,Week 4,Backend Dev 2,6,Critical,TASK-012,REQ-API-001~010,Core Entities,Not Started
+TASK-028,Org DTOs Implementation,Sprint 3,Week 4,Backend Dev 2,4,Critical,TASK-026,REQ-API-001~010,Core Entities,Not Started
+TASK-029,ClassesController Implementation,Sprint 3,Week 4,Backend Dev 1,6,Critical,TASK-013,REQ-API-001~010,Core Entities,Not Started
+TASK-030,ClassesService Implementation,Sprint 3,Week 4,Backend Dev 1,6,Critical,TASK-013,REQ-API-001~010,Core Entities,Not Started
+TASK-031,Class DTOs Implementation,Sprint 3,Week 4,Backend Dev 1,4,Critical,TASK-029,REQ-API-001~010,Core Entities,Not Started
+TASK-032,CoursesController Implementation,Sprint 4,Week 5,Backend Dev 2,6,Critical,TASK-014,REQ-API-001~010,Core Entities,Not Started
+TASK-033,CoursesService Implementation,Sprint 4,Week 5,Backend Dev 2,6,Critical,TASK-014,REQ-API-001~010,Core Entities,Not Started
+TASK-034,Course DTOs Implementation,Sprint 4,Week 5,Backend Dev 2,4,Critical,TASK-032,REQ-API-001~010,Core Entities,Not Started
+TASK-035,EnrollmentsController Implementation,Sprint 4,Week 5,Backend Dev 1,6,Critical,TASK-015,REQ-API-001~010,Core Entities,Not Started
+TASK-036,EnrollmentsService Implementation,Sprint 4,Week 5,Backend Dev 1,6,Critical,TASK-015,REQ-API-001~010,Core Entities,Not Started
+TASK-037,Enrollment DTOs Implementation,Sprint 4,Week 5,Backend Dev 1,4,Critical,TASK-035,REQ-API-001~010,Core Entities,Not Started
+TASK-038,AcademicSessionsController Implementation,Sprint 4,Week 5,Backend Dev 2,4,Critical,TASK-016,REQ-API-001~010,Core Entities,Not Started
+TASK-039,AcademicSessionsService Implementation,Sprint 4,Week 5,Backend Dev 2,4,Critical,TASK-016,REQ-API-001~010,Core Entities,Not Started
+TASK-040,AcademicSession DTOs Implementation,Sprint 4,Week 5,Backend Dev 2,4,Critical,TASK-038,REQ-API-001~010,Core Entities,Not Started
+TASK-041,DemographicsController Implementation,Sprint 4,Week 5,Backend Dev 1,4,Critical,TASK-017,REQ-API-001~010,Core Entities,Not Started
+TASK-042,DemographicsService Implementation,Sprint 4,Week 5,Backend Dev 1,4,Critical,TASK-017,REQ-API-001~010,Core Entities,Not Started
+TASK-043,Demographic DTOs Implementation,Sprint 4,Week 5,Backend Dev 1,4,Critical,TASK-041,REQ-API-001~010,Core Entities,Not Started
+TASK-044,Entity Unit Tests,Sprint 4,Week 5,QA,24,High,TASK-023~043,-,Core Entities,Not Started
+TASK-045,ApiKeyService Implementation (Key Generation/Validation),Sprint 5,Week 6,Backend Dev 1,8,Critical,TASK-018,REQ-SEC-001~005,Authentication & Validation,Not Started
+TASK-046,ApiKeyGuard Implementation (NestJS Guard),Sprint 5,Week 6,Backend Dev 1,4,Critical,TASK-045,REQ-SEC-001~005,Authentication & Validation,Not Started
+TASK-047,IpWhitelistGuard Implementation,Sprint 5,Week 6,Backend Dev 1,4,Critical,TASK-045,REQ-SEC-006~010,Authentication & Validation,Not Started
+TASK-048,RateLimitGuard Implementation (Throttler),Sprint 5,Week 6,Backend Dev 2,4,High,TASK-003,REQ-SEC-011~015,Authentication & Validation,Not Started
+TASK-049,AuditLogService Implementation,Sprint 5,Week 6,Backend Dev 2,6,High,TASK-019,REQ-CMP-001~005,Authentication & Validation,Not Started
+TASK-050,AuditLogInterceptor Implementation,Sprint 5,Week 6,Backend Dev 2,4,High,TASK-049,REQ-CMP-001~005,Authentication & Validation,Not Started
+TASK-051,JapanProfileValidatorService Implementation,Sprint 5,Week 6,Backend Dev 1,8,Critical,TASK-011~017,REQ-VAL-001~010,Authentication & Validation,Not Started
+TASK-052,ReferenceValidatorService Implementation,Sprint 5,Week 6,Backend Dev 1,6,Critical,TASK-011~017,REQ-VAL-011~015,Authentication & Validation,Not Started
+TASK-053,DuplicateDetectorService Implementation,Sprint 5,Week 6,Backend Dev 2,4,High,TASK-011~017,REQ-VAL-016~020,Authentication & Validation,Not Started
+TASK-054,Authentication & Validation Unit Tests,Sprint 5,Week 6,QA,12,High,TASK-045~053,-,Authentication & Validation,Not Started
+TASK-055,CsvParserService Implementation (csv-parse),Sprint 6,Week 7,Backend Dev 1,8,Critical,TASK-003,REQ-CSV-001~005,CSV Processing,Not Started
+TASK-056,CsvValidatorService Implementation,Sprint 6,Week 7,Backend Dev 1,8,Critical,"TASK-051, TASK-052",REQ-CSV-006~010,CSV Processing,Not Started
+TASK-057,BulkInsertService Implementation,Sprint 6,Week 7,Backend Dev 2,8,Critical,TASK-011~017,REQ-CSV-001~005,CSV Processing,Not Started
+TASK-058,ImportJobProcessor Implementation (BullMQ),Sprint 6,Week 7,Backend Dev 2,10,Critical,"TASK-055, TASK-057",REQ-CSV-001~005,CSV Processing,Not Started
+TASK-059,CsvImportService Implementation,Sprint 6,Week 7,Backend Dev 1,8,Critical,TASK-055~058,REQ-CSV-001~020,CSV Processing,Not Started
+TASK-060,CsvImportController Implementation,Sprint 6,Week 7,Backend Dev 1,6,Critical,TASK-059,REQ-CSV-001~020,CSV Processing,Not Started
+TASK-061,CSV Import DTOs Implementation,Sprint 6,Week 7,Backend Dev 1,4,High,TASK-060,REQ-CSV-001~020,CSV Processing,Not Started
+TASK-062,CsvFormatterService Implementation,Sprint 7,Week 8,Backend Dev 2,6,Critical,TASK-011~017,REQ-EXP-001~010,CSV Processing,Not Started
+TASK-063,CsvExportService Implementation,Sprint 7,Week 8,Backend Dev 2,8,Critical,TASK-062,REQ-EXP-001~010,CSV Processing,Not Started
+TASK-064,CsvExportController Implementation,Sprint 7,Week 8,Backend Dev 2,4,Critical,TASK-063,REQ-EXP-001~010,CSV Processing,Not Started
+TASK-065,CSV Export DTOs Implementation,Sprint 7,Week 8,Backend Dev 2,4,High,TASK-064,REQ-EXP-001~010,CSV Processing,Not Started
+TASK-066,CSV Processing Integration Tests,Sprint 7,Week 8,QA,16,High,TASK-055~065,-,CSV Processing,Not Started
+TASK-067,BulkApiController Implementation,Sprint 8,Week 9,Backend Dev 1,8,Critical,TASK-023~043,REQ-API-001~010,REST API,Not Started
+TASK-068,BulkApiService Implementation,Sprint 8,Week 9,Backend Dev 1,8,Critical,TASK-011~017,REQ-API-001~010,REST API,Not Started
+TASK-069,Pagination Implementation (Pagination DTOs),Sprint 8,Week 9,Backend Dev 1,4,High,TASK-067,REQ-API-011~015,REST API,Not Started
+TASK-070,Filtering Implementation (Filter DTOs),Sprint 8,Week 9,Backend Dev 1,4,High,TASK-067,REQ-API-016~020,REST API,Not Started
+TASK-071,Sorting Implementation (Sort DTOs),Sprint 8,Week 9,Backend Dev 1,4,High,TASK-067,REQ-API-021~025,REST API,Not Started
+TASK-072,DeltaApiController Implementation,Sprint 9,Week 10,Backend Dev 2,8,Critical,TASK-023~043,REQ-API-026~030,REST API,Not Started
+TASK-073,DeltaApiService Implementation,Sprint 9,Week 10,Backend Dev 2,8,Critical,TASK-011~017,REQ-API-026~030,REST API,Not Started
+TASK-074,ChangeTrackerService Implementation,Sprint 9,Week 10,Backend Dev 2,6,High,TASK-011~017,REQ-API-026~030,REST API,Not Started
+TASK-075,ResponseInterceptor Implementation,Sprint 9,Week 10,Backend Dev 1,4,Medium,"TASK-067, TASK-072",REQ-API-001~030,REST API,Not Started
+TASK-076,ErrorInterceptor Implementation,Sprint 9,Week 10,Backend Dev 1,4,Medium,"TASK-067, TASK-072",REQ-API-001~030,REST API,Not Started
+TASK-077,OpenAPI Specification Generation (Swagger),Sprint 9,Week 10,Backend Dev 2,6,Medium,TASK-067~076,-,REST API,Not Started
+TASK-078,REST API Integration Tests,Sprint 9,Week 10,QA,16,High,TASK-067~077,-,REST API,Not Started
+TASK-079,Unit Test Coverage Check (80% target),Sprint 10,Week 11,QA,8,Critical,TASK-001~078,REQ-OPS-006~010,Testing,Not Started
+TASK-080,E2E: CSV Import (200000 records),Sprint 10,Week 11,QA,8,Critical,TASK-060,REQ-CSV-001~005 / REQ-PRF-001~005,Testing,Not Started
+TASK-081,E2E: CSV Export,Sprint 10,Week 11,QA,4,High,TASK-064,REQ-EXP-001~010,Testing,Not Started
+TASK-082,E2E: Bulk API (All Entity CRUD),Sprint 10,Week 11,QA,8,Critical,TASK-067,REQ-API-001~010,Testing,Not Started
+TASK-083,E2E: Delta API (Incremental Retrieval),Sprint 10,Week 11,QA,6,Critical,TASK-072,REQ-API-026~030,Testing,Not Started
+TASK-084,E2E: API Authentication (API Key/IP Restriction),Sprint 10,Week 11,QA,4,High,"TASK-046, TASK-047",REQ-SEC-001~010,Testing,Not Started
+TASK-085,Performance Test: CSV Import,Sprint 10,Week 11,QA,8,Critical,TASK-060,REQ-PRF-001~005,Testing,Not Started
+TASK-086,Performance Test: Bulk API,Sprint 10,Week 11,QA,4,High,TASK-067,REQ-PRF-001~005,Testing,Not Started
+TASK-087,Performance Test: Delta API,Sprint 10,Week 11,QA,4,High,TASK-072,REQ-PRF-001~005,Testing,Not Started
+TASK-088,Load Test (100 concurrent connections),Sprint 10,Week 11,QA,8,Medium,"TASK-067, TASK-072",REQ-AVL-001~005,Testing,Not Started
+TASK-089,Test Results Report Creation,Sprint 10,Week 11,QA,4,Medium,TASK-079~088,-,Testing,Not Started
+TASK-090,Dockerfile Creation (Multi-stage Build),Sprint 11,Week 12,DevOps,6,Critical,TASK-001~078,NFR-OPS-001,Deployment & Operations,Not Started
+TASK-091,docker-compose.yml Creation,Sprint 11,Week 12,DevOps,4,Critical,TASK-090,NFR-OPS-001,Deployment & Operations,Not Started
+TASK-092,AWS ECS Fargate Configuration,Sprint 11,Week 12,DevOps,12,Critical,TASK-090,NFR-OPS-001,Deployment & Operations,Not Started
+TASK-093,PostgreSQL RDS Configuration,Sprint 11,Week 12,DevOps,6,Critical,TASK-092,NFR-OPS-001,Deployment & Operations,Not Started
+TASK-094,Redis ElastiCache Configuration,Sprint 11,Week 12,DevOps,4,Critical,TASK-092,NFR-OPS-001,Deployment & Operations,Not Started
+TASK-095,ALB Configuration (Load Balancer),Sprint 11,Week 12,DevOps,4,High,TASK-092,NFR-AVL-001~005,Deployment & Operations,Not Started
+TASK-096,Environment Variable Management (Secrets Manager),Sprint 11,Week 12,DevOps,4,High,TASK-092,REQ-SEC-016~020,Deployment & Operations,Not Started
+TASK-097,Sentry Integration (Error Tracking),Sprint 11,Week 12,DevOps,4,Medium,TASK-092,NFR-OPS-001~005,Deployment & Operations,Not Started
+TASK-098,CloudWatch Logs Configuration,Sprint 11,Week 12,DevOps,4,Medium,TASK-092,NFR-OPS-001~005,Deployment & Operations,Not Started
+TASK-099,Metrics Dashboard Creation,Sprint 11,Week 12,DevOps,6,Medium,TASK-098,NFR-OPS-001~005,Deployment & Operations,Not Started
+TASK-100,Alert Configuration (Errors/Performance),Sprint 11,Week 12,DevOps,4,Medium,TASK-099,NFR-OPS-001~005,Deployment & Operations,Not Started
+TASK-101,Deployment Guide Creation,Sprint 11,Week 12,PM,4,Low,TASK-092,-,Deployment & Operations,Not Started
+TASK-102,Operations Manual Creation,Sprint 11,Week 12,PM,6,Low,TASK-092,-,Deployment & Operations,Not Started
+TASK-103,API Usage Guide Creation,Sprint 11,Week 12,PM,4,Medium,TASK-077,-,Deployment & Operations,Not Started
+TASK-104,Troubleshooting Guide Creation,Sprint 11,Week 12,PM,4,Low,TASK-089,-,Deployment & Operations,Not Started

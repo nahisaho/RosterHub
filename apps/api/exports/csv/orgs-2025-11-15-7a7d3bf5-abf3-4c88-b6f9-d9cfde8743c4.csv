@@ -1,0 +1,4 @@
+"sourcedId","status","dateLastModified","name","type","identifier","parentSourcedId","metadata.jp.kanaName","metadata.jp.orgCode"
+"org-e2e-main-test","active","2025-11-15","E2E Test Main Organization","school","e2e-main-org-001","",,
+"org-csv-e2e-test","active","2025-11-15","E2E CSV Test Organization","school","e2e-csv-org-001","",,
+"org-e2e-test","active","2025-11-15","E2E Test Organization","school","e2e-test-org-001","",,

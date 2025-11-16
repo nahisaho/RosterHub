@@ -1,0 +1,38 @@
+{
+  "name": "rosterhub",
+  "version": "1.0.0",
+  "description": "OneRoster Japan Profile 1.2.2 Integration Hub",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace=apps/api",
+    "build": "npm run build --workspaces",
+    "test": "npm run test --workspaces",
+    "lint": "npm run lint --workspaces",
+    "format": "prettier --write \"**/*.{ts,tsx,js,json,md}\""
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "prettier": "^3.1.0",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=9.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-org/RosterHub.git"
+  },
+  "keywords": [
+    "OneRoster",
+    "Japan Profile",
+    "Educational Data",
+    "Integration Hub"
+  ],
+  "author": "RosterHub Team",
+  "license": "MIT"
+}

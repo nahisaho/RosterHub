@@ -1,0 +1,495 @@
+// ============================================
+// Prismaスキーマ - RosterHub
+// OneRoster Japan Profile 1.2.2 統合ハブ
+// ============================================
+// データベース: PostgreSQL 15+
+// ORM: Prisma 5.x
+// 作成日: 2025-11-14
+// 仕様: OneRoster Japan Profile 1.2.2
+// ============================================
+
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["fullTextSearch", "fullTextIndex"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// 列挙型（OneRoster仕様）
+// ============================================
+
+enum StatusType {
+  active       // アクティブ
+  tobedeleted  // 削除予定（論理削除）
+  inactive     // 非アクティブ
+}
+
+enum UserRole {
+  student       // 学生
+  teacher       // 教師
+  staff         // 職員
+  administrator // 管理者
+}
+
+enum OrgType {
+  department // 部門
+  school     // 学校
+  district   // 地区
+  local      // 地方
+  state      // 都道府県
+  national   // 国
+}
+
+enum ClassType {
+  homeroom  // ホームルーム
+  scheduled // 授業クラス
+}
+
+enum EnrollmentRole {
+  primary   // 主登録（学生の主要登録）
+  secondary // 副登録（クロスリスト）
+  aide      // 補助（教師アシスタント）
+}
+
+enum AcademicSessionType {
+  gradingPeriod // 評価期間
+  semester      // セメスター
+  schoolYear    // 学年度
+  term          // 学期
+}
+
+enum Sex {
+  male    // 男性
+  female  // 女性
+  other   // その他
+  unknown // 不明
+}
+
+enum AuditAction {
+  CREATE // 作成
+  UPDATE // 更新
+  DELETE // 削除
+  READ   // 読み取り
+}
+
+enum CsvImportStatus {
+  pending    // 保留中
+  processing // 処理中
+  completed  // 完了
+  failed     // 失敗
+}
+
+// ============================================
+// OneRosterコアエンティティ
+// ============================================
+
+/// Userエンティティ（学生、教師、職員、管理者）
+/// OneRoster仕様: Section 4.3 Users
+model User {
+  id                 String      @id @default(uuid()) @db.Uuid
+  sourcedId          String      @unique @db.VarChar(255) // OneRoster一意識別子
+  dateCreated        DateTime    @default(now()) @db.Timestamptz // 作成日時
+  dateLastModified   DateTime    @updatedAt @db.Timestamptz // 最終更新日時（Delta API用）
+  status             StatusType  @default(active) // ステータス
+
+  // OneRoster必須フィールド
+  enabledUser        Boolean     // ユーザーアカウント有効フラグ
+  username           String      @db.VarChar(255) // ログインユーザー名
+  userIds            String[]    @db.VarChar(255) // 複数の識別子（学生ID、国民ID等）
+  givenName          String      @db.VarChar(255) // 名
+  familyName         String      @db.VarChar(255) // 姓
+  middleName         String?     @db.VarChar(255) // ミドルネーム（任意）
+  role               UserRole    // ユーザーロール
+  identifier         String      @unique @db.VarChar(255) // 国/地方一意識別子
+  email              String      @db.VarChar(255) // メールアドレス
+  sms                String?     @db.VarChar(50) // SMS電話番号（任意）
+  phone              String?     @db.VarChar(50) // 電話番号（任意）
+
+  // Japan Profile拡張（metadata.jp.*）
+  // 例: {"jp": {"kanaGivenName": "タロウ", "kanaFamilyName": "ヤマダ", "homeClass": "1-A"}}
+  metadata           Json?       @db.JsonB
+
+  // リレーションシップ
+  orgs               UserOrg[]           // 所属組織（多対多）
+  agents             UserAgent[]         @relation("AgentRelationship") // エージェント関係（親等）
+  agentOf            UserAgent[]         @relation("AgentOf") // エージェント対象
+  enrollments        Enrollment[]        // 登録（クラス）
+  demographic        Demographic?        // 人口統計情報（1対1）
+
+  // インデックス
+  @@index([dateLastModified]) // Delta API用
+  @@index([status])           // ステータスフィルタ用
+  @@index([role])             // ロールベースクエリ用
+  @@index([email])            // メール検索用
+  @@index([identifier])       // 識別子検索用
+
+  @@map("users")
+}
+
+/// User-Agentリレーションシップ（例: 親子関係）
+/// 自己参照多対多（ジャンクションテーブル経由）
+model UserAgent {
+  id                 String   @id @default(uuid()) @db.Uuid
+  userSourcedId      String   @db.VarChar(255) // ユーザーsourcedId
+  agentSourcedId     String   @db.VarChar(255) // エージェントsourcedId
+
+  user               User     @relation("AgentRelationship", fields: [userSourcedId], references: [sourcedId], onDelete: Cascade)
+  agent              User     @relation("AgentOf", fields: [agentSourcedId], references: [sourcedId], onDelete: Cascade)
+
+  @@unique([userSourcedId, agentSourcedId]) // 一意制約
+  @@index([userSourcedId])
+  @@index([agentSourcedId])
+
+  @@map("user_agents")
+}
+
+/// Orgエンティティ（学校、地区、部門）
+/// OneRoster仕様: Section 4.4 Orgs
+model Org {
+  id                 String      @id @default(uuid()) @db.Uuid
+  sourcedId          String      @unique @db.VarChar(255) // OneRoster一意識別子
+  dateCreated        DateTime    @default(now()) @db.Timestamptz // 作成日時
+  dateLastModified   DateTime    @updatedAt @db.Timestamptz // 最終更新日時
+  status             StatusType  @default(active) // ステータス
+
+  // OneRoster必須フィールド
+  name               String      @db.VarChar(255) // 組織名
+  type               OrgType     // 組織タイプ
+  identifier         String      @unique @db.VarChar(255) // 国/地方一意識別子
+
+  // 階層構造
+  parentSourcedId    String?     @db.VarChar(255) // 親組織sourcedId
+  parent             Org?        @relation("OrgHierarchy", fields: [parentSourcedId], references: [sourcedId], onDelete: Restrict)
+  children           Org[]       @relation("OrgHierarchy") // 子組織
+
+  // Japan Profile拡張（metadata.jp.*）
+  // 例: {"jp": {"localCode": "13101", "prefectureCode": "13"}}
+  metadata           Json?       @db.JsonB
+
+  // リレーションシップ
+  members            UserOrg[]      // メンバー（多対多）
+  classes            Class[]        // クラス
+  courses            Course[]       // コース
+  enrollments        Enrollment[]   // 登録
+
+  // インデックス
+  @@index([dateLastModified]) // Delta API用
+  @@index([status])           // ステータスフィルタ用
+  @@index([type])             // タイプフィルタ用
+  @@index([parentSourcedId])  // 階層トラバーサル用
+
+  @@map("orgs")
+}
+
+/// User-Orgメンバーシップ（多対多）
+/// ユーザーは複数の組織に所属可能
+model UserOrg {
+  id                 String   @id @default(uuid()) @db.Uuid
+  userSourcedId      String   @db.VarChar(255) // ユーザーsourcedId
+  orgSourcedId       String   @db.VarChar(255) // 組織sourcedId
+
+  user               User     @relation(fields: [userSourcedId], references: [sourcedId], onDelete: Cascade)
+  org                Org      @relation(fields: [orgSourcedId], references: [sourcedId], onDelete: Cascade)
+
+  @@unique([userSourcedId, orgSourcedId]) // 一意制約
+  @@index([userSourcedId])
+  @@index([orgSourcedId])
+
+  @@map("user_orgs")
+}
+
+/// Courseエンティティ（コースカタログ定義）
+/// OneRoster仕様: Section 4.6 Courses
+model Course {
+  id                 String      @id @default(uuid()) @db.Uuid
+  sourcedId          String      @unique @db.VarChar(255) // OneRoster一意識別子
+  dateCreated        DateTime    @default(now()) @db.Timestamptz // 作成日時
+  dateLastModified   DateTime    @updatedAt @db.Timestamptz // 最終更新日時
+  status             StatusType  @default(active) // ステータス
+
+  // OneRoster必須フィールド
+  title              String      @db.VarChar(255) // コースタイトル
+  courseCode         String      @db.VarChar(255) // コース識別コード
+  schoolYear         String?     @db.VarChar(50) // 学年度（任意）
+
+  // リレーションシップ
+  schoolSourcedId    String      @db.VarChar(255) // 学校sourcedId
+  school             Org         @relation(fields: [schoolSourcedId], references: [sourcedId], onDelete: Restrict)
+  classes            Class[]     // クラス（コースの実体化）
+
+  // Japan Profile拡張（metadata.jp.*）
+  // 例: {"jp": {"subject": "数学", "credits": 2}}
+  metadata           Json?       @db.JsonB
+
+  // インデックス
+  @@index([dateLastModified]) // Delta API用
+  @@index([status])           // ステータスフィルタ用
+  @@index([schoolSourcedId])  // 学校ベースクエリ用
+  @@index([courseCode])       // コードベース検索用
+
+  @@map("courses")
+}
+
+/// Classエンティティ（特定学期/時限のコースインスタンス）
+/// OneRoster仕様: Section 4.5 Classes
+model Class {
+  id                 String      @id @default(uuid()) @db.Uuid
+  sourcedId          String      @unique @db.VarChar(255) // OneRoster一意識別子
+  dateCreated        DateTime    @default(now()) @db.Timestamptz // 作成日時
+  dateLastModified   DateTime    @updatedAt @db.Timestamptz // 最終更新日時
+  status             StatusType  @default(active) // ステータス
+
+  // OneRoster必須フィールド
+  title              String      @db.VarChar(255) // クラスタイトル
+  classCode          String      @db.VarChar(255) // クラス識別コード
+  classType          ClassType   // クラスタイプ（ホームルーム/授業）
+  location           String?     @db.VarChar(255) // 物理的な場所（任意）
+
+  // リレーションシップ
+  courseSourcedId    String      @db.VarChar(255) // コースsourcedId
+  course             Course      @relation(fields: [courseSourcedId], references: [sourcedId], onDelete: Restrict)
+
+  schoolSourcedId    String      @db.VarChar(255) // 学校sourcedId
+  school             Org         @relation(fields: [schoolSourcedId], references: [sourcedId], onDelete: Restrict)
+
+  enrollments        Enrollment[]               // 登録
+  academicSessions   ClassAcademicSession[]     // 学術セッション
+
+  // Japan Profile拡張（metadata.jp.*）
+  // 例: {"jp": {"classGrade": "1", "curriculum": "standard"}}
+  metadata           Json?       @db.JsonB
+
+  // インデックス
+  @@index([dateLastModified]) // Delta API用
+  @@index([status])           // ステータスフィルタ用
+  @@index([courseSourcedId])  // コースベースクエリ用
+  @@index([schoolSourcedId])  // 学校ベースクエリ用
+  @@index([classType])        // タイプフィルタ用
+
+  @@map("classes")
+}
+
+/// Enrollmentエンティティ（ユーザー・クラスリレーションシップ）
+/// OneRoster仕様: Section 4.7 Enrollments
+model Enrollment {
+  id                 String         @id @default(uuid()) @db.Uuid
+  sourcedId          String         @unique @db.VarChar(255) // OneRoster一意識別子
+  dateCreated        DateTime       @default(now()) @db.Timestamptz // 作成日時
+  dateLastModified   DateTime       @updatedAt @db.Timestamptz // 最終更新日時
+  status             StatusType     @default(active) // ステータス
+
+  // OneRoster必須フィールド
+  role               EnrollmentRole // 登録ロール（主/副/補助）
+  primary            Boolean        // 主登録フラグ
+  beginDate          DateTime?      @db.Timestamptz // 登録開始日（任意）
+  endDate            DateTime?      @db.Timestamptz // 登録終了日（任意）
+
+  // リレーションシップ
+  userSourcedId      String         @db.VarChar(255) // ユーザーsourcedId
+  user               User           @relation(fields: [userSourcedId], references: [sourcedId], onDelete: Restrict)
+
+  classSourcedId     String         @db.VarChar(255) // クラスsourcedId
+  class              Class          @relation(fields: [classSourcedId], references: [sourcedId], onDelete: Restrict)
+
+  // 非正規化学校参照（パフォーマンス最適化）
+  schoolSourcedId    String         @db.VarChar(255) // 学校sourcedId
+  school             Org            @relation(fields: [schoolSourcedId], references: [sourcedId], onDelete: Restrict)
+
+  // Japan Profile拡張（metadata.jp.*）
+  // 例: {"jp": {"attendanceNumber": 12, "role": "学級委員"}}
+  metadata           Json?          @db.JsonB
+
+  // インデックス
+  @@unique([userSourcedId, classSourcedId]) // 一意制約（ユーザー・クラスペア）
+  @@index([dateLastModified]) // Delta API用（重要）
+  @@index([status])           // ステータスフィルタ用
+  @@index([userSourcedId])    // ユーザーベースクエリ用
+  @@index([classSourcedId])   // クラス名簿クエリ用
+  @@index([schoolSourcedId])  // 学校ベースクエリ用
+  @@index([role])             // ロールフィルタ用
+
+  @@map("enrollments")
+}
+
+/// AcademicSessionエンティティ（学期、セメスター、学年度）
+/// OneRoster仕様: Section 4.8 Academic Sessions
+model AcademicSession {
+  id                 String              @id @default(uuid()) @db.Uuid
+  sourcedId          String              @unique @db.VarChar(255) // OneRoster一意識別子
+  dateCreated        DateTime            @default(now()) @db.Timestamptz // 作成日時
+  dateLastModified   DateTime            @updatedAt @db.Timestamptz // 最終更新日時
+  status             StatusType          @default(active) // ステータス
+
+  // OneRoster必須フィールド
+  title              String              @db.VarChar(255) // セッションタイトル
+  type               AcademicSessionType // セッションタイプ
+  startDate          DateTime            @db.Timestamptz // セッション開始日
+  endDate            DateTime            @db.Timestamptz // セッション終了日
+  schoolYear         String              @db.VarChar(50) // 学年度
+
+  // 階層構造
+  parentSourcedId    String?             @db.VarChar(255) // 親セッションsourcedId
+  parent             AcademicSession?    @relation("SessionHierarchy", fields: [parentSourcedId], references: [sourcedId], onDelete: Restrict)
+  children           AcademicSession[]   @relation("SessionHierarchy") // 子セッション
+
+  // リレーションシップ
+  classes            ClassAcademicSession[] // クラス
+
+  // Japan Profile拡張（metadata.jp.*）
+  // 例: {"jp": {"termName": "第1学期"}}
+  metadata           Json?               @db.JsonB
+
+  // インデックス
+  @@index([dateLastModified])   // Delta API用
+  @@index([status])             // ステータスフィルタ用
+  @@index([type])               // タイプフィルタ用
+  @@index([parentSourcedId])    // 階層トラバーサル用
+  @@index([startDate, endDate]) // 日付範囲クエリ用
+  @@index([schoolYear])         // 学年度フィルタ用
+
+  @@map("academic_sessions")
+}
+
+/// Class-AcademicSessionリレーションシップ（多対多）
+/// クラスは複数の学術セッションでスケジュール可能
+model ClassAcademicSession {
+  id                      String          @id @default(uuid()) @db.Uuid
+  classSourcedId          String          @db.VarChar(255) // クラスsourcedId
+  academicSessionSourcedId String         @db.VarChar(255) // 学術セッションsourcedId
+
+  class                   Class           @relation(fields: [classSourcedId], references: [sourcedId], onDelete: Cascade)
+  academicSession         AcademicSession @relation(fields: [academicSessionSourcedId], references: [sourcedId], onDelete: Cascade)
+
+  @@unique([classSourcedId, academicSessionSourcedId]) // 一意制約
+  @@index([classSourcedId])
+  @@index([academicSessionSourcedId])
+
+  @@map("class_academic_sessions")
+}
+
+/// Demographicエンティティ（ユーザー人口統計情報）
+/// OneRoster仕様: Section 4.9 Demographics（Japan Profile拡張）
+model Demographic {
+  id                 String      @id @default(uuid()) @db.Uuid
+  sourcedId          String      @unique @db.VarChar(255) // OneRoster一意識別子
+  dateCreated        DateTime    @default(now()) @db.Timestamptz // 作成日時
+  dateLastModified   DateTime    @updatedAt @db.Timestamptz // 最終更新日時
+  status             StatusType  @default(active) // ステータス
+
+  // OneRosterオプションフィールド
+  birthDate          DateTime?   @db.Timestamptz // 生年月日（任意）
+  sex                Sex?        // 性別（任意）
+
+  // リレーションシップ（Userと1対1）
+  userSourcedId      String      @unique @db.VarChar(255) // ユーザーsourcedId
+  user               User        @relation(fields: [userSourcedId], references: [sourcedId], onDelete: Cascade)
+
+  // Japan Profile拡張（metadata.jp.*）
+  // 例: {"jp": {"nationality": "JP", "residentStatus": "permanent"}}
+  metadata           Json?       @db.JsonB
+
+  // インデックス
+  @@index([dateLastModified]) // Delta API用
+  @@index([status])           // ステータスフィルタ用
+
+  @@map("demographics")
+}
+
+// ============================================
+// システムエンティティ（OneRoster外）
+// ============================================
+
+/// APIキーエンティティ（API認証）
+model ApiKey {
+  id                 String    @id @default(uuid()) @db.Uuid
+  key                String    @unique @db.VarChar(255) // APIキー（表示用）
+  hashedKey          String    @db.VarChar(255) // ハッシュ化されたAPIキー（bcrypt）
+  name               String    @db.VarChar(255) // APIキー名
+  organizationId     String    @db.VarChar(255) // 組織識別子
+  ipWhitelist        String[]  @db.VarChar(50) // 許可IPアドレス
+  rateLimit          Int       @default(1000) // 1時間あたりリクエスト制限
+  isActive           Boolean   @default(true) // キー有効フラグ
+  expiresAt          DateTime? @db.Timestamptz // 有効期限（任意）
+  createdAt          DateTime  @default(now()) @db.Timestamptz // 作成日時
+  lastUsedAt         DateTime? @db.Timestamptz // 最終使用日時（任意）
+
+  // リレーションシップ
+  auditLogs          AuditLog[] // 監査ログ
+
+  // インデックス
+  @@index([key])            // キー検索用
+  @@index([organizationId]) // 組織ベースクエリ用
+  @@index([isActive])       // アクティブキーフィルタ用
+
+  @@map("api_keys")
+}
+
+/// 監査ログエンティティ（データアクセス・変更追跡）
+model AuditLog {
+  id                 String       @id @default(uuid()) @db.Uuid
+  timestamp          DateTime     @default(now()) @db.Timestamptz // ログタイムスタンプ
+  action             AuditAction  // アクション（作成/更新/削除/読み取り）
+  entityType         String       @db.VarChar(50) // エンティティタイプ（User、Org等）
+  entitySourcedId    String       @db.VarChar(255) // エンティティsourcedId
+  userId             String?      @db.VarChar(255) // アクション実行ユーザー（任意）
+  apiKeyId           String?      @db.Uuid // APIキーID（任意）
+  ipAddress          String       @db.VarChar(50) // リクエストIPアドレス
+  requestMethod      String       @db.VarChar(10) // HTTPメソッド
+  requestPath        String       @db.VarChar(500) // リクエストURLパス
+  requestBody        Json?        @db.JsonB // リクエストペイロード（任意）
+  responseStatus     Int          // HTTPステータスコード
+  changes            Json?        @db.JsonB // 変更前後の値（任意）
+
+  // リレーションシップ
+  apiKey             ApiKey?      @relation(fields: [apiKeyId], references: [id], onDelete: SetNull)
+
+  // インデックス
+  @@index([timestamp])                    // 時間ベースクエリ用
+  @@index([entityType, entitySourcedId])  // エンティティベース監査証跡用
+  @@index([userId])                       // ユーザーアクティビティ追跡用
+  @@index([action])                       // アクションフィルタ用
+  @@index([apiKeyId])                     // APIキー使用追跡用
+
+  @@map("audit_logs")
+}
+
+/// CSVインポートジョブエンティティ（バックグラウンドジョブ追跡）
+model CsvImportJob {
+  id                 String          @id @default(uuid()) @db.Uuid
+  status             CsvImportStatus @default(pending) // ジョブステータス
+  fileName           String          @db.VarChar(255) // アップロードファイル名
+  fileSize           Int             // ファイルサイズ（バイト）
+  totalRecords       Int?            // 総レコード数（任意）
+  processedRecords   Int             @default(0) // 処理済みレコード数
+  successRecords     Int             @default(0) // 正常インポート数
+  failedRecords      Int             @default(0) // 失敗レコード数
+  errors             Json?           @db.JsonB // エラー詳細（任意）
+  startedAt          DateTime?       @db.Timestamptz // ジョブ開始日時（任意）
+  completedAt        DateTime?       @db.Timestamptz // ジョブ完了日時（任意）
+  createdAt          DateTime        @default(now()) @db.Timestamptz // ジョブ作成日時
+  createdBy          String          @db.VarChar(255) // ジョブ開始ユーザー
+
+  // インデックス
+  @@index([status])    // ステータスベースクエリ用
+  @@index([createdAt]) // 時間ベースクエリ用
+  @@index([createdBy]) // ユーザーベースクエリ用
+
+  @@map("csv_import_jobs")
+}
+
+// ============================================
+// 備考
+// ============================================
+// 1. すべてのOneRosterエンティティは内部主キーにUUID（id）を使用し、
+//    OneRoster識別子にはsourcedId（文字列、一意）を使用
+// 2. dateLastModifiedは@updatedAtでDelta API用に自動更新
+// 3. 論理削除はstatus='tobedeleted'を使用（物理削除なし）
+// 4. Japan Profile拡張はmetadata JSONBカラムに格納
+// 5. すべての外部キーはsourcedId参照を使用（内部UUIDではない）
+// 6. インデックスはDelta API（dateLastModified）と一般的なクエリに最適化
+// 7. 多対多リレーションシップは明示的なジャンクションテーブルを使用
+// 8. 階層リレーションシップは自己参照外部キーを使用

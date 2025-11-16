@@ -1,0 +1,41 @@
+import { ApiPropertyOptional } from '@nestjs/swagger';
+import { IsOptional, IsInt, Min, Max, IsString, IsEnum } from 'class-validator';
+import { Type } from 'class-transformer';
+import { StatusType } from '@prisma/client';
+
+export class QueryDemographicsDto {
+  @ApiPropertyOptional({ default: 100 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(1000)
+  limit?: number = 100;
+
+  @ApiPropertyOptional({ default: 0 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(0)
+  offset?: number = 0;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  filter?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  sort?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  fields?: string;
+
+  @ApiPropertyOptional({ enum: StatusType })
+  @IsOptional()
+  @IsEnum(StatusType)
+  status?: StatusType;
+}

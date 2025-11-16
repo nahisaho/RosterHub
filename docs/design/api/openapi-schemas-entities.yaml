@@ -1,0 +1,650 @@
+# OneRoster Entity Schemas (Japan Profile 1.2.2)
+# This file contains entity schema definitions to be included in the main OpenAPI spec
+
+components:
+  schemas:
+    # ============================================================
+    # User Entity (Japan Profile)
+    # ============================================================
+
+    User:
+      type: object
+      required:
+        - sourcedId
+        - status
+        - dateLastModified
+        - enabledUser
+        - username
+        - userIds
+        - givenName
+        - familyName
+        - role
+        - identifier
+        - email
+      properties:
+        sourcedId:
+          type: string
+          description: Unique identifier (GUID)
+          example: "user_abc123"
+        status:
+          $ref: '#/components/schemas/StatusType'
+        dateLastModified:
+          type: string
+          format: date-time
+          description: Last modification timestamp (ISO 8601)
+          example: "2025-11-14T10:30:00Z"
+        dateCreated:
+          type: string
+          format: date-time
+          description: Creation timestamp (ISO 8601)
+          example: "2025-11-01T09:00:00Z"
+        metadata:
+          $ref: '#/components/schemas/UserMetadata'
+        enabledUser:
+          type: boolean
+          description: Whether the user account is enabled
+          example: true
+        username:
+          type: string
+          description: Login username
+          example: "taro.yamada"
+        userIds:
+          type: array
+          items:
+            type: string
+          description: List of user identifiers (student ID, employee ID, etc.)
+          example: ["STU20250001", "12345"]
+        givenName:
+          type: string
+          description: Given name (名)
+          example: "太郎"
+        familyName:
+          type: string
+          description: Family name (姓)
+          example: "山田"
+        middleName:
+          type: string
+          nullable: true
+          description: Middle name (ミドルネーム)
+          example: null
+        role:
+          $ref: '#/components/schemas/UserRole'
+        identifier:
+          type: string
+          description: Unique identifier for the user (external system ID)
+          example: "STU20250001"
+        email:
+          type: string
+          format: email
+          description: Primary email address
+          example: "taro.yamada@example.school.jp"
+        sms:
+          type: string
+          nullable: true
+          description: SMS phone number
+          example: "+81-90-1234-5678"
+        phone:
+          type: string
+          nullable: true
+          description: Primary phone number
+          example: "+81-3-1234-5678"
+        orgs:
+          type: array
+          items:
+            $ref: '#/components/schemas/GUIDRef'
+          description: Organizations the user belongs to
+        agents:
+          type: array
+          items:
+            $ref: '#/components/schemas/GUIDRef'
+          description: Agents (guardians/parents) for the user
+        grades:
+          type: array
+          items:
+            type: string
+          description: Grade levels (e.g., ["1", "2"])
+          example: ["7"]
+        password:
+          type: string
+          nullable: true
+          description: Password (not used in Japan Profile)
+          example: null
+
+    UserMetadata:
+      type: object
+      description: Japan Profile metadata extensions
+      properties:
+        jp:
+          $ref: '#/components/schemas/UserMetadataJp'
+
+    UserMetadataJp:
+      type: object
+      description: Japan Profile specific fields
+      properties:
+        kanaGivenName:
+          type: string
+          description: Given name in kana (全角ひらがな)
+          pattern: '^[ぁ-ん]+$'
+          example: "たろう"
+        kanaFamilyName:
+          type: string
+          description: Family name in kana (全角ひらがな)
+          pattern: '^[ぁ-ん]+$'
+          example: "やまだ"
+        kanaMiddleName:
+          type: string
+          nullable: true
+          description: Middle name in kana (全角ひらがな)
+          pattern: '^[ぁ-ん]+$'
+          example: null
+        homeClass:
+          type: string
+          nullable: true
+          description: Homeroom class sourcedId (ホームルーム)
+          example: "class_hr_7a"
+        gender:
+          $ref: '#/components/schemas/GenderType'
+        attendanceNumber:
+          type: integer
+          nullable: true
+          description: Attendance number within homeroom (出席番号)
+          minimum: 1
+          maximum: 99
+          example: 15
+
+    # ============================================================
+    # Org Entity (Japan Profile)
+    # ============================================================
+
+    Org:
+      type: object
+      required:
+        - sourcedId
+        - status
+        - dateLastModified
+        - name
+        - type
+        - identifier
+      properties:
+        sourcedId:
+          type: string
+          description: Unique identifier (GUID)
+          example: "org_school001"
+        status:
+          $ref: '#/components/schemas/StatusType'
+        dateLastModified:
+          type: string
+          format: date-time
+          description: Last modification timestamp (ISO 8601)
+          example: "2025-11-14T10:30:00Z"
+        dateCreated:
+          type: string
+          format: date-time
+          description: Creation timestamp (ISO 8601)
+          example: "2025-11-01T09:00:00Z"
+        metadata:
+          $ref: '#/components/schemas/OrgMetadata'
+        name:
+          type: string
+          description: Organization name
+          example: "東京都立第一高等学校"
+        type:
+          $ref: '#/components/schemas/OrgType'
+        identifier:
+          type: string
+          description: External identifier (school code, etc.)
+          example: "SCH001"
+        parent:
+          $ref: '#/components/schemas/GUIDRef'
+          nullable: true
+          description: Parent organization reference
+        children:
+          type: array
+          items:
+            $ref: '#/components/schemas/GUIDRef'
+          description: Child organizations
+
+    OrgMetadata:
+      type: object
+      description: Japan Profile metadata extensions
+      properties:
+        jp:
+          type: object
+          description: Japan Profile specific fields
+          properties:
+            address:
+              type: string
+              nullable: true
+              description: Organization address
+              example: "東京都千代田区霞が関1-1-1"
+            postalCode:
+              type: string
+              nullable: true
+              description: Postal code
+              pattern: '^\d{3}-\d{4}$'
+              example: "100-0013"
+            phoneNumber:
+              type: string
+              nullable: true
+              description: Phone number
+              example: "03-1234-5678"
+
+    # ============================================================
+    # Class Entity (Japan Profile)
+    # ============================================================
+
+    Class:
+      type: object
+      required:
+        - sourcedId
+        - status
+        - dateLastModified
+        - title
+        - classCode
+        - classType
+        - course
+        - school
+      properties:
+        sourcedId:
+          type: string
+          description: Unique identifier (GUID)
+          example: "class_math_7a"
+        status:
+          $ref: '#/components/schemas/StatusType'
+        dateLastModified:
+          type: string
+          format: date-time
+          description: Last modification timestamp (ISO 8601)
+          example: "2025-11-14T10:30:00Z"
+        dateCreated:
+          type: string
+          format: date-time
+          description: Creation timestamp (ISO 8601)
+          example: "2025-11-01T09:00:00Z"
+        metadata:
+          $ref: '#/components/schemas/ClassMetadata'
+        title:
+          type: string
+          description: Class title
+          example: "数学 7年A組"
+        classCode:
+          type: string
+          description: Class code
+          example: "MATH-7A"
+        classType:
+          $ref: '#/components/schemas/ClassType'
+        location:
+          type: string
+          nullable: true
+          description: Classroom location
+          example: "本館3階 3-1教室"
+        grades:
+          type: array
+          items:
+            type: string
+          description: Grade levels for this class
+          example: ["7"]
+        subjects:
+          type: array
+          items:
+            type: string
+          description: Subject codes
+          example: ["MATH"]
+        course:
+          $ref: '#/components/schemas/GUIDRef'
+          description: Associated course reference
+        school:
+          $ref: '#/components/schemas/GUIDRef'
+          description: School reference
+        terms:
+          type: array
+          items:
+            $ref: '#/components/schemas/GUIDRef'
+          description: Academic session references
+        subjectCodes:
+          type: array
+          items:
+            type: string
+          description: Subject codes (MEXT codes)
+          example: ["01"]
+        periods:
+          type: array
+          items:
+            type: string
+          description: Period identifiers
+          example: ["1", "2"]
+        resources:
+          type: array
+          items:
+            $ref: '#/components/schemas/GUIDRef'
+          description: Resource references
+
+    ClassMetadata:
+      type: object
+      description: Japan Profile metadata extensions
+      properties:
+        jp:
+          type: object
+          description: Japan Profile specific fields
+          properties:
+            capacity:
+              type: integer
+              nullable: true
+              description: Maximum student capacity
+              example: 40
+            primaryTeacher:
+              type: string
+              nullable: true
+              description: Primary teacher sourcedId
+              example: "user_teacher001"
+
+    # ============================================================
+    # Course Entity (Japan Profile)
+    # ============================================================
+
+    Course:
+      type: object
+      required:
+        - sourcedId
+        - status
+        - dateLastModified
+        - title
+        - courseCode
+        - org
+      properties:
+        sourcedId:
+          type: string
+          description: Unique identifier (GUID)
+          example: "course_math7"
+        status:
+          $ref: '#/components/schemas/StatusType'
+        dateLastModified:
+          type: string
+          format: date-time
+          description: Last modification timestamp (ISO 8601)
+          example: "2025-11-14T10:30:00Z"
+        dateCreated:
+          type: string
+          format: date-time
+          description: Creation timestamp (ISO 8601)
+          example: "2025-11-01T09:00:00Z"
+        metadata:
+          type: object
+          nullable: true
+          description: Japan Profile metadata extensions
+        title:
+          type: string
+          description: Course title
+          example: "数学 7年生"
+        schoolYear:
+          type: string
+          nullable: true
+          description: School year (e.g., "2025")
+          example: "2025"
+        courseCode:
+          type: string
+          description: Course code
+          example: "MATH7"
+        grades:
+          type: array
+          items:
+            type: string
+          description: Grade levels
+          example: ["7"]
+        subjects:
+          type: array
+          items:
+            type: string
+          description: Subject codes
+          example: ["MATH"]
+        org:
+          $ref: '#/components/schemas/GUIDRef'
+          description: Organization reference (school)
+        subjectCodes:
+          type: array
+          items:
+            type: string
+          description: MEXT subject codes
+          example: ["01"]
+        resources:
+          type: array
+          items:
+            $ref: '#/components/schemas/GUIDRef'
+          description: Resource references
+
+    # ============================================================
+    # Enrollment Entity (Japan Profile)
+    # ============================================================
+
+    Enrollment:
+      type: object
+      required:
+        - sourcedId
+        - status
+        - dateLastModified
+        - user
+        - class
+        - school
+        - role
+        - primary
+      properties:
+        sourcedId:
+          type: string
+          description: Unique identifier (GUID)
+          example: "enroll_stu001_math7a"
+        status:
+          $ref: '#/components/schemas/StatusType'
+        dateLastModified:
+          type: string
+          format: date-time
+          description: Last modification timestamp (ISO 8601)
+          example: "2025-11-14T10:30:00Z"
+        dateCreated:
+          type: string
+          format: date-time
+          description: Creation timestamp (ISO 8601)
+          example: "2025-11-01T09:00:00Z"
+        metadata:
+          type: object
+          nullable: true
+          description: Japan Profile metadata extensions
+        user:
+          $ref: '#/components/schemas/GUIDRef'
+          description: User reference (student or teacher)
+        class:
+          $ref: '#/components/schemas/GUIDRef'
+          description: Class reference
+        school:
+          $ref: '#/components/schemas/GUIDRef'
+          description: School reference
+        role:
+          type: string
+          enum:
+            - student
+            - teacher
+            - assistant
+          description: Enrollment role
+          example: student
+        primary:
+          type: boolean
+          description: Whether this is the primary enrollment
+          example: true
+        beginDate:
+          type: string
+          format: date
+          nullable: true
+          description: Enrollment start date
+          example: "2025-04-01"
+        endDate:
+          type: string
+          format: date
+          nullable: true
+          description: Enrollment end date
+          example: "2026-03-31"
+
+    # ============================================================
+    # AcademicSession Entity (Japan Profile)
+    # ============================================================
+
+    AcademicSession:
+      type: object
+      required:
+        - sourcedId
+        - status
+        - dateLastModified
+        - title
+        - type
+        - startDate
+        - endDate
+        - schoolYear
+      properties:
+        sourcedId:
+          type: string
+          description: Unique identifier (GUID)
+          example: "session_2025"
+        status:
+          $ref: '#/components/schemas/StatusType'
+        dateLastModified:
+          type: string
+          format: date-time
+          description: Last modification timestamp (ISO 8601)
+          example: "2025-11-14T10:30:00Z"
+        dateCreated:
+          type: string
+          format: date-time
+          description: Creation timestamp (ISO 8601)
+          example: "2025-11-01T09:00:00Z"
+        metadata:
+          type: object
+          nullable: true
+          description: Japan Profile metadata extensions
+        title:
+          type: string
+          description: Session title
+          example: "2025年度"
+        type:
+          $ref: '#/components/schemas/SessionType'
+        startDate:
+          type: string
+          format: date
+          description: Session start date
+          example: "2025-04-01"
+        endDate:
+          type: string
+          format: date
+          description: Session end date
+          example: "2026-03-31"
+        parent:
+          $ref: '#/components/schemas/GUIDRef'
+          nullable: true
+          description: Parent session reference
+        children:
+          type: array
+          items:
+            $ref: '#/components/schemas/GUIDRef'
+          description: Child sessions
+        schoolYear:
+          type: string
+          description: School year (e.g., "2025")
+          example: "2025"
+
+    # ============================================================
+    # Demographic Entity (Japan Profile)
+    # ============================================================
+
+    Demographic:
+      type: object
+      required:
+        - sourcedId
+        - status
+        - dateLastModified
+      properties:
+        sourcedId:
+          type: string
+          description: Unique identifier (GUID, same as user sourcedId)
+          example: "user_abc123"
+        status:
+          $ref: '#/components/schemas/StatusType'
+        dateLastModified:
+          type: string
+          format: date-time
+          description: Last modification timestamp (ISO 8601)
+          example: "2025-11-14T10:30:00Z"
+        dateCreated:
+          type: string
+          format: date-time
+          description: Creation timestamp (ISO 8601)
+          example: "2025-11-01T09:00:00Z"
+        metadata:
+          type: object
+          nullable: true
+          description: Japan Profile metadata extensions
+        birthDate:
+          type: string
+          format: date
+          nullable: true
+          description: Date of birth
+          example: "2010-04-15"
+        sex:
+          type: string
+          nullable: true
+          enum:
+            - male
+            - female
+          description: Biological sex (deprecated, use gender in User.metadata.jp)
+          example: male
+        americanIndianOrAlaskaNative:
+          type: boolean
+          nullable: true
+          description: Not applicable in Japan Profile
+          example: null
+        asian:
+          type: boolean
+          nullable: true
+          description: Not applicable in Japan Profile
+          example: null
+        blackOrAfricanAmerican:
+          type: boolean
+          nullable: true
+          description: Not applicable in Japan Profile
+          example: null
+        nativeHawaiianOrOtherPacificIslander:
+          type: boolean
+          nullable: true
+          description: Not applicable in Japan Profile
+          example: null
+        white:
+          type: boolean
+          nullable: true
+          description: Not applicable in Japan Profile
+          example: null
+        demographicRaceTwoOrMoreRaces:
+          type: boolean
+          nullable: true
+          description: Not applicable in Japan Profile
+          example: null
+        hispanicOrLatinoEthnicity:
+          type: boolean
+          nullable: true
+          description: Not applicable in Japan Profile
+          example: null
+        countryOfBirthCode:
+          type: string
+          nullable: true
+          description: ISO 3166-1 country code
+          example: "JPN"
+        stateOfBirthAbbreviation:
+          type: string
+          nullable: true
+          description: Prefecture code (for Japan)
+          example: "13"
+        cityOfBirth:
+          type: string
+          nullable: true
+          description: City of birth
+          example: "東京都"
+        publicSchoolResidenceStatus:
+          type: string
+          nullable: true
+          description: Not applicable in Japan Profile
+          example: null
