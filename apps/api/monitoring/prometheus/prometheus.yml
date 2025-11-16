@@ -1,0 +1,72 @@
+# Prometheus Configuration for OneRoster API Monitoring
+#
+# This configuration file defines how Prometheus scrapes metrics from the OneRoster API.
+#
+# Usage:
+#   docker run -d -p 9090:9090 -v $(pwd)/prometheus.yml:/etc/prometheus/prometheus.yml prom/prometheus
+
+global:
+  scrape_interval: 15s # Default scrape interval (15 seconds)
+  evaluation_interval: 15s # Evaluate rules every 15 seconds
+
+  # Attach labels to metrics
+  external_labels:
+    monitor: 'oneroster-api'
+    environment: 'development'
+
+# Alertmanager configuration (optional)
+# alerting:
+#   alertmanagers:
+#     - static_configs:
+#         - targets: ['alertmanager:9093']
+
+# Load rules once and periodically evaluate them according to evaluation_interval
+rule_files:
+  # - "alerts/*.yml"
+
+# Scrape configurations
+scrape_configs:
+  # OneRoster API metrics
+  - job_name: 'oneroster-api'
+
+    # Override global scrape interval for this job
+    scrape_interval: 10s
+    scrape_timeout: 5s
+
+    # Metrics path (default /metrics)
+    metrics_path: /metrics
+
+    # Scheme defaults to 'http'
+    scheme: http
+
+    # Static targets
+    static_configs:
+      - targets:
+          - 'api:3000' # Docker Compose service name
+          # - 'localhost:3000' # Local development
+
+        labels:
+          service: 'oneroster-api'
+          tier: 'backend'
+
+    # Relabel configs (optional)
+    # Use this to add/modify labels based on target metadata
+    # relabel_configs:
+    #   - source_labels: [__address__]
+    #     target_label: instance
+    #     replacement: 'oneroster-api'
+
+  # Prometheus self-monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+        labels:
+          service: 'prometheus'
+
+# Remote write configuration (optional - for long-term storage)
+# remote_write:
+#   - url: "http://influxdb:8086/api/v1/prom/write?db=prometheus"
+
+# Remote read configuration (optional)
+# remote_read:
+#   - url: "http://influxdb:8086/api/v1/prom/read?db=prometheus"
