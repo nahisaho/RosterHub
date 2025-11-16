@@ -30,6 +30,33 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
         { emit: 'event', level: 'error' },
         { emit: 'event', level: 'warn' },
       ],
+      // Connection pool configuration for optimal performance
+      datasources: {
+        db: {
+          url: process.env.DATABASE_URL,
+        },
+      },
+      // Performance tuning based on PostgreSQL best practices
+      // Connection pool: 10 connections per instance (adjust based on deployment)
+      // Formula: (num_cpu_cores * 2) + effective_spindle_count
+      // For containerized environments: typically 10-20 connections
+    });
+
+    // Log slow queries (> 1 second) for performance monitoring
+    this.$on('query' as any, (e: any) => {
+      if (e.duration > 1000) {
+        this.logger.warn(`Slow query detected: ${e.query} (${e.duration}ms)`);
+      }
+    });
+
+    // Log all errors
+    this.$on('error' as any, (e: any) => {
+      this.logger.error(`Database error: ${e.message}`);
+    });
+
+    // Log warnings
+    this.$on('warn' as any, (e: any) => {
+      this.logger.warn(`Database warning: ${e.message}`);
     });
   }
 

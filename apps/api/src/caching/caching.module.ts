@@ -1,0 +1,17 @@
+/**
+ * Caching Module
+ *
+ * Provides Redis-based caching services for performance optimization
+ */
+
+import { Module, Global } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { RedisCacheService } from './redis-cache.service';
+
+@Global()
+@Module({
+  imports: [ConfigModule],
+  providers: [RedisCacheService],
+  exports: [RedisCacheService],
+})
+export class CachingModule {}
