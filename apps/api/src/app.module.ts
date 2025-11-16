@@ -20,6 +20,9 @@ import { DemographicsModule } from './oneroster/entities/demographics/demographi
 // CSV Import/Export Module
 import { CsvModule } from './oneroster/csv/csv.module';
 
+// Monitoring Module (Prometheus metrics + Health checks)
+import { MonitoringModule } from './monitoring/monitoring.module';
+
 /**
  * App Module
  *
@@ -49,6 +52,9 @@ import { CsvModule } from './oneroster/csv/csv.module';
 
     // Database module (Prisma)
     DatabaseModule,
+
+    // Monitoring module (metrics + health checks)
+    MonitoringModule,
 
     // OneRoster Entity Modules (Sprint 3-4)
     UsersModule,

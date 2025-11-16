@@ -16,11 +16,11 @@ import { MetricsService } from './metrics.service';
 import { MetricsController } from './metrics.controller';
 import { MetricsInterceptor } from './metrics.interceptor';
 import { HealthController } from './health.controller';
-import { PrismaModule } from '../prisma/prisma.module';
+import { DatabaseModule } from '../database/database.module';
 
 @Global() // Make MetricsService available globally
 @Module({
-  imports: [PrismaModule],
+  imports: [DatabaseModule],
   controllers: [MetricsController, HealthController],
   providers: [
     MetricsService,
