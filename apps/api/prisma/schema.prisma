@@ -99,6 +99,22 @@ enum WebhookDeliveryStatus {
   retrying
 }
 
+enum MappingTransformationType {
+  direct          // Direct field copy (no transformation)
+  constant        // Constant value
+  concatenate     // Join multiple fields with separator
+  split           // Split field by delimiter
+  lookup          // Value lookup from mapping table
+  script          // Custom JavaScript expression
+  dateFormat      // Date format conversion
+  trim            // Trim whitespace
+  lowercase       // Convert to lowercase
+  uppercase       // Convert to uppercase
+  substring       // Extract substring
+  replace         // Find and replace
+  default         // Use default value if source is empty
+}
+
 // ============================================
 // OneRoster Core Entities
 // ============================================
@@ -544,6 +560,95 @@ model WebhookDelivery {
   @@index([createdAt])
 
   @@map("webhook_deliveries")
+}
+
+/// Field Mapping Configuration entity (CSV field mapping)
+model FieldMappingConfig {
+  id                 String          @id @default(uuid()) @db.Uuid
+  name               String          @db.VarChar(255)
+  description        String?         @db.Text
+  entityType         String          @db.VarChar(50)
+  organizationId     String          @db.VarChar(255)
+  isActive           Boolean         @default(true)
+  isDefault          Boolean         @default(false)
+  version            Int             @default(1)
+  createdAt          DateTime        @default(now()) @db.Timestamptz
+  updatedAt          DateTime        @updatedAt @db.Timestamptz
+  createdBy          String          @db.VarChar(255)
+
+  // Relationships
+  fieldMappings      FieldMapping[]
+
+  // Indexes
+  @@index([organizationId])
+  @@index([entityType])
+  @@index([isActive])
+  @@index([isDefault])
+
+  @@map("field_mapping_configs")
+}
+
+/// Field Mapping entity (individual field transformation rules)
+model FieldMapping {
+  id                 String                      @id @default(uuid()) @db.Uuid
+  configId           String                      @db.Uuid
+  targetField        String                      @db.VarChar(255)
+  sourceFields       String[]                    @db.VarChar(255)
+  transformationType MappingTransformationType
+  transformConfig    Json?                       @db.JsonB
+  isRequired         Boolean                     @default(false)
+  defaultValue       String?                     @db.VarChar(1000)
+  validationRules    Json?                       @db.JsonB
+  order              Int                         @default(0)
+
+  // Relationships
+  config             FieldMappingConfig          @relation(fields: [configId], references: [id], onDelete: Cascade)
+
+  // Indexes
+  @@index([configId])
+  @@index([targetField])
+
+  @@map("field_mappings")
+}
+
+/// Mapping Lookup Table entity (value mapping for lookup transformations)
+model MappingLookupTable {
+  id                 String          @id @default(uuid()) @db.Uuid
+  name               String          @db.VarChar(255)
+  description        String?         @db.Text
+  organizationId     String          @db.VarChar(255)
+  isActive           Boolean         @default(true)
+  createdAt          DateTime        @default(now()) @db.Timestamptz
+  updatedAt          DateTime        @updatedAt @db.Timestamptz
+
+  // Relationships
+  lookupEntries      MappingLookupEntry[]
+
+  // Indexes
+  @@index([organizationId])
+  @@index([name])
+  @@index([isActive])
+
+  @@map("mapping_lookup_tables")
+}
+
+/// Mapping Lookup Entry entity (key-value pairs for lookup)
+model MappingLookupEntry {
+  id                 String          @id @default(uuid()) @db.Uuid
+  tableId            String          @db.Uuid
+  sourceValue        String          @db.VarChar(500)
+  targetValue        String          @db.VarChar(500)
+  metadata           Json?           @db.JsonB
+
+  // Relationships
+  table              MappingLookupTable @relation(fields: [tableId], references: [id], onDelete: Cascade)
+
+  // Indexes
+  @@unique([tableId, sourceValue])
+  @@index([tableId])
+  @@index([sourceValue])
+
+  @@map("mapping_lookup_entries")
 }
 
 // ============================================
