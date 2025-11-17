@@ -27,11 +27,12 @@ import { WebhookService } from './webhook.service';
 import { CreateWebhookDto } from './dto/create-webhook.dto';
 import { UpdateWebhookDto } from './dto/update-webhook.dto';
 import { WebhookResponseDto, WebhookDeliveryResponseDto } from './dto/webhook-response.dto';
+import { ApiKeyGuard } from '../common/guards/api-key.guard';
 
 @ApiTags('Webhooks')
 @Controller('api/v1/webhooks')
 @ApiBearerAuth()
-// @UseGuards(ApiKeyGuard) // Add API key authentication
+@UseGuards(ApiKeyGuard) // API key authentication enabled
 export class WebhookController {
   constructor(private readonly webhookService: WebhookService) {}
 
