@@ -11,14 +11,15 @@
 
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication, ValidationPipe } from '@nestjs/common';
-import * as request from 'supertest';
+import request from 'supertest';
+import * as bcrypt from 'bcryptjs';
 import { AppModule } from '../src/app.module';
 import { PrismaService } from '../src/database/prisma.service';
 
 describe('CSV Export E2E Tests', () => {
   let app: INestApplication;
   let prisma: PrismaService;
-  const apiKey = 'test-api-key-e2e';
+  const apiKey = 'test-api-key-csv-export-e2e';
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -31,22 +32,37 @@ describe('CSV Export E2E Tests', () => {
 
     prisma = moduleFixture.get<PrismaService>(PrismaService);
 
-    // Ensure API key exists for authentication
+    // Create test organization for API key
+    const testOrg = await prisma.org.upsert({
+      where: { sourcedId: 'csv-export-test-org' },
+      update: {},
+      create: {
+        sourcedId: 'csv-export-test-org',
+        name: 'CSV Export Test Organization',
+        type: 'school',
+        identifier: 'csv-export-test-org-001',
+        status: 'active',
+        dateLastModified: new Date(),
+      },
+    });
+
+    // Create API key with proper hash
     const existingKey = await prisma.apiKey.findUnique({
       where: { key: apiKey },
     });
 
     if (!existingKey) {
+      const hashedKey = await bcrypt.hash(apiKey, 10);
       await prisma.apiKey.create({
         data: {
           name: 'E2E Test Key - CSV Export',
           key: apiKey,
-          clientName: 'E2E Test Suite',
+          hashedKey: hashedKey,
+          organizationId: testOrg.sourcedId,
           isActive: true,
           expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
           rateLimit: 10000,
           ipWhitelist: [],
-          permissions: ['read', 'write'],
         },
       });
     }
@@ -451,6 +467,20 @@ async function cleanupDeltaExportTestData(prisma: PrismaService): Promise<void> 
       sourcedId: {
         startsWith: 'delta-test-',
       },
+    },
+  });
+
+  // Clean up API key
+  await prisma.apiKey.deleteMany({
+    where: {
+      key: 'test-api-key-csv-export-e2e',
+    },
+  });
+
+  // Clean up test organization
+  await prisma.org.deleteMany({
+    where: {
+      sourcedId: 'csv-export-test-org',
     },
   });
 }

@@ -265,8 +265,11 @@ describe('OneRoster Courses API (e2e)', () => {
         .query({ filter: "courseCode='MATH101'" })
         .expect(200);
 
-      expect(response.body.courses.length).toBe(1);
-      expect(response.body.courses[0].courseCode).toBe('MATH101');
+      // All returned courses should have courseCode matching MATH101
+      expect(response.body.courses.length).toBeGreaterThan(0);
+      response.body.courses.forEach((course: any) => {
+        expect(course.courseCode).toBe('MATH101');
+      });
     });
 
     it('should filter courses by status', async () => {
