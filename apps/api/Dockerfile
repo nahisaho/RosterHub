@@ -64,15 +64,16 @@ RUN addgroup -g 1001 -S nodejs && \
 # Copy production dependencies
 COPY --from=dependencies --chown=nestjs:nodejs /app/node_modules ./node_modules
 
+# Copy generated Prisma Client from build stage (overwrites the one from dependencies)
+COPY --from=build --chown=nestjs:nodejs /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=build --chown=nestjs:nodejs /app/node_modules/@prisma/client ./node_modules/@prisma/client
+
 # Copy built application
 COPY --from=build --chown=nestjs:nodejs /app/dist ./dist
 COPY --from=build --chown=nestjs:nodejs /app/prisma ./prisma
 
 # Copy package files
 COPY --chown=nestjs:nodejs package*.json ./
-
-# Generate Prisma Client in production (use local prisma from node_modules)
-RUN ./node_modules/.bin/prisma generate
 
 # Set environment variables
 ENV NODE_ENV=production \
