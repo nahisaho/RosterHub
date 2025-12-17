@@ -46,7 +46,7 @@ export class ApiKeyRepository {
       ...(name && { name: { contains: name, mode: 'insensitive' } }),
     };
 
-    return this.prisma.apiKey.findMany({
+    return await this.prisma.apiKey.findMany({
       where: whereClause,
       skip: offset,
       take: limit,
@@ -61,7 +61,7 @@ export class ApiKeyRepository {
    * @returns ApiKey or null if not found
    */
   async findById(id: string): Promise<ApiKey | null> {
-    return this.prisma.apiKey.findUnique({
+    return await this.prisma.apiKey.findUnique({
       where: { id },
     });
   }
@@ -73,7 +73,7 @@ export class ApiKeyRepository {
    * @returns ApiKey or null if not found
    */
   async findByKey(key: string): Promise<ApiKey | null> {
-    return this.prisma.apiKey.findUnique({
+    return await this.prisma.apiKey.findUnique({
       where: { key },
     });
   }
@@ -87,7 +87,7 @@ export class ApiKeyRepository {
   async findActiveByKey(key: string): Promise<ApiKey | null> {
     const now = new Date();
 
-    return this.prisma.apiKey.findFirst({
+    return await this.prisma.apiKey.findFirst({
       where: {
         key,
         isActive: true,
@@ -104,7 +104,7 @@ export class ApiKeyRepository {
   async findAllActive(): Promise<ApiKey[]> {
     const now = new Date();
 
-    return this.prisma.apiKey.findMany({
+    return await this.prisma.apiKey.findMany({
       where: {
         isActive: true,
         OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
@@ -125,7 +125,7 @@ export class ApiKeyRepository {
   ): Promise<ApiKey[]> {
     const { offset = 0, limit = 100 } = options;
 
-    return this.prisma.apiKey.findMany({
+    return await this.prisma.apiKey.findMany({
       where: { organizationId },
       skip: offset,
       take: limit,
@@ -142,7 +142,7 @@ export class ApiKeyRepository {
    * @returns Created API key
    */
   async create(data: Prisma.ApiKeyCreateInput): Promise<ApiKey> {
-    return this.prisma.apiKey.create({
+    return await this.prisma.apiKey.create({
       data,
     });
   }
@@ -155,7 +155,7 @@ export class ApiKeyRepository {
    * @returns Updated API key
    */
   async update(id: string, data: Prisma.ApiKeyUpdateInput): Promise<ApiKey> {
-    return this.prisma.apiKey.update({
+    return await this.prisma.apiKey.update({
       where: { id },
       data,
     });
@@ -168,7 +168,7 @@ export class ApiKeyRepository {
    * @returns Updated API key
    */
   async updateLastUsed(id: string): Promise<ApiKey> {
-    return this.prisma.apiKey.update({
+    return await this.prisma.apiKey.update({
       where: { id },
       data: {
         lastUsedAt: new Date(),
@@ -183,7 +183,7 @@ export class ApiKeyRepository {
    * @returns Updated API key
    */
   async activate(id: string): Promise<ApiKey> {
-    return this.prisma.apiKey.update({
+    return await this.prisma.apiKey.update({
       where: { id },
       data: {
         isActive: true,
@@ -198,7 +198,7 @@ export class ApiKeyRepository {
    * @returns Updated API key
    */
   async deactivate(id: string): Promise<ApiKey> {
-    return this.prisma.apiKey.update({
+    return await this.prisma.apiKey.update({
       where: { id },
       data: {
         isActive: false,
@@ -223,7 +223,7 @@ export class ApiKeyRepository {
    * @returns Deleted API key
    */
   async delete(id: string): Promise<ApiKey> {
-    return this.prisma.apiKey.delete({
+    return await this.prisma.apiKey.delete({
       where: { id },
     });
   }
@@ -235,7 +235,7 @@ export class ApiKeyRepository {
    * @returns Number of API keys matching criteria
    */
   async count(where?: Prisma.ApiKeyWhereInput): Promise<number> {
-    return this.prisma.apiKey.count({ where });
+    return await this.prisma.apiKey.count({ where });
   }
 
   /**
@@ -276,7 +276,7 @@ export class ApiKeyRepository {
     const { offset = 0, limit = 100 } = options;
     const now = new Date();
 
-    return this.prisma.apiKey.findMany({
+    return await this.prisma.apiKey.findMany({
       where: {
         expiresAt: {
           lt: now,

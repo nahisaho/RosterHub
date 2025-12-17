@@ -53,4 +53,4 @@ async function bootstrap() {
     `API documentation available at: http://localhost:${port}/api/docs`,
   );
 }
-bootstrap();
+void bootstrap();

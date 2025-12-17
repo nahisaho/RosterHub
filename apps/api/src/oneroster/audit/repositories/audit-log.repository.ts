@@ -69,7 +69,7 @@ export class AuditLogRepository {
       }),
     };
 
-    return this.prisma.auditLog.findMany({
+    return await this.prisma.auditLog.findMany({
       where: whereClause,
       skip: offset,
       take: limit,
@@ -87,7 +87,7 @@ export class AuditLogRepository {
    * @returns AuditLog or null if not found
    */
   async findById(id: string): Promise<AuditLog | null> {
-    return this.prisma.auditLog.findUnique({
+    return await this.prisma.auditLog.findUnique({
       where: { id },
       include: {
         apiKey: true,
@@ -110,7 +110,7 @@ export class AuditLogRepository {
   ): Promise<AuditLog[]> {
     const { offset = 0, limit = 100 } = options;
 
-    return this.prisma.auditLog.findMany({
+    return await this.prisma.auditLog.findMany({
       where: {
         entityType,
         entitySourcedId,
@@ -139,7 +139,7 @@ export class AuditLogRepository {
   ): Promise<AuditLog[]> {
     const { offset = 0, limit = 100 } = options;
 
-    return this.prisma.auditLog.findMany({
+    return await this.prisma.auditLog.findMany({
       where: { userId },
       skip: offset,
       take: limit,
@@ -162,7 +162,7 @@ export class AuditLogRepository {
   ): Promise<AuditLog[]> {
     const { offset = 0, limit = 100 } = options;
 
-    return this.prisma.auditLog.findMany({
+    return await this.prisma.auditLog.findMany({
       where: { apiKeyId },
       skip: offset,
       take: limit,
@@ -188,7 +188,7 @@ export class AuditLogRepository {
   ): Promise<AuditLog[]> {
     const { offset = 0, limit = 100 } = options;
 
-    return this.prisma.auditLog.findMany({
+    return await this.prisma.auditLog.findMany({
       where: { action },
       skip: offset,
       take: limit,
@@ -211,7 +211,7 @@ export class AuditLogRepository {
   ): Promise<AuditLog[]> {
     const { offset = 0, limit = 100 } = options;
 
-    return this.prisma.auditLog.findMany({
+    return await this.prisma.auditLog.findMany({
       where: { ipAddress },
       skip: offset,
       take: limit,
@@ -236,7 +236,7 @@ export class AuditLogRepository {
   ): Promise<AuditLog[]> {
     const { offset = 0, limit = 100 } = options;
 
-    return this.prisma.auditLog.findMany({
+    return await this.prisma.auditLog.findMany({
       where: {
         timestamp: {
           gte: from,
@@ -258,7 +258,7 @@ export class AuditLogRepository {
    * @returns Created audit log
    */
   async create(data: Prisma.AuditLogCreateInput): Promise<AuditLog> {
-    return this.prisma.auditLog.create({
+    return await this.prisma.auditLog.create({
       data,
     });
   }
@@ -300,7 +300,7 @@ export class AuditLogRepository {
    * @returns Number of audit logs matching criteria
    */
   async count(where?: Prisma.AuditLogWhereInput): Promise<number> {
-    return this.prisma.auditLog.count({ where });
+    return await this.prisma.auditLog.count({ where });
   }
 
   /**

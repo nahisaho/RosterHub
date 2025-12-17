@@ -103,7 +103,7 @@ export class ApiKeyService {
    * @returns API key record or null
    */
   async findByKey(key: string) {
-    return this.prisma.apiKey.findUnique({
+    return await this.prisma.apiKey.findUnique({
       where: { key },
     });
   }

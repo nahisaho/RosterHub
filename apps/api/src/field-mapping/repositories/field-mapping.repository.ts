@@ -35,7 +35,7 @@ export class FieldMappingRepository {
     createDto: CreateFieldMappingConfigDto,
     createdBy: string,
   ): Promise<FieldMappingConfig> {
-    return this.prisma.fieldMappingConfig.create({
+    return await this.prisma.fieldMappingConfig.create({
       data: {
         name: createDto.name,
         description: createDto.description,
@@ -69,7 +69,7 @@ export class FieldMappingRepository {
     organizationId: string,
     entityType?: string,
   ): Promise<FieldMappingConfigWithMappings[]> {
-    return this.prisma.fieldMappingConfig.findMany({
+    return await this.prisma.fieldMappingConfig.findMany({
       where: {
         organizationId,
         ...(entityType && { entityType }),
@@ -88,7 +88,7 @@ export class FieldMappingRepository {
    * Find configuration by ID
    */
   async findById(id: string): Promise<FieldMappingConfigWithMappings | null> {
-    return this.prisma.fieldMappingConfig.findUnique({
+    return await this.prisma.fieldMappingConfig.findUnique({
       where: { id },
       include: {
         fieldMappings: {
@@ -105,7 +105,7 @@ export class FieldMappingRepository {
     organizationId: string,
     entityType: string,
   ): Promise<FieldMappingConfigWithMappings | null> {
-    return this.prisma.fieldMappingConfig.findFirst({
+    return await this.prisma.fieldMappingConfig.findFirst({
       where: {
         organizationId,
         entityType,
@@ -171,7 +171,7 @@ export class FieldMappingRepository {
    * Delete configuration
    */
   async deleteConfig(id: string): Promise<FieldMappingConfig> {
-    return this.prisma.fieldMappingConfig.delete({
+    return await this.prisma.fieldMappingConfig.delete({
       where: { id },
     });
   }
@@ -222,7 +222,7 @@ export class FieldMappingRepository {
       metadata?: any;
     }>,
   ): Promise<MappingLookupTable> {
-    return this.prisma.mappingLookupTable.create({
+    return await this.prisma.mappingLookupTable.create({
       data: {
         name,
         description,
@@ -248,7 +248,7 @@ export class FieldMappingRepository {
     organizationId: string,
     name: string,
   ): Promise<MappingLookupTableWithEntries | null> {
-    return this.prisma.mappingLookupTable.findFirst({
+    return await this.prisma.mappingLookupTable.findFirst({
       where: {
         organizationId,
         name,
@@ -266,7 +266,7 @@ export class FieldMappingRepository {
   async findLookupTables(
     organizationId: string,
   ): Promise<MappingLookupTableWithEntries[]> {
-    return this.prisma.mappingLookupTable.findMany({
+    return await this.prisma.mappingLookupTable.findMany({
       where: {
         organizationId,
         isActive: true,
@@ -282,7 +282,7 @@ export class FieldMappingRepository {
    * Delete lookup table
    */
   async deleteLookupTable(id: string): Promise<MappingLookupTable> {
-    return this.prisma.mappingLookupTable.delete({
+    return await this.prisma.mappingLookupTable.delete({
       where: { id },
     });
   }
