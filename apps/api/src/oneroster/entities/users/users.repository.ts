@@ -74,7 +74,7 @@ export class UsersRepository extends BaseRepository<User> {
    * @returns User with orgs, agents, and demographic
    */
   async findBySourcedIdWithRelations(sourcedId: string): Promise<User | null> {
-    return this.prisma.user.findUnique({
+    return await this.prisma.user.findUnique({
       where: { sourcedId },
       include: {
         demographic: true,
@@ -105,7 +105,7 @@ export class UsersRepository extends BaseRepository<User> {
    * @returns User or null if not found
    */
   async findByEmail(email: string): Promise<User | null> {
-    return this.prisma.user.findFirst({
+    return await this.prisma.user.findFirst({
       where: { email },
     });
   }
@@ -117,7 +117,7 @@ export class UsersRepository extends BaseRepository<User> {
    * @returns User or null if not found
    */
   async findByIdentifier(identifier: string): Promise<User | null> {
-    return this.prisma.user.findUnique({
+    return await this.prisma.user.findUnique({
       where: { identifier },
     });
   }
@@ -154,7 +154,7 @@ export class UsersRepository extends BaseRepository<User> {
   ): Promise<User[]> {
     const { offset = 0, limit = 100 } = options;
 
-    return this.prisma.user.findMany({
+    return await this.prisma.user.findMany({
       where: {
         orgs: {
           some: {

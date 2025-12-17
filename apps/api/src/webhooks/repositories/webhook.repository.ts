@@ -27,7 +27,7 @@ export class WebhookRepository {
     // Generate secure random secret for HMAC signature
     const secret = crypto.randomBytes(32).toString('hex');
 
-    return this.prisma.webhook.create({
+    return await this.prisma.webhook.create({
       data: {
         url: createDto.url,
         events: createDto.events,
@@ -43,7 +43,7 @@ export class WebhookRepository {
    * Find all webhooks for an organization
    */
   async findByOrganization(organizationId: string): Promise<Webhook[]> {
-    return this.prisma.webhook.findMany({
+    return await this.prisma.webhook.findMany({
       where: { organizationId },
       orderBy: { createdAt: 'desc' },
     });
@@ -53,7 +53,7 @@ export class WebhookRepository {
    * Find webhook by ID
    */
   async findById(id: string): Promise<Webhook | null> {
-    return this.prisma.webhook.findUnique({
+    return await this.prisma.webhook.findUnique({
       where: { id },
     });
   }
@@ -62,7 +62,7 @@ export class WebhookRepository {
    * Find active webhooks subscribed to specific event
    */
   async findActiveByEvent(event: WebhookEvent): Promise<Webhook[]> {
-    return this.prisma.webhook.findMany({
+    return await this.prisma.webhook.findMany({
       where: {
         isActive: true,
         events: {
@@ -76,7 +76,7 @@ export class WebhookRepository {
    * Update webhook
    */
   async update(id: string, updateDto: UpdateWebhookDto): Promise<Webhook> {
-    return this.prisma.webhook.update({
+    return await this.prisma.webhook.update({
       where: { id },
       data: updateDto,
     });
@@ -86,7 +86,7 @@ export class WebhookRepository {
    * Delete webhook
    */
   async delete(id: string): Promise<Webhook> {
-    return this.prisma.webhook.delete({
+    return await this.prisma.webhook.delete({
       where: { id },
     });
   }
@@ -95,7 +95,7 @@ export class WebhookRepository {
    * Update last triggered timestamp
    */
   async updateLastTriggered(id: string): Promise<Webhook> {
-    return this.prisma.webhook.update({
+    return await this.prisma.webhook.update({
       where: { id },
       data: { lastTriggeredAt: new Date() },
     });
@@ -110,7 +110,7 @@ export class WebhookRepository {
     payload: any,
     maxAttempts: number,
   ): Promise<WebhookDelivery> {
-    return this.prisma.webhookDelivery.create({
+    return await this.prisma.webhookDelivery.create({
       data: {
         webhookId,
         event,
@@ -137,7 +137,7 @@ export class WebhookRepository {
       completedAt?: Date;
     },
   ): Promise<WebhookDelivery> {
-    return this.prisma.webhookDelivery.update({
+    return await this.prisma.webhookDelivery.update({
       where: { id },
       data,
     });
@@ -147,7 +147,7 @@ export class WebhookRepository {
    * Find pending deliveries for retry
    */
   async findPendingRetries(): Promise<WebhookDelivery[]> {
-    return this.prisma.webhookDelivery.findMany({
+    return await this.prisma.webhookDelivery.findMany({
       where: {
         status: {
           in: ['pending', 'retrying'],
@@ -171,7 +171,7 @@ export class WebhookRepository {
     webhookId: string,
     limit: number = 50,
   ): Promise<WebhookDelivery[]> {
-    return this.prisma.webhookDelivery.findMany({
+    return await this.prisma.webhookDelivery.findMany({
       where: { webhookId },
       orderBy: { createdAt: 'desc' },
       take: limit,

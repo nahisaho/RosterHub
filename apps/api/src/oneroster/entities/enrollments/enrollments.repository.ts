@@ -85,7 +85,7 @@ export class EnrollmentsRepository extends BaseRepository<Enrollment> {
   async findBySourcedIdWithRelations(
     sourcedId: string,
   ): Promise<Enrollment | null> {
-    return this.prisma.enrollment.findUnique({
+    return await this.prisma.enrollment.findUnique({
       where: { sourcedId },
       include: {
         user: {
@@ -263,7 +263,7 @@ export class EnrollmentsRepository extends BaseRepository<Enrollment> {
     userSourcedId: string,
     classSourcedId: string,
   ): Promise<Enrollment | null> {
-    return this.prisma.enrollment.findUnique({
+    return await this.prisma.enrollment.findUnique({
       where: {
         userSourcedId_classSourcedId: {
           userSourcedId,

@@ -70,7 +70,7 @@ export class OrgsRepository extends BaseRepository<Org> {
    * @returns Org with parent, children, and members
    */
   async findBySourcedIdWithRelations(sourcedId: string): Promise<Org | null> {
-    return this.prisma.org.findUnique({
+    return await this.prisma.org.findUnique({
       where: { sourcedId },
       include: {
         parent: true,
@@ -93,7 +93,7 @@ export class OrgsRepository extends BaseRepository<Org> {
    * @returns Org or null if not found
    */
   async findByIdentifier(identifier: string): Promise<Org | null> {
-    return this.prisma.org.findUnique({
+    return await this.prisma.org.findUnique({
       where: { identifier },
     });
   }
