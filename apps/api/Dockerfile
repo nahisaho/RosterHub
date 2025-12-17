@@ -1,7 +1,7 @@
 # ============================================
 # Stage 1: Dependencies
 # ============================================
-FROM node:20-alpine AS dependencies
+FROM node:25-alpine AS dependencies
 
 WORKDIR /app
 
@@ -20,7 +20,7 @@ RUN npm install --omit=dev && \
 # ============================================
 # Stage 2: Build
 # ============================================
-FROM node:20-alpine AS build
+FROM node:25-alpine AS build
 
 WORKDIR /app
 
@@ -48,7 +48,7 @@ RUN npm run build
 # ============================================
 # Stage 3: Production
 # ============================================
-FROM node:20-alpine AS production
+FROM node:25-alpine AS production
 
 WORKDIR /app
 
