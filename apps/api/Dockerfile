@@ -39,11 +39,11 @@ RUN npm install
 COPY src ./src
 COPY prisma ./prisma
 
-# Skip Prisma Client generation during build (will generate at runtime)
-# This avoids DNS issues in Docker build environments
+# Generate Prisma Client for TypeScript compilation
+RUN ./node_modules/.bin/prisma generate
 
-# Build application (Prisma client will be generated at container startup)
-RUN npm run build 2>&1 | grep -v "Prisma" || true
+# Build application
+RUN npm run build
 
 # ============================================
 # Stage 3: Production
@@ -71,8 +71,8 @@ COPY --from=build --chown=nestjs:nodejs /app/prisma ./prisma
 # Copy package files
 COPY --chown=nestjs:nodejs package*.json ./
 
-# Generate Prisma Client in production
-RUN npx prisma generate
+# Generate Prisma Client in production (use local prisma from node_modules)
+RUN ./node_modules/.bin/prisma generate
 
 # Set environment variables
 ENV NODE_ENV=production \
