@@ -6,8 +6,8 @@ A standardized educational data integration platform designed for Board of Educa
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Node.js](https://img.shields.io/badge/Node.js-20.x-green.svg)](https://nodejs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue.svg)](https://www.typescriptlang.org/)
-[![NestJS](https://img.shields.io/badge/NestJS-10.x-red.svg)](https://nestjs.com/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.7-blue.svg)](https://www.typescriptlang.org/)
+[![NestJS](https://img.shields.io/badge/NestJS-11.x-red.svg)](https://nestjs.com/)
 
 [日本語版 README](./README.ja.md)
 
@@ -56,7 +56,7 @@ RosterHub/
 ### Technology Stack
 
 **Backend (API)**:
-- **Framework**: NestJS 10.x (TypeScript, Node.js 20.x)
+- **Framework**: NestJS 11.x (TypeScript 5.7, Node.js 20.x)
 - **Database**: PostgreSQL 15 with Prisma ORM 6.x
 - **Cache & Queue**: Redis 7 with BullMQ for background jobs
 - **Authentication**: API Key with bcryptjs hashing
@@ -84,7 +84,7 @@ RosterHub/
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/your-org/RosterHub.git
+   git clone https://github.com/nahisaho/RosterHub.git
    cd RosterHub
    ```
 
@@ -466,8 +466,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - **Documentation**: [docs/](docs/)
 - **API Reference**: [apps/api/README.md](apps/api/README.md)
-- **Issues**: [GitHub Issues](https://github.com/your-org/RosterHub/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/your-org/RosterHub/discussions)
+- **Issues**: [GitHub Issues](https://github.com/nahisaho/RosterHub/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/nahisaho/RosterHub/discussions)
 
 ---
 

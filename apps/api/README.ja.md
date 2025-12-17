@@ -4,8 +4,8 @@
 
 RosterHubは、日本の小中高教育機関向けに標準化された名簿データ管理を提供する、プロダクションレディなOneRoster API実装です。35,000以上の学校と1,550万人の児童生徒をサポートします。
 
-[![CI Status](https://github.com/your-org/RosterHub/workflows/CI/badge.svg)](https://github.com/your-org/RosterHub/actions)
-[![Coverage](https://codecov.io/gh/your-org/RosterHub/branch/main/graph/badge.svg)](https://codecov.io/gh/your-org/RosterHub)
+[![CI Status](https://github.com/nahisaho/RosterHub/workflows/CI/badge.svg)](https://github.com/nahisaho/RosterHub/actions)
+[![Coverage](https://codecov.io/gh/nahisaho/RosterHub/branch/main/graph/badge.svg)](https://codecov.io/gh/nahisaho/RosterHub)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 ---
@@ -52,7 +52,7 @@ RosterHubは、日本の小中高教育機関向けに標準化された名簿�
 
 ```bash
 # リポジトリのクローン
-git clone https://github.com/your-org/RosterHub.git
+git clone https://github.com/nahisaho/RosterHub.git
 cd RosterHub/apps/api
 
 # 依存関係のインストール
@@ -437,8 +437,8 @@ SELECT * FROM api_keys WHERE key = 'your-api-key' AND is_active = true;
 ## サポート
 
 - **ドキュメント**: [docs/](docs/)ディレクトリを参照
-- **課題**: [GitHub Issues](https://github.com/your-org/RosterHub/issues)
-- **ディスカッション**: [GitHub Discussions](https://github.com/your-org/RosterHub/discussions)
+- **課題**: [GitHub Issues](https://github.com/nahisaho/RosterHub/issues)
+- **ディスカッション**: [GitHub Discussions](https://github.com/nahisaho/RosterHub/discussions)
 
 ---
 

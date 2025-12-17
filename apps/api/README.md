@@ -4,8 +4,8 @@
 
 RosterHub is a production-ready OneRoster API implementation that provides standardized roster data management for Japanese K-12 educational institutions, supporting 35,000+ schools and 15.5 million students.
 
-[![CI Status](https://github.com/your-org/RosterHub/workflows/CI/badge.svg)](https://github.com/your-org/RosterHub/actions)
-[![Coverage](https://codecov.io/gh/your-org/RosterHub/branch/main/graph/badge.svg)](https://codecov.io/gh/your-org/RosterHub)
+[![CI Status](https://github.com/nahisaho/RosterHub/workflows/CI/badge.svg)](https://github.com/nahisaho/RosterHub/actions)
+[![Coverage](https://codecov.io/gh/nahisaho/RosterHub/branch/main/graph/badge.svg)](https://codecov.io/gh/nahisaho/RosterHub)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 ---
@@ -52,7 +52,7 @@ RosterHub is a production-ready OneRoster API implementation that provides stand
 
 ```bash
 # Clone repository
-git clone https://github.com/your-org/RosterHub.git
+git clone https://github.com/nahisaho/RosterHub.git
 cd RosterHub/apps/api
 
 # Install dependencies
@@ -437,8 +437,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## Support
 
 - **Documentation**: See [docs/](docs/) directory
-- **Issues**: [GitHub Issues](https://github.com/your-org/RosterHub/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/your-org/RosterHub/discussions)
+- **Issues**: [GitHub Issues](https://github.com/nahisaho/RosterHub/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/nahisaho/RosterHub/discussions)
 
 ---
 
@@ -452,6 +452,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Last Updated**: 2025-11-16
+**Last Updated**: 2025-12-17
 **Version**: 1.0.0
 **Maintained By**: RosterHub Development Team

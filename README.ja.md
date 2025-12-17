@@ -6,8 +6,8 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Node.js](https://img.shields.io/badge/Node.js-20.x-green.svg)](https://nodejs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue.svg)](https://www.typescriptlang.org/)
-[![NestJS](https://img.shields.io/badge/NestJS-10.x-red.svg)](https://nestjs.com/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.7-blue.svg)](https://www.typescriptlang.org/)
+[![NestJS](https://img.shields.io/badge/NestJS-11.x-red.svg)](https://nestjs.com/)
 
 [English README](./README.md)
 
@@ -56,7 +56,7 @@ RosterHub/
 ### 技術スタック
 
 **バックエンド(API)**:
-- **フレームワーク**: NestJS 10.x (TypeScript、Node.js 20.x)
+- **フレームワーク**: NestJS 11.x (TypeScript 5.7、Node.js 20.x)
 - **データベース**: PostgreSQL 15 + Prisma ORM 6.x
 - **キャッシュ&キュー**: Redis 7 + BullMQ(バックグラウンドジョブ)
 - **認証**: APIキー(bcryptjsハッシュ化)
@@ -84,7 +84,7 @@ RosterHub/
 
 1. **リポジトリのクローン**:
    ```bash
-   git clone https://github.com/your-org/RosterHub.git
+   git clone https://github.com/nahisaho/RosterHub.git
    cd RosterHub
    ```
 
@@ -466,8 +466,8 @@ test(users): CRUD操作のE2Eテストを追加
 
 - **ドキュメント**: [docs/](docs/)
 - **APIリファレンス**: [apps/api/README.ja.md](apps/api/README.ja.md)
-- **課題**: [GitHub Issues](https://github.com/your-org/RosterHub/issues)
-- **ディスカッション**: [GitHub Discussions](https://github.com/your-org/RosterHub/discussions)
+- **課題**: [GitHub Issues](https://github.com/nahisaho/RosterHub/issues)
+- **ディスカッション**: [GitHub Discussions](https://github.com/nahisaho/RosterHub/discussions)
 
 ---
 
