@@ -13,11 +13,11 @@ import { WebhookService } from './webhook.service';
 import { WebhookRepository } from './repositories/webhook.repository';
 import { WebhookRetryScheduler } from './webhook-retry.scheduler';
 import { WebhookEventsService } from './webhook-events.service';
-import { PrismaModule } from '../prisma/prisma.module';
+import { DatabaseModule } from '../database/database.module';
 
 @Module({
   imports: [
-    PrismaModule,
+    DatabaseModule,
     ScheduleModule.forRoot(),
     HttpModule,
     EventEmitterModule.forRoot({

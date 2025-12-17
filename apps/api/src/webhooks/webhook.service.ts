@@ -9,9 +9,12 @@ import { WebhookRepository } from './repositories/webhook.repository';
 import { CreateWebhookDto } from './dto/create-webhook.dto';
 import { UpdateWebhookDto } from './dto/update-webhook.dto';
 import { WebhookResponseDto, WebhookDeliveryResponseDto } from './dto/webhook-response.dto';
-import { Webhook, WebhookDelivery } from '@prisma/client';
+import { Webhook, WebhookDelivery, WebhookDeliveryStatus, WebhookEvent } from '@prisma/client';
 import * as crypto from 'crypto';
 import axios, { AxiosError } from 'axios';
+
+// Type for delivery with webhook relation loaded
+type WebhookDeliveryWithWebhook = WebhookDelivery & { webhook: Webhook };
 
 @Injectable()
 export class WebhookService {
@@ -86,7 +89,7 @@ export class WebhookService {
   /**
    * Trigger webhooks for an event
    */
-  async triggerEvent(event: string, payload: any): Promise<void> {
+  async triggerEvent(event: WebhookEvent, payload: any): Promise<void> {
     const webhooks = await this.webhookRepository.findActiveByEvent(event);
 
     if (webhooks.length === 0) {
@@ -109,7 +112,7 @@ export class WebhookService {
    */
   private async createDelivery(
     webhook: Webhook,
-    event: string,
+    event: WebhookEvent,
     payload: any,
   ): Promise<void> {
     // Create delivery record
@@ -154,12 +157,12 @@ export class WebhookService {
           'User-Agent': 'RosterHub-Webhook/1.0',
         },
         timeout: 10000, // 10 second timeout
-        validateStatus: (status) => status >= 200 && status < 300,
+        validateStatus: (status: number) => status >= 200 && status < 300,
       });
 
       // Success
       await this.webhookRepository.updateDelivery(delivery.id, {
-        status: 'success',
+        status: WebhookDeliveryStatus.success,
         attempts: attempt,
         lastAttemptAt: new Date(),
         responseStatus: response.status,
@@ -186,7 +189,7 @@ export class WebhookService {
         : undefined;
 
       await this.webhookRepository.updateDelivery(delivery.id, {
-        status: shouldRetry ? 'retrying' : 'failed',
+        status: shouldRetry ? WebhookDeliveryStatus.retrying : WebhookDeliveryStatus.failed,
         attempts: attempt,
         lastAttemptAt: new Date(),
         nextRetryAt,
@@ -202,7 +205,7 @@ export class WebhookService {
    * Called by scheduled task (e.g., every minute)
    */
   async processRetries(): Promise<void> {
-    const pendingDeliveries = await this.webhookRepository.findPendingRetries();
+    const pendingDeliveries = await this.webhookRepository.findPendingRetries() as WebhookDeliveryWithWebhook[];
 
     if (pendingDeliveries.length === 0) {
       return;
@@ -215,7 +218,7 @@ export class WebhookService {
         await this.attemptDelivery(delivery.webhook, delivery);
       } catch (error) {
         this.logger.error(
-          `Error processing retry for delivery ${delivery.id}: ${error.message}`,
+          `Error processing retry for delivery ${delivery.id}: ${(error as Error).message}`,
         );
       }
     }

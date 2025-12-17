@@ -8,18 +8,41 @@ This file defines 25 specialized AI agents for Specification Driven Development 
 
 ---
 
+## MCP Server Integration
+
+### CodeGraphMCPServer
+
+When CodeGraphMCPServer is available, agents can leverage these tools for enhanced code understanding:
+
+| MCP Tool                   | Primary Agents                                             | Usage                  |
+| -------------------------- | ---------------------------------------------------------- | ---------------------- |
+| `query_codebase`           | @orchestrator, @steering                                   | コードベース全体の検索 |
+| `find_dependencies`        | @change-impact-analyzer, @constitution-enforcer            | 依存関係分析・違反検出 |
+| `find_callers`             | @change-impact-analyzer, @test-engineer, @security-auditor | 呼び出し元追跡         |
+| `find_callees`             | @software-developer                                        | 呼び出し先追跡         |
+| `find_implementations`     | @api-designer, @system-architect                           | 実装クラス検索         |
+| `analyze_module_structure` | @system-architect, @steering                               | モジュール構造分析     |
+| `get_code_snippet`         | @software-developer, @code-reviewer                        | ソースコード取得       |
+| `global_search`            | @orchestrator, @technical-writer                           | GraphRAGグローバル検索 |
+| `local_search`             | @software-developer, @bug-hunter                           | GraphRAGローカル検索   |
+| `suggest_refactoring`      | @code-reviewer, @performance-optimizer                     | リファクタリング提案   |
+
+**Setup**: See `steering/tech.md` for MCP configuration.
+
+---
+
 ## Quick Reference
 
-| Category | Agents |
-|----------|--------|
-| **Orchestration** (3) | @orchestrator, @steering, @constitution-enforcer |
-| **Requirements & Planning** (3) | @requirements-analyst, @project-manager, @change-impact-analyzer |
-| **Architecture & Design** (4) | @system-architect, @api-designer, @database-schema-designer, @ui-ux-designer |
-| **Development** (1) | @software-developer |
-| **Quality & Review** (5) | @test-engineer, @code-reviewer, @bug-hunter, @quality-assurance, @traceability-auditor |
-| **Security & Performance** (2) | @security-auditor, @performance-optimizer |
-| **Infrastructure** (5) | @devops-engineer, @cloud-architect, @database-administrator, @site-reliability-engineer, @release-coordinator |
-| **Documentation & Specialized** (2) | @technical-writer, @ai-ml-engineer |
+| Category                            | Agents                                                                                                        |
+| ----------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| **Orchestration** (3)               | @orchestrator, @steering, @constitution-enforcer                                                              |
+| **Requirements & Planning** (3)     | @requirements-analyst, @project-manager, @change-impact-analyzer                                              |
+| **Architecture & Design** (4)       | @system-architect, @api-designer, @database-schema-designer, @ui-ux-designer                                  |
+| **Development** (1)                 | @software-developer                                                                                           |
+| **Quality & Review** (5)            | @test-engineer, @code-reviewer, @bug-hunter, @quality-assurance, @traceability-auditor                        |
+| **Security & Performance** (2)      | @security-auditor, @performance-optimizer                                                                     |
+| **Infrastructure** (5)              | @devops-engineer, @cloud-architect, @database-administrator, @site-reliability-engineer, @release-coordinator |
+| **Documentation & Specialized** (2) | @technical-writer, @ai-ml-engineer                                                                            |
 
 ---
 
@@ -32,11 +55,13 @@ This file defines 25 specialized AI agents for Specification Driven Development 
 **Category**: Documentation
 
 **Example Usage**:
-```
+
+```text
 @ai-ml-engineer Implement recommendation system using collaborative filtering
 ```
 
 **Platform-Specific Usage**:
+
 - **Claude Code**: `@ai-ml-engineer` (Skills API)
 - **Other Platforms**: Reference this AGENTS.md file and describe the agent's role in your request
 
@@ -51,11 +76,13 @@ This file defines 25 specialized AI agents for Specification Driven Development 
 **Category**: Architecture
 
 **Example Usage**:
-```
+
+```text
 @api-designer Design RESTful API for blog platform with OpenAPI 3.0 spec
 ```
 
 **Platform-Specific Usage**:
+
 - **Claude Code**: `@api-designer` (Skills API)
 - **Other Platforms**: Reference this AGENTS.md file and describe the agent's role in your request
 
@@ -69,12 +96,20 @@ This file defines 25 specialized AI agents for Specification Driven Development 
 
 **Category**: Quality
 
+**MCP Tools** (when CodeGraphMCPServer available):
+
+- `find_callers` - バグの影響範囲特定
+- `local_search` - ローカルコンテキストで根本原因分析
+- `get_code_snippet` - 問題のコード取得
+
 **Example Usage**:
-```
+
+```text
 @bug-hunter Investigate why users are getting 500 errors on checkout
 ```
 
 **Platform-Specific Usage**:
+
 - **Claude Code**: `@bug-hunter` (Skills API)
 - **Other Platforms**: Reference this AGENTS.md file and describe the agent's role in your request
 
@@ -88,12 +123,20 @@ This file defines 25 specialized AI agents for Specification Driven Development 
 
 **Category**: Requirements
 
+**MCP Tools** (when CodeGraphMCPServer available):
+
+- `find_dependencies` - 変更対象の依存関係を分析
+- `find_callers` - 変更影響範囲を特定（呼び出し元追跡）
+- `query_codebase` - 関連コードの検索
+
 **Example Usage**:
-```
+
+```text
 @change-impact-analyzer Analyze impact of changing authentication library to OAuth 2.0
 ```
 
 **Platform-Specific Usage**:
+
 - **Claude Code**: `@change-impact-analyzer` (Skills API)
 - **Other Platforms**: Reference this AGENTS.md file and describe the agent's role in your request
 
@@ -108,11 +151,13 @@ This file defines 25 specialized AI agents for Specification Driven Development 
 **Category**: Infrastructure
 
 **Example Usage**:
-```
+
+```text
 @cloud-architect Design AWS infrastructure with Terraform for high-availability web app
 ```
 
 **Platform-Specific Usage**:
+
 - **Claude Code**: `@cloud-architect` (Skills API)
 - **Other Platforms**: Reference this AGENTS.md file and describe the agent's role in your request
 
@@ -126,12 +171,20 @@ This file defines 25 specialized AI agents for Specification Driven Development 
 
 **Category**: Quality
 
+**MCP Tools** (when CodeGraphMCPServer available):
+
+- `suggest_refactoring` - リファクタリング提案
+- `find_dependencies` - 依存関係の複雑度分析
+- `get_code_snippet` - ソースコード取得
+
 **Example Usage**:
-```
+
+```text
 @code-reviewer Review this pull request for security issues and best practices
 ```
 
 **Platform-Specific Usage**:
+
 - **Claude Code**: `@code-reviewer` (Skills API)
 - **Other Platforms**: Reference this AGENTS.md file and describe the agent's role in your request
 
@@ -145,12 +198,19 @@ This file defines 25 specialized AI agents for Specification Driven Development 
 
 **Category**: Orchestration
 
+**MCP Tools** (when CodeGraphMCPServer available):
+
+- `find_dependencies` - Article I（Library-First）違反検出
+- `analyze_module_structure` - モジュール構造の憲法遵守確認
+
 **Example Usage**:
-```
+
+```text
 @constitution-enforcer Check project for constitutional compliance violations
 ```
 
 **Platform-Specific Usage**:
+
 - **Claude Code**: `@constitution-enforcer` (Skills API)
 - **Other Platforms**: Reference this AGENTS.md file and describe the agent's role in your request
 
@@ -165,11 +225,13 @@ This file defines 25 specialized AI agents for Specification Driven Development 
 **Category**: Infrastructure
 
 **Example Usage**:
-```
+
+```text
 @database-administrator Optimize PostgreSQL performance and create backup strategy
 ```
 
 **Platform-Specific Usage**:
+
 - **Claude Code**: `@database-administrator` (Skills API)
 - **Other Platforms**: Reference this AGENTS.md file and describe the agent's role in your request
 
@@ -184,11 +246,13 @@ This file defines 25 specialized AI agents for Specification Driven Development 
 **Category**: Architecture
 
 **Example Usage**:
-```
+
+```text
 @database-schema-designer Design normalized database schema for social media app
 ```
 
 **Platform-Specific Usage**:
+
 - **Claude Code**: `@database-schema-designer` (Skills API)
 - **Other Platforms**: Reference this AGENTS.md file and describe the agent's role in your request
 
@@ -203,11 +267,13 @@ This file defines 25 specialized AI agents for Specification Driven Development 
 **Category**: Infrastructure
 
 **Example Usage**:
-```
+
+```text
 @devops-engineer Create CI/CD pipeline with GitHub Actions and Docker deployment
 ```
 
 **Platform-Specific Usage**:
+
 - **Claude Code**: `@devops-engineer` (Skills API)
 - **Other Platforms**: Reference this AGENTS.md file and describe the agent's role in your request
 
@@ -221,12 +287,19 @@ This file defines 25 specialized AI agents for Specification Driven Development 
 
 **Category**: Orchestration
 
+**MCP Tools** (when CodeGraphMCPServer available):
+
+- `global_search` - コードベース全体の俯瞰とコミュニティ検出
+- `query_codebase` - タスクに関連するコードの検索
+
 **Example Usage**:
-```
+
+```text
 @orchestrator Implement user authentication feature from requirements to deployment
 ```
 
 **Platform-Specific Usage**:
+
 - **Claude Code**: `@orchestrator` (Skills API)
 - **Other Platforms**: Reference this AGENTS.md file and describe the agent's role in your request
 
@@ -241,11 +314,13 @@ This file defines 25 specialized AI agents for Specification Driven Development 
 **Category**: Security
 
 **Example Usage**:
-```
+
+```text
 @performance-optimizer Optimize database queries causing slow page load times
 ```
 
 **Platform-Specific Usage**:
+
 - **Claude Code**: `@performance-optimizer` (Skills API)
 - **Other Platforms**: Reference this AGENTS.md file and describe the agent's role in your request
 
@@ -260,11 +335,13 @@ This file defines 25 specialized AI agents for Specification Driven Development 
 **Category**: Requirements
 
 **Example Usage**:
-```
+
+```text
 @project-manager Create project plan with WBS and Gantt chart for 3-month development
 ```
 
 **Platform-Specific Usage**:
+
 - **Claude Code**: `@project-manager` (Skills API)
 - **Other Platforms**: Reference this AGENTS.md file and describe the agent's role in your request
 
@@ -279,11 +356,13 @@ This file defines 25 specialized AI agents for Specification Driven Development 
 **Category**: Quality
 
 **Example Usage**:
-```
+
+```text
 @quality-assurance Develop QA strategy and test plan for new feature release
 ```
 
 **Platform-Specific Usage**:
+
 - **Claude Code**: `@quality-assurance` (Skills API)
 - **Other Platforms**: Reference this AGENTS.md file and describe the agent's role in your request
 
@@ -298,11 +377,13 @@ This file defines 25 specialized AI agents for Specification Driven Development 
 **Category**: Infrastructure
 
 **Example Usage**:
-```
+
+```text
 @release-coordinator Plan release strategy with rollback procedures and deployment windows
 ```
 
 **Platform-Specific Usage**:
+
 - **Claude Code**: `@release-coordinator` (Skills API)
 - **Other Platforms**: Reference this AGENTS.md file and describe the agent's role in your request
 
@@ -317,11 +398,13 @@ This file defines 25 specialized AI agents for Specification Driven Development 
 **Category**: Requirements
 
 **Example Usage**:
-```
+
+```text
 @requirements-analyst Create EARS requirements for user registration with email verification
 ```
 
 **Platform-Specific Usage**:
+
 - **Claude Code**: `@requirements-analyst` (Skills API)
 - **Other Platforms**: Reference this AGENTS.md file and describe the agent's role in your request
 
@@ -335,12 +418,20 @@ This file defines 25 specialized AI agents for Specification Driven Development 
 
 **Category**: Security
 
+**MCP Tools** (when CodeGraphMCPServer available):
+
+- `find_callers` - 危険な関数の呼び出し元追跡
+- `query_codebase` - 脆弱性パターンの検索
+- `find_dependencies` - セキュリティ依存関係の分析
+
 **Example Usage**:
-```
+
+```text
 @security-auditor Audit authentication system for OWASP Top 10 vulnerabilities
 ```
 
 **Platform-Specific Usage**:
+
 - **Claude Code**: `@security-auditor` (Skills API)
 - **Other Platforms**: Reference this AGENTS.md file and describe the agent's role in your request
 
@@ -355,11 +446,13 @@ This file defines 25 specialized AI agents for Specification Driven Development 
 **Category**: Infrastructure
 
 **Example Usage**:
-```
+
+```text
 @site-reliability-engineer Set up monitoring, alerting, and SLO tracking for production
 ```
 
 **Platform-Specific Usage**:
+
 - **Claude Code**: `@site-reliability-engineer` (Skills API)
 - **Other Platforms**: Reference this AGENTS.md file and describe the agent's role in your request
 
@@ -373,12 +466,21 @@ This file defines 25 specialized AI agents for Specification Driven Development 
 
 **Category**: Development
 
+**MCP Tools** (when CodeGraphMCPServer available):
+
+- `get_code_snippet` - 既存コードの参照
+- `find_callees` - 呼び出し先の確認
+- `local_search` - 類似実装パターンの発見
+- `query_codebase` - 関連コードの検索
+
 **Example Usage**:
-```
+
+```text
 @software-developer Implement user login API with JWT authentication and unit tests
 ```
 
 **Platform-Specific Usage**:
+
 - **Claude Code**: `@software-developer` (Skills API)
 - **Other Platforms**: Reference this AGENTS.md file and describe the agent's role in your request
 
@@ -392,12 +494,20 @@ This file defines 25 specialized AI agents for Specification Driven Development 
 
 **Category**: Orchestration
 
+**MCP Tools** (when CodeGraphMCPServer available):
+
+- `global_search` - コードベース構造の理解
+- `analyze_module_structure` - モジュール構造の分析
+- `query_codebase` - 技術スタックの検出
+
 **Example Usage**:
-```
+
+```text
 @steering Analyze this codebase and generate project steering context
 ```
 
 **Platform-Specific Usage**:
+
 - **Claude Code**: `@steering` (Skills API)
 - **Other Platforms**: Reference this AGENTS.md file and describe the agent's role in your request
 
@@ -411,12 +521,20 @@ This file defines 25 specialized AI agents for Specification Driven Development 
 
 **Category**: Architecture
 
+**MCP Tools** (when CodeGraphMCPServer available):
+
+- `global_search` - コミュニティ検出でモジュール境界を発見
+- `analyze_module_structure` - モジュール構造分析
+- `find_dependencies` - コンポーネント間依存関係の可視化
+
 **Example Usage**:
-```
+
+```text
 @system-architect Design microservices architecture for e-commerce platform with C4 diagrams
 ```
 
 **Platform-Specific Usage**:
+
 - **Claude Code**: `@system-architect` (Skills API)
 - **Other Platforms**: Reference this AGENTS.md file and describe the agent's role in your request
 
@@ -431,11 +549,13 @@ This file defines 25 specialized AI agents for Specification Driven Development 
 **Category**: Documentation
 
 **Example Usage**:
-```
+
+```text
 @technical-writer Write API documentation and user guide for REST API
 ```
 
 **Platform-Specific Usage**:
+
 - **Claude Code**: `@technical-writer` (Skills API)
 - **Other Platforms**: Reference this AGENTS.md file and describe the agent's role in your request
 
@@ -449,12 +569,20 @@ This file defines 25 specialized AI agents for Specification Driven Development 
 
 **Category**: Quality
 
+**MCP Tools** (when CodeGraphMCPServer available):
+
+- `find_callers` - テストカバレッジの自動判定
+- `find_dependencies` - 未テストコードパスの発見
+- `query_codebase` - テスト対象の検索
+
 **Example Usage**:
-```
+
+```text
 @test-engineer Create comprehensive test suite for payment processing module
 ```
 
 **Platform-Specific Usage**:
+
 - **Claude Code**: `@test-engineer` (Skills API)
 - **Other Platforms**: Reference this AGENTS.md file and describe the agent's role in your request
 
@@ -468,12 +596,20 @@ This file defines 25 specialized AI agents for Specification Driven Development 
 
 **Category**: Quality
 
+**MCP Tools** (when CodeGraphMCPServer available):
+
+- `query_codebase` - 要件IDでコードベースを検索
+- `find_callers` - 要件→コード→テストのマッピング検証
+- `find_dependencies` - トレーサビリティチェーンの確認
+
 **Example Usage**:
-```
+
+```text
 @traceability-auditor Verify requirements traceability from specs to tests
 ```
 
 **Platform-Specific Usage**:
+
 - **Claude Code**: `@traceability-auditor` (Skills API)
 - **Other Platforms**: Reference this AGENTS.md file and describe the agent's role in your request
 
@@ -488,11 +624,13 @@ This file defines 25 specialized AI agents for Specification Driven Development 
 **Category**: Architecture
 
 **Example Usage**:
-```
+
+```text
 @ui-ux-designer Create wireframes and prototypes for mobile shopping app
 ```
 
 **Platform-Specific Usage**:
+
 - **Claude Code**: `@ui-ux-designer` (Skills API)
 - **Other Platforms**: Reference this AGENTS.md file and describe the agent's role in your request
 
@@ -519,7 +657,8 @@ Use `@constitution-enforcer` to validate compliance.
 ## Workflow Integration
 
 ### Greenfield Projects (New Development)
-```
+
+```text
 1. @steering          → Generate project memory (structure.md, tech.md, product.md)
 2. @requirements-analyst → Create EARS requirements
 3. @system-architect  → Design architecture with C4 diagrams
@@ -534,7 +673,8 @@ Use `@constitution-enforcer` to validate compliance.
 ```
 
 ### Brownfield Projects (Existing Codebase)
-```
+
+```text
 1. @change-impact-analyzer → Analyze change impact
 2. @requirements-analyst   → Document change requirements
 3. @system-architect       → Update architecture if needed
@@ -545,6 +685,7 @@ Use `@constitution-enforcer` to validate compliance.
 ```
 
 ### Quick Tasks
+
 - **Bug Fixing**: @bug-hunter → @software-developer → @test-engineer
 - **Performance**: @performance-optimizer → @software-developer → @test-engineer
 - **Documentation**: @technical-writer
@@ -557,11 +698,12 @@ Use `@constitution-enforcer` to validate compliance.
 
 For complex tasks spanning multiple domains, use:
 
-```
+```text
 @orchestrator [Your complex request]
 ```
 
 The orchestrator will:
+
 1. Analyze the request
 2. Break down into subtasks
 3. Select appropriate agents
@@ -570,7 +712,8 @@ The orchestrator will:
 6. Ensure constitutional compliance
 
 **Example**:
-```
+
+```text
 @orchestrator Implement a secure payment processing feature with API, database, tests, and deployment pipeline
 ```
 

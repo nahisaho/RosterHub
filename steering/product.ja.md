@@ -1,154 +1,573 @@
-# プロダクトコンテキスト - RosterHub
+# Product Context
 
-## 概要
-本ドキュメントは、RosterHubのビジネスコンテキスト、プロダクト目的、コア機能を定義します。AIエージェントが開発判断の「なぜ」を理解し、ビジネス目標との整合性を確保するためのガイドです。
-
-**最終更新日**: 2025-11-15 (Steering Agent - Sprint 5 セキュリティ実装完了)
-
----
-
-## プロダクトビジョン
-
-### 構築するもの
-**RosterHub**は、**OneRoster Japan Profile 1.2.2準拠の統合ハブ**であり、校務支援システムと学習ツール間の教育データ連携を標準化・自動化します。教育委員会レベルの展開を想定し、10,000〜200,000名規模の複数学校を管理する組織向けに設計されています。
-
-### 解決する課題
-教育機関が現在抱える課題:
-- **手動CSV運用**: システム間でのCSVエクスポート/インポートに時間がかかる
-- **データ連携の混乱**: 非標準フォーマットにより、ベンダーごとにカスタム統合が必要
-- **同期エラー**: 手動データ更新によるシステム間の不整合
-- **セキュリティリスク**: メールやファイル共有サービスによるCSVファイル送信
-- **コンプライアンス課題**: 個人情報保護規制への対応困難
-- **スケーラビリティの問題**: 手動プロセスは10万名以上の組織に対応できない
-
-### ターゲットユーザー
-
-**主要ユーザー**: 教育委員会（都道府県・市区町村レベル）
-- **組織規模**: 10,000〜200,000名の生徒・教職員を管理
-- **ユーザー数**: 10〜100名のシステム管理者・連携担当者
-- **利用ケース**: 校務支援システムと複数の学習プラットフォームを接続する中央データハブ
-- **技術レベル**: 中級（システム管理者、IT担当者）
-
-**副次ユーザー**: 学校・教育機関
-- **組織規模**: 500〜5,000名の生徒を持つ個別学校
-- **利用ケース**: 校務支援システムとの直接統合
-- **技術レベル**: 初級〜中級
-
-**第三ユーザー**: ベンダー・学習プラットフォーム提供者
-- **利用ケース**: REST API経由でOneRoster準拠データを取得
-- **技術レベル**: 上級（開発者・統合チーム）
+**Project**: RosterHub
+**Last Updated**: 2025-12-17
+**Version**: 1.0
 
 ---
 
-## コア機能
+## Product Vision
 
-### 必須機能（MVP）
+**Vision Statement**: 教育データの標準化と連携を通じて、日本の教育DXを加速する
 
-#### 1. OneRoster Japan Profile 1.2.2 CSV インポート
-- **ユーザー価値**: 校務支援システムからの一括データインポート（100MB+ファイル、200,000名以上）
-- **優先度**: 最重要
-- **説明**: ストリーミングCSVパーサーで全Japan Profileエンティティに対応、検証機能とバックグラウンド処理（30分非同期ジョブ）
+> 校務支援システムと学習ツール間のデータ連携を標準化・自動化し、
+> 教育委員会と学校現場の業務効率化を実現します。
 
-#### 2. OneRoster Japan Profile 1.2.2 CSV エクスポート
-- **ユーザー価値**: CSVインポート対応学習ツール向け標準データエクスポート
-- **優先度**: 最重要
-- **説明**: Japan Profile準拠CSVファイル生成、適切なエンコーディング（UTF-8 BOM）、メタデータフィールド、一括ダウンロード
-
-#### 3. OneRoster REST API（一括アクセス）
-- **ユーザー価値**: 学習プラットフォーム向けリアルタイムデータアクセス
-- **優先度**: 最重要
-- **説明**: 全OneRosterエンティティのCRUD操作、ページネーション、フィルタリング、ソート機能
-
-#### 4. OneRoster Delta/Incremental API（差分取得API）
-- **ユーザー価値**: 前回同期以降の変更データのみ取得することで効率的同期
-- **優先度**: 高
-- **説明**: `dateLastModified`クエリによるタイムスタンプベースの変更追跡、論理削除サポート（`status='tobedeleted'`）
-
-#### 5. データ検証とエラーハンドリング
-- **ユーザー価値**: 不正データの侵入防止、明確なエラーレポート提供
-- **優先度**: 最重要
-- **説明**: Japan Profileフィールド検証、参照整合性チェック、重複検出、詳細エラーレポート
-
-#### 6. API認証とセキュリティ
-- **ユーザー価値**: 詳細な権限制御による安全なAPIアクセス
-- **優先度**: 最重要
-- **説明**: API Key認証とIPホワイトリスト制限、レート制限、監査ログ
-
-### 高優先度機能（フェーズ2）
-
-- **Webベース CSV インポート UI**: ブラウザベースのアップロードと進捗追跡
-- **データマッピング設定**: 非標準ソースシステム向けカスタムフィールドマッピング
-- **高度な監視ダッシュボード**: リアルタイム同期ステータス、エラー分析、監査証跡可視化
-- **Webhook通知**: データ変更のイベント駆動通知
-- **マルチテナントサポート**: 複数教育委員会クライアント向け環境分離
-
-### 将来的機能（今後のフェーズ）
-
-- **リアルタイムデータストリーミング**: WebSocketベースのリアルタイム更新
-- **データ品質レポート**: 自動データ品質チェックと推奨事項
-- **多言語サポート**: UI・ドキュメントの英語・日本語・その他言語対応
-- **高度な分析**: 利用状況分析、同期パフォーマンス指標、トレンド分析
-- **カスタムエンティティ拡張**: Japan Profileを超えたベンダー固有拡張のサポート
-
-### 明示的に対象外の項目
-
-- **OneRoster 1.1以前のバージョン**（1.2.2 Japan Profileのみサポート）
-- **カスタムデータフォーマット**（OneRoster以外の標準）
-- **データベース直接統合**（外部アクセスはAPIのみ）
-- **学習管理システム機能**（LMS/LTI機能）
-- **学校情報システム機能**（RosterHubは統合のみ）
-- **リアルタイムチャットやコラボレーション**（コミュニケーションプラットフォームではない）
+**Mission**: OneRoster Japan Profile 1.2.2準拠の教育データ連携ハブを提供し、
+大規模展開（10,000〜200,000ユーザー）に対応したエンタープライズグレードのソリューションを構築する。
 
 ---
 
-## ビジネスモデル
+## Product Overview
 
-### 収益モデル
-- **サブスクリプション型SaaS**（組織単位またはユーザー単位）
-- **段階的価格設定**:
-  - **スターター**: 最大10,000名 - 基本CSV インポート/エクスポート + REST API
-  - **プロフェッショナル**: 最大50,000名 - Delta APIを含む全機能
-  - **エンタープライズ**: 50,000名以上 - カスタムSLA、専任サポート、オンプレミス展開オプション
-- **年間契約**（ボリュームディスカウント）
+### What is RosterHub?
 
-### 主要指標
-追跡する成功指標:
-- **データ精度率**: 検証エラーなしの成功インポート率（目標: 99%以上）
-- **API稼働率**: システム可用性（目標: 99.9%）
-- **同期パフォーマンス**: 100,000名のCSVインポート平均時間（目標: 30分未満）
-- **顧客維持率**: 年間更新率（目標: 95%以上）
-- **統合ボリューム**: 顧客あたりアクティブ学習ツール統合数
-- **エラー解決時間**: エラー検出から解決までの時間（目標: 重大問題は1時間未満）
+**OneRoster Japan Profile 1.2.2対応 教育データ連携ハブ**
 
----
+RosterHubは、教育委員会レベルでの大規模展開を想定した、標準化された教育データ連携プラットフォームです。
+校務支援システム（SIS）と学習管理システム（LMS）間のデータ交換を自動化し、
+教職員の業務負担を軽減します。
 
----
+### Problem Statement
 
-## Sprint 5 実装状況（完了 ✅）
+**問題**: 教育現場では複数のシステム間でのデータ連携が手作業で行われており、
+以下の課題が存在します：
+- 児童生徒・教職員データの二重入力
+- システム間のデータ不整合
+- 大規模データ移行の時間とコスト
+- 各ベンダー独自フォーマットへの対応負担
 
-### セキュリティ機能実装
-- ✅ **APIキー管理**: 生成、検証、失効機能
-  - 暗号学的に安全なキー生成（256ビットエントロピー）
-  - Bcryptハッシュ化（12ラウンドsalt）で安全に保存
-  - Redis キャッシュ（5分TTL）でパフォーマンス向上
-- ✅ **IPホワイトリストガード**: IPv4/IPv6/CIDR対応
-- ✅ **レート制限ガード**: トークンバケット + スライディングウィンドウアルゴリズム
-  - デフォルト: APIキーごとに1時間1000リクエスト（設定可能）
-- ✅ **強化された監査ログ**: データベース + コンソール、GDPR準拠
-  - リクエスト/レスポンスキャプチャ、データサニタイゼーション
-  - エンティティコンテキスト抽出（タイプ、アクション、sourcedId）
+### Solution
 
-### 実装統計
-- 新規ファイル: 14ファイル（約3,257行）
-- テストファイル: 2ファイル（約661行）
-- ユニットテスト: 26テスト
-
-### 全体進捗
-- **完了**: 76/104タスク（73%）
-- **次回**: Sprint 6（CSV処理）、Sprint 7-8（高度なAPI機能）
+**解決策**: OneRoster Japan Profile 1.2.2に準拠した標準データ連携ハブを提供し：
+- CSVインポート/エクスポートによる一括データ操作
+- REST APIによるリアルタイム連携
+- 差分同期APIによる効率的な増分更新
+- エンタープライズセキュリティ（APIキー認証、監査ログ）
 
 ---
 
-**注記**: 本ドキュメントはプロダクトの方向性の変化に応じて更新してください。詳細仕様ではなく、高レベルのコンテキストに焦点を当ててください（詳細仕様は要件・設計ドキュメントに記載）。
+## Target Users
 
-**最終更新日**: 2025-11-15 (Steering Agent - Sprint 5 セキュリティ実装完了)
+### Primary Users
+
+#### User Persona 1: 教育委員会 情報システム担当者
+
+**Demographics**:
+- **Role**: 教育委員会の情報システム管理者
+- **Organization Size**: 10,000〜200,000ユーザー（複数校を統括）
+- **Technical Level**: 中〜高（システム管理経験あり）
+
+**Goals**:
+- 管轄内全校のデータを一元管理
+- 年度更新作業の効率化
+- システム間のデータ整合性確保
+
+**Pain Points**:
+- 各校からのデータ収集・集約に時間がかかる
+- ベンダーごとに異なるデータフォーマット
+- 大規模データ処理のパフォーマンス問題
+
+**Use Cases**:
+- 年度初めの一括データインポート
+- 学期中の差分データ同期
+- 監査用データエクスポート
+
+#### User Persona 2: 学校 教務主任/情報担当
+
+**Demographics**:
+- **Role**: 学校の教務主任または情報担当教員
+- **Organization Size**: 100〜2,000ユーザー（単一校）
+- **Technical Level**: 低〜中
+
+**Goals**:
+- クラス編成・名簿管理の効率化
+- 学習ツールへの児童生徒データ連携
+
+**Pain Points**:
+- CSVフォーマットの理解・作成が困難
+- データ入力ミスによる連携エラー
+
+---
+
+## Core Product Capabilities
+
+### Must-Have Features (MVP)
+
+1. **CSVインポート/エクスポート**
+   - **Description**: OneRoster Japan Profile 1.2.2準拠のCSVファイル処理
+   - **User Value**: 大容量データの一括処理（100MB+、200,000+レコード）
+   - **Priority**: P0 (Critical)
+
+2. **REST API**
+   - **Description**: フルCRUD操作、ページネーション、フィルタリング、ソート
+   - **User Value**: 外部システムとのリアルタイム連携
+   - **Priority**: P0 (Critical)
+
+3. **差分/増分API**
+   - **Description**: タイムスタンプベースの変更追跡
+   - **User Value**: 効率的なデータ同期
+   - **Priority**: P0 (Critical)
+
+4. **エンタープライズセキュリティ**
+   - **Description**: APIキー認証、IPホワイトリスト、レート制限、監査ログ
+   - **User Value**: 組織のセキュリティポリシー準拠
+   - **Priority**: P0 (Critical)
+
+---
+
+## OneRoster Japan Profile 1.2.2 対応エンティティ
+
+| エンティティ | 説明 | 状態 |
+|-------------|------|------|
+| **Users** | 児童生徒・教職員 | ✅ Repository完了 |
+| **Orgs** | 学校・教育委員会 | ✅ Repository完了 |
+| **Classes** | クラス・学級 | ✅ Repository完了 |
+| **Courses** | 教科・科目 | ✅ Repository完了 |
+| **Enrollments** | 所属関係 | ✅ Repository完了 |
+| **AcademicSessions** | 年度・学期 | ✅ Repository完了 |
+| **Demographics** | 属性情報 | ✅ Repository完了 |
+
+---
+
+## Non-Functional Requirements
+
+### Performance
+- 200,000レコードのCSV処理 < 30分
+- 100同時ユーザー対応
+- API レスポンス P95 < 200ms
+
+### Security
+- APIキー認証（bcryptハッシュ化）
+- IPホワイトリスト
+- 監査ログ（GDPR準拠）
+
+### Scalability
+- 水平スケーリング対応（Kubernetes）
+- バックグラウンドジョブ処理（BullMQ）
+
+---
+
+*Run `#sdd-steering` to update this document after product changes.*
+
+3. **{{FEATURE_3}}**
+   - **Description**: [What it does]
+   - **User Value**: [Why users need it]
+   - **Priority**: P0 (Critical)
+
+### High-Priority Features (Post-MVP)
+
+4. **{{FEATURE_4}}**
+   - **Description**: [What it does]
+   - **User Value**: [Why users need it]
+   - **Priority**: P1 (High)
+
+5. **{{FEATURE_5}}**
+   - **Description**: [What it does]
+   - **User Value**: [Why users need it]
+   - **Priority**: P1 (High)
+
+### Future Features (Roadmap)
+
+6. **{{FEATURE_6}}**
+   - **Description**: [What it does]
+   - **User Value**: [Why users need it]
+   - **Priority**: P2 (Medium)
+
+7. **{{FEATURE_7}}**
+   - **Description**: [What it does]
+   - **User Value**: [Why users need it]
+   - **Priority**: P3 (Low)
+
+---
+
+## Product Principles
+
+### Design Principles
+
+1. **{{PRINCIPLE_1}}**
+   - [Description of what this means for product decisions]
+
+2. **{{PRINCIPLE_2}}**
+   - [Description]
+
+3. **{{PRINCIPLE_3}}**
+   - [Description]
+
+**Examples**:
+
+- **Simplicity First**: Favor simple solutions over complex ones
+- **User Empowerment**: Give users control and flexibility
+- **Speed & Performance**: Fast response times (< 200ms)
+
+### User Experience Principles
+
+1. **{{UX_PRINCIPLE_1}}**
+   - [How this guides UX decisions]
+
+2. **{{UX_PRINCIPLE_2}}**
+   - [How this guides UX decisions]
+
+**Examples**:
+
+- **Progressive Disclosure**: Show advanced features only when needed
+- **Accessibility First**: WCAG 2.1 AA compliance
+- **Mobile-First**: Design for mobile, enhance for desktop
+
+---
+
+## Success Metrics
+
+### Key Performance Indicators (KPIs)
+
+#### Business Metrics
+
+| Metric                              | Target            | Measurement    |
+| ----------------------------------- | ----------------- | -------------- |
+| **Monthly Active Users (MAU)**      | {{MAU_TARGET}}    | [How measured] |
+| **Monthly Recurring Revenue (MRR)** | ${{MRR_TARGET}}   | [How measured] |
+| **Customer Acquisition Cost (CAC)** | ${{CAC_TARGET}}   | [How measured] |
+| **Customer Lifetime Value (LTV)**   | ${{LTV_TARGET}}   | [How measured] |
+| **Churn Rate**                      | < {{CHURN_RATE}}% | [How measured] |
+
+#### Product Metrics
+
+| Metric                       | Target                | Measurement    |
+| ---------------------------- | --------------------- | -------------- |
+| **Daily Active Users (DAU)** | {{DAU_TARGET}}        | [How measured] |
+| **Feature Adoption Rate**    | > {{ADOPTION_RATE}}%  | [How measured] |
+| **User Retention (Day 7)**   | > {{RETENTION_RATE}}% | [How measured] |
+| **Net Promoter Score (NPS)** | > {{NPS_TARGET}}      | [How measured] |
+
+#### Technical Metrics
+
+| Metric                      | Target  | Measurement             |
+| --------------------------- | ------- | ----------------------- |
+| **API Response Time (p95)** | < 200ms | Monitoring dashboard    |
+| **Uptime**                  | 99.9%   | Status page             |
+| **Error Rate**              | < 0.1%  | Error tracking (Sentry) |
+| **Page Load Time**          | < 2s    | Web vitals              |
+
+---
+
+## Product Roadmap
+
+### Phase 1: MVP (Months 1-3)
+
+**Goal**: Launch minimum viable product
+
+**Features**:
+
+- [Feature 1]
+- [Feature 2]
+- [Feature 3]
+
+**Success Criteria**:
+
+- [Criterion 1]
+- [Criterion 2]
+
+---
+
+### Phase 2: Growth (Months 4-6)
+
+**Goal**: Achieve product-market fit
+
+**Features**:
+
+- [Feature 4]
+- [Feature 5]
+- [Feature 6]
+
+**Success Criteria**:
+
+- [Criterion 1]
+- [Criterion 2]
+
+---
+
+### Phase 3: Scale (Months 7-12)
+
+**Goal**: Scale to {{USER_TARGET}} users
+
+**Features**:
+
+- [Feature 7]
+- [Feature 8]
+- [Feature 9]
+
+**Success Criteria**:
+
+- [Criterion 1]
+- [Criterion 2]
+
+---
+
+## User Workflows
+
+### Primary Workflow 1: {{WORKFLOW_1_NAME}}
+
+**User Goal**: {{USER_GOAL}}
+
+**Steps**:
+
+1. User [action 1]
+2. System [response 1]
+3. User [action 2]
+4. System [response 2]
+5. User achieves [goal]
+
+**Success Criteria**:
+
+- User completes workflow in < {{TIME}} minutes
+- Success rate > {{SUCCESS_RATE}}%
+
+---
+
+### Primary Workflow 2: {{WORKFLOW_2_NAME}}
+
+**User Goal**: {{USER_GOAL}}
+
+**Steps**:
+
+1. [Step 1]
+2. [Step 2]
+3. [Step 3]
+
+**Success Criteria**:
+
+- [Criterion 1]
+- [Criterion 2]
+
+---
+
+## Business Domain
+
+### Domain Concepts
+
+Key concepts and terminology used in this domain:
+
+1. **{{CONCEPT_1}}**: [Definition and importance]
+2. **{{CONCEPT_2}}**: [Definition and importance]
+3. **{{CONCEPT_3}}**: [Definition and importance]
+
+**Example for SaaS Authentication**:
+
+- **Identity Provider (IdP)**: Service that authenticates users
+- **Single Sign-On (SSO)**: One login for multiple applications
+- **Multi-Factor Authentication (MFA)**: Additional verification step
+
+### Business Rules
+
+1. **{{RULE_1}}**
+   - [Description of business rule]
+   - **Example**: [Concrete example]
+
+2. **{{RULE_2}}**
+   - [Description]
+   - **Example**: [Example]
+
+**Example for E-commerce**:
+
+- **Inventory Reservation**: Reserved items held for 10 minutes during checkout
+- **Refund Window**: Refunds allowed within 30 days of purchase
+
+---
+
+## Constraints & Requirements
+
+### Business Constraints
+
+- **Budget**: ${{BUDGET}}
+- **Timeline**: {{TIMELINE}}
+- **Team Size**: {{TEAM_SIZE}} engineers
+- **Launch Date**: {{LAUNCH_DATE}}
+
+### Compliance Requirements
+
+- **{{COMPLIANCE_1}}**: [Description, e.g., GDPR, SOC 2, HIPAA]
+- **{{COMPLIANCE_2}}**: [Description]
+- **Data Residency**: [Requirements, e.g., EU data stays in EU]
+
+### Non-Functional Requirements
+
+- **Performance**: API response < 200ms (95th percentile)
+- **Availability**: 99.9% uptime SLA
+- **Scalability**: Support {{CONCURRENT_USERS}} concurrent users
+- **Security**: OWASP Top 10 compliance
+- **Accessibility**: WCAG 2.1 AA compliance
+
+---
+
+## Stakeholders
+
+### Internal Stakeholders
+
+| Role                    | Name                 | Responsibilities                  |
+| ----------------------- | -------------------- | --------------------------------- |
+| **Product Owner**       | {{PO_NAME}}          | Vision, roadmap, priorities       |
+| **Tech Lead**           | {{TECH_LEAD_NAME}}   | Architecture, technical decisions |
+| **Engineering Manager** | {{EM_NAME}}          | Team management, delivery         |
+| **QA Lead**             | {{QA_LEAD_NAME}}     | Quality assurance, testing        |
+| **Design Lead**         | {{DESIGN_LEAD_NAME}} | UX/UI design                      |
+
+### External Stakeholders
+
+| Role                        | Name        | Responsibilities            |
+| --------------------------- | ----------- | --------------------------- |
+| **Customer Advisory Board** | [Members]   | Product feedback            |
+| **Investors**               | [Names]     | Funding, strategic guidance |
+| **Partners**                | [Companies] | Integration, co-marketing   |
+
+---
+
+## Go-to-Market Strategy
+
+### Launch Strategy
+
+**Target Launch Date**: {{LAUNCH_DATE}}
+
+**Launch Phases**:
+
+1. **Private Beta** ({{START_DATE}} - {{END_DATE}})
+   - Invite-only, 50 beta users
+   - Focus: Gather feedback, fix critical bugs
+
+2. **Public Beta** ({{START_DATE}} - {{END_DATE}})
+   - Open signup
+   - Focus: Validate product-market fit
+
+3. **General Availability** ({{LAUNCH_DATE}})
+   - Full public launch
+   - Focus: Acquisition and growth
+
+### Marketing Channels
+
+- **{{CHANNEL_1}}**: [Strategy, e.g., Content marketing, SEO]
+- **{{CHANNEL_2}}**: [Strategy, e.g., Social media, Twitter/LinkedIn]
+- **{{CHANNEL_3}}**: [Strategy, e.g., Paid ads, Google/Facebook]
+- **{{CHANNEL_4}}**: [Strategy, e.g., Partnerships, integrations]
+
+---
+
+## Risk Assessment
+
+### Product Risks
+
+| Risk       | Probability     | Impact          | Mitigation            |
+| ---------- | --------------- | --------------- | --------------------- |
+| {{RISK_1}} | High/Medium/Low | High/Medium/Low | [Mitigation strategy] |
+| {{RISK_2}} | High/Medium/Low | High/Medium/Low | [Mitigation strategy] |
+
+**Example Risks**:
+
+- **Low adoption**: Users don't understand value → Clear onboarding, demos
+- **Performance issues**: System slow at scale → Load testing, optimization
+- **Security breach**: Data compromised → Security audit, penetration testing
+
+---
+
+## Customer Support
+
+### Support Channels
+
+- **Email**: support@{{COMPANY}}.com
+- **Chat**: In-app live chat (business hours)
+- **Documentation**: docs.{{COMPANY}}.com
+- **Community**: Forum/Discord/Slack
+
+### Support SLA
+
+| Tier              | Response Time | Resolution Time |
+| ----------------- | ------------- | --------------- |
+| **Critical (P0)** | < 1 hour      | < 4 hours       |
+| **High (P1)**     | < 4 hours     | < 24 hours      |
+| **Medium (P2)**   | < 24 hours    | < 3 days        |
+| **Low (P3)**      | < 48 hours    | Best effort     |
+
+---
+
+## Product Analytics
+
+### Analytics Tools
+
+- **{{ANALYTICS_TOOL_1}}**: [Purpose, e.g., Google Analytics, Mixpanel]
+- **{{ANALYTICS_TOOL_2}}**: [Purpose, e.g., Amplitude, Heap]
+
+### Events to Track
+
+| Event               | Description            | Purpose           |
+| ------------------- | ---------------------- | ----------------- |
+| `user_signup`       | New user registration  | Track acquisition |
+| `feature_used`      | User uses core feature | Track engagement  |
+| `payment_completed` | User completes payment | Track conversion  |
+| `error_occurred`    | User encounters error  | Track reliability |
+
+---
+
+## Localization & Internationalization
+
+### Supported Languages
+
+- **Primary**: English (en-US)
+- **Secondary**: [Languages, e.g., Japanese (ja-JP), Spanish (es-ES)]
+
+### Localization Strategy
+
+- **UI Strings**: i18n framework (next-intl, react-i18next)
+- **Date/Time**: Locale-aware formatting
+- **Currency**: Multi-currency support
+- **Right-to-Left (RTL)**: Support for Arabic, Hebrew (if needed)
+
+---
+
+## Data & Privacy
+
+### Data Collection
+
+**What data we collect**:
+
+- User account information (email, name)
+- Usage analytics (anonymized)
+- Error logs (for debugging)
+
+**What data we DON'T collect**:
+
+- [Sensitive data we avoid, e.g., passwords (only hashed), payment details (tokenized)]
+
+### Privacy Policy
+
+- **GDPR Compliance**: Right to access, delete, export data
+- **Data Retention**: [Retention period, e.g., 90 days for logs]
+- **Third-Party Sharing**: [Who we share data with, why]
+
+---
+
+## Integrations
+
+### Existing Integrations
+
+| Integration       | Purpose   | Priority |
+| ----------------- | --------- | -------- |
+| {{INTEGRATION_1}} | [Purpose] | P0       |
+| {{INTEGRATION_2}} | [Purpose] | P1       |
+
+### Planned Integrations
+
+| Integration       | Purpose   | Timeline |
+| ----------------- | --------- | -------- |
+| {{INTEGRATION_3}} | [Purpose] | Q2 2025  |
+| {{INTEGRATION_4}} | [Purpose] | Q3 2025  |
+
+---
+
+## Changelog
+
+### Version 1.1 (Planned)
+
+- [Future product updates]
+
+---
+
+**Last Updated**: 2025-12-17
+**Maintained By**: {{MAINTAINER}}

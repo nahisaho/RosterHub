@@ -80,3 +80,7 @@ junit.xml
 
 # Performance test results
 apps/api/test/performance/results/
+
+# Exported files
+apps/api/exports/
+exports/

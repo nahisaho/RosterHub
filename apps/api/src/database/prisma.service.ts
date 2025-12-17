@@ -43,19 +43,20 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
     });
 
     // Log slow queries (> 1 second) for performance monitoring
-    this.$on('query' as any, (e: any) => {
+    // Note: Using type assertion due to Prisma event types limitation
+    (this as any).$on('query', (e: { query: string; duration: number }) => {
       if (e.duration > 1000) {
         this.logger.warn(`Slow query detected: ${e.query} (${e.duration}ms)`);
       }
     });
 
     // Log all errors
-    this.$on('error' as any, (e: any) => {
+    (this as any).$on('error', (e: { message: string }) => {
       this.logger.error(`Database error: ${e.message}`);
     });
 
     // Log warnings
-    this.$on('warn' as any, (e: any) => {
+    (this as any).$on('warn', (e: { message: string }) => {
       this.logger.warn(`Database warning: ${e.message}`);
     });
   }

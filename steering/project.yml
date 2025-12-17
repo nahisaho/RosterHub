@@ -1,0 +1,39 @@
+# MUSUBI Project Configuration
+name: RosterHub
+description: OneRoster Japan Profile 1.2.2 対応 教育データ連携ハブ
+locale: ja
+version: "0.1.0"
+created: 2025-12-17
+updated: 2025-12-17
+
+# Technology Stack
+tech_stack:
+  approach: monorepo
+  languages:
+    - TypeScript 5.7
+  backend:
+    framework: NestJS 11.x
+    runtime: Node.js 20.x
+    orm: Prisma 6.x
+    database: PostgreSQL 15
+    cache: Redis 7
+    queue: BullMQ
+  frontend:
+    framework: React 18
+    build: Vite 5
+    state: Zustand
+    query: TanStack Query 5
+  testing:
+    unit: Jest 30
+    e2e: Supertest
+  infrastructure:
+    containerization: Docker
+    orchestration: Docker Compose
+
+# Implementation Status
+status:
+  phase: development
+  progress: 20%
+  sprints_completed:
+    - Sprint 0: Project Setup
+    - Sprint 1-2: Database Layer

@@ -344,8 +344,8 @@ csv-demo-001,active,2025-01-15T10:00:00Z,2010-04-15,male,csv-import-001,JP,山�
     });
 
     it('should import valid academicSessions CSV file', async () => {
-      const csvContent = `sourcedId,status,dateLastModified,title,type,startDate,endDate,metadata.jp.fiscalYear,metadata.jp.schoolYearName
-csv-session-001,active,2025-01-15T10:00:00Z,2025 Academic Year,schoolYear,2025-04-01,2026-03-31,2025,令和7年度`;
+      const csvContent = `sourcedId,status,dateLastModified,title,type,startDate,endDate,schoolYear,metadata.jp.fiscalYear,metadata.jp.schoolYearName
+csv-session-001,active,2025-01-15T10:00:00Z,2025 Academic Year,schoolYear,2025-04-01,2026-03-31,2025,2025,令和7年度`;
 
       const tempFilePath = path.join(__dirname, 'test-import-academicSessions.csv');
       fs.writeFileSync(tempFilePath, csvContent, 'utf-8');
@@ -386,7 +386,8 @@ csv-session-001,active,2025-01-15T10:00:00Z,2025 Academic Year,schoolYear,2025-0
           role: 'student',
           username: 'delta.user',
           email: 'delta.user@example.jp',
-          orgSourcedIds: ['org-csv-e2e-test'],
+          identifier: 'csv-delta-user-001-id',
+          userIds: [],
           metadata: {
             jp: {
               kanaGivenName: 'コウシン',

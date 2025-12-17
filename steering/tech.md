@@ -1,14 +1,14 @@
 # Technology Stack
 
 **Project**: RosterHub
-**Last Updated**: 2025-11-17
+**Last Updated**: 2025-12-17
 **Version**: 1.0
 
 ---
 
 ## Overview
 
-This document defines the approved technology stack for RosterHub. All development MUST use these technologies unless explicitly approved via Phase -1 Gate (Article VIII: Anti-Abstraction).
+This document defines the approved technology stack for RosterHub - a OneRoster Japan Profile 1.2.2 compliant educational data integration hub designed for large-scale deployments (10,000-200,000 users).
 
 ---
 
@@ -18,14 +18,39 @@ This document defines the approved technology stack for RosterHub. All developme
 
 | Language | Version | Usage | Notes |
 |----------|---------|-------|-------|
-| {{PRIMARY_LANGUAGE}} | {{VERSION}} | Primary application language | [Notes] |
+| TypeScript | 5.7+ | Primary application language | Strict mode enabled |
 | SQL | PostgreSQL 15+ | Database queries | Via Prisma ORM |
-| TypeScript | 5.0+ | Type definitions | Strict mode enabled |
 
 ### Runtime Environment
 
-- **Node.js**: {{NODE_VERSION}}+ (LTS)
-- **Package Manager**: npm {{NPM_VERSION}}+ / pnpm {{PNPM_VERSION}}+
+- **Node.js**: 20.x+ (LTS)
+- **Package Manager**: npm 9.x+
+
+---
+
+## Backend Stack
+
+### Framework
+
+**Primary Framework**: NestJS 11.x
+
+| Technology | Version | Purpose |
+|------------|---------|---------|
+| NestJS | 11.x | Enterprise-grade backend framework |
+| Prisma | 6.x | Type-safe ORM |
+| PostgreSQL | 15 | Primary database |
+| Redis | 7 | Caching & job queue |
+| BullMQ | 5.x | Background job processing |
+
+### Core Dependencies
+
+| Library | Version | Purpose |
+|---------|---------|---------|
+| @nestjs/swagger | 11.x | API documentation |
+| class-validator | 0.14 | Request validation |
+| bcryptjs | 3.x | API key hashing |
+| csv-parse | 6.x | CSV parsing |
+| csv-stringify | 6.x | CSV generation |
 
 ---
 
@@ -33,21 +58,22 @@ This document defines the approved technology stack for RosterHub. All developme
 
 ### Framework
 
-**Primary Framework**: {{FRONTEND_FRAMEWORK}}
+**Primary Framework**: React 18 + Vite 5
 
 | Technology | Version | Purpose |
 |------------|---------|---------|
-| {{FRONTEND_FRAMEWORK}} | {{VERSION}} | [Purpose] |
-| React | 18+ | UI library (if using Next.js/Remix) |
-| TypeScript | 5.0+ | Type safety |
+| React | 18.x | UI library |
+| Vite | 5.x | Build tool & dev server |
+| TypeScript | 5.3+ | Type safety |
 
-### UI Components
+### State Management
 
 | Library | Version | Purpose |
 |---------|---------|---------|
-| {{UI_LIBRARY}} | {{VERSION}} | Component library |
-| Tailwind CSS | 3.0+ | Utility-first CSS |
-| shadcn/ui | Latest | Component primitives |
+| Zustand | 4.x | Client state |
+| TanStack Query | 5.x | Server state |
+| React Router | 6.x | Routing |
+| Axios | 1.x | HTTP client |
 
 ### State Management
 

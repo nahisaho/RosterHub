@@ -259,10 +259,9 @@ export class FilterParserService {
       case '<=':
         return { [field]: { lte: convertedValue } };
       case '~':
-        // Contains operator for arrays or strings
-        // For arrays (e.g., termSourcedIds~'term-123'), use has
-        // For strings (e.g., givenName~'John'), use contains
-        return { [field]: { has: convertedValue } };
+        // Contains operator for strings
+        // For strings (e.g., title~'Section A'), use contains with case-insensitive mode
+        return { [field]: { contains: convertedValue, mode: 'insensitive' } };
       default:
         throw new Error(`Unsupported operator: ${operator}`);
     }

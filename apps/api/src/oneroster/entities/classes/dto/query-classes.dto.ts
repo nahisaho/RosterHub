@@ -1,5 +1,5 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsOptional, IsInt, Min, Max, IsString, IsEnum } from 'class-validator';
+import { IsOptional, IsInt, Min, Max, IsString, IsEnum, IsIn } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ClassType, StatusType } from '@prisma/client';
 
@@ -53,6 +53,15 @@ export class QueryClassesDto {
   @IsOptional()
   @IsString()
   fields?: string;
+
+  @ApiPropertyOptional({
+    description: 'Sort order',
+    enum: ['asc', 'desc'],
+    default: 'asc',
+  })
+  @IsOptional()
+  @IsEnum(['asc', 'desc'])
+  orderBy?: 'asc' | 'desc' = 'asc';
 
   @ApiPropertyOptional({
     description: 'Filter by class type',

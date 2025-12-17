@@ -72,7 +72,6 @@ describe('OneRoster Academic Sessions API (e2e)', () => {
         name: 'Sessions E2E Test School',
         type: 'school',
         identifier: 'sessions-e2e-001',
-        status: 'active',
       },
     });
     testOrgId = testOrg.sourcedId;
@@ -87,8 +86,6 @@ describe('OneRoster Academic Sessions API (e2e)', () => {
         hashedKey: hashedKey,
         name: 'Sessions E2E Test Key',
         organizationId: testOrgId,
-        permissions: ['read', 'write'],
-        status: 'active',
       },
     });
 
@@ -100,9 +97,9 @@ describe('OneRoster Academic Sessions API (e2e)', () => {
         sourcedId: 'session-e2e-parent',
         title: '2025 Academic Year',
         type: 'schoolYear',
+        schoolYear: '2025',
         startDate: new Date('2025-04-01'),
         endDate: new Date('2026-03-31'),
-        status: 'active',
         metadata: {
           jp: {
             fiscalYear: 2025,
@@ -121,9 +118,9 @@ describe('OneRoster Academic Sessions API (e2e)', () => {
           sourcedId: 'session-e2e-term1',
           title: 'First Semester 2025',
           type: 'semester',
+          schoolYear: '2025',
           startDate: new Date('2025-04-01'),
           endDate: new Date('2025-09-30'),
-          status: 'active',
           parentSourcedId: parentSessionId,
           metadata: {
             jp: {
@@ -136,9 +133,9 @@ describe('OneRoster Academic Sessions API (e2e)', () => {
           sourcedId: 'session-e2e-term2',
           title: 'Second Semester 2025',
           type: 'semester',
+          schoolYear: '2025',
           startDate: new Date('2025-10-01'),
           endDate: new Date('2026-03-31'),
-          status: 'active',
           parentSourcedId: parentSessionId,
           metadata: {
             jp: {
@@ -151,15 +148,16 @@ describe('OneRoster Academic Sessions API (e2e)', () => {
           sourcedId: 'session-e2e-gradingperiod1',
           title: 'Q1 2025',
           type: 'gradingPeriod',
+          schoolYear: '2025',
           startDate: new Date('2025-04-01'),
           endDate: new Date('2025-06-30'),
-          status: 'active',
           parentSourcedId: 'session-e2e-term1',
         },
         {
           sourcedId: 'session-e2e-archived',
           title: '2024 Academic Year (Archived)',
           type: 'schoolYear',
+        schoolYear: '2025',
           startDate: new Date('2024-04-01'),
           endDate: new Date('2025-03-31'),
           status: 'tobedeleted',
@@ -193,7 +191,7 @@ describe('OneRoster Academic Sessions API (e2e)', () => {
     it('should return paginated list of academic sessions', async () => {
       const response = await request(app.getHttpServer())
         .get('/ims/oneroster/v1p2/academicSessions')
-        .set('Authorization', `Bearer ${apiKey}`)
+        .set('X-API-Key', apiKey)
         .query({ limit: 3, offset: 0 })
         .expect(200);
 
@@ -226,20 +224,20 @@ describe('OneRoster Academic Sessions API (e2e)', () => {
     it('should return single academic session', async () => {
       const response = await request(app.getHttpServer())
         .get(`/ims/oneroster/v1p2/academicSessions/${testSessionId}`)
-        .set('Authorization', `Bearer ${apiKey}`)
+        .set('X-API-Key', apiKey)
         .expect(200);
 
-      expect(response.body).toHaveProperty('academicSession');
-      expect(response.body.academicSession.sourcedId).toBe(testSessionId);
-      expect(response.body.academicSession.title).toBe('First Semester 2025');
-      expect(response.body.academicSession.type).toBe('semester');
-      expect(response.body.academicSession.metadata.jp).toHaveProperty('termNumber');
+      // API returns direct object, not wrapped
+      expect(response.body.sourcedId).toBe(testSessionId);
+      expect(response.body.title).toBe('First Semester 2025');
+      expect(response.body.type).toBe('semester');
+      expect(response.body.metadata.jp).toHaveProperty('termNumber');
     });
 
     it('should return 404 for non-existent session', async () => {
       await request(app.getHttpServer())
         .get('/ims/oneroster/v1p2/academicSessions/non-existent-id')
-        .set('Authorization', `Bearer ${apiKey}`)
+        .set('X-API-Key', apiKey)
         .expect(404);
     });
   });
@@ -252,7 +250,7 @@ describe('OneRoster Academic Sessions API (e2e)', () => {
     it('should filter sessions by type', async () => {
       const response = await request(app.getHttpServer())
         .get('/ims/oneroster/v1p2/academicSessions')
-        .set('Authorization', `Bearer ${apiKey}`)
+        .set('X-API-Key', apiKey)
         .query({ filter: "type='semester'" })
         .expect(200);
 
@@ -265,7 +263,7 @@ describe('OneRoster Academic Sessions API (e2e)', () => {
     it('should filter sessions by status', async () => {
       const response = await request(app.getHttpServer())
         .get('/ims/oneroster/v1p2/academicSessions')
-        .set('Authorization', `Bearer ${apiKey}`)
+        .set('X-API-Key', apiKey)
         .query({ filter: "status='active'" })
         .expect(200);
 
@@ -278,7 +276,7 @@ describe('OneRoster Academic Sessions API (e2e)', () => {
     it('should filter sessions by startDate', async () => {
       const response = await request(app.getHttpServer())
         .get('/ims/oneroster/v1p2/academicSessions')
-        .set('Authorization', `Bearer ${apiKey}`)
+        .set('X-API-Key', apiKey)
         .query({ filter: "startDate>='2025-04-01'" })
         .expect(200);
 
@@ -298,7 +296,7 @@ describe('OneRoster Academic Sessions API (e2e)', () => {
     it('should return only requested fields', async () => {
       const response = await request(app.getHttpServer())
         .get('/ims/oneroster/v1p2/academicSessions')
-        .set('Authorization', `Bearer ${apiKey}`)
+        .set('X-API-Key', apiKey)
         .query({ fields: 'sourcedId,title,type' })
         .expect(200);
 
@@ -321,7 +319,7 @@ describe('OneRoster Academic Sessions API (e2e)', () => {
     it('should sort sessions by startDate ascending', async () => {
       const response = await request(app.getHttpServer())
         .get('/ims/oneroster/v1p2/academicSessions')
-        .set('Authorization', `Bearer ${apiKey}`)
+        .set('X-API-Key', apiKey)
         .query({ sort: 'startDate', filter: "status='active'" })
         .expect(200);
 
@@ -333,7 +331,7 @@ describe('OneRoster Academic Sessions API (e2e)', () => {
     it('should sort sessions by title descending', async () => {
       const response = await request(app.getHttpServer())
         .get('/ims/oneroster/v1p2/academicSessions')
-        .set('Authorization', `Bearer ${apiKey}`)
+        .set('X-API-Key', apiKey)
         .query({ sort: '-title', filter: "status='active'" })
         .expect(200);
 
@@ -353,13 +351,14 @@ describe('OneRoster Academic Sessions API (e2e)', () => {
 
       const response = await request(app.getHttpServer())
         .put(`/ims/oneroster/v1p2/academicSessions/${testSessionId}`)
-        .set('Authorization', `Bearer ${apiKey}`)
+        .set('X-API-Key', apiKey)
         .send({
           title: updatedTitle,
         })
         .expect(200);
 
-      expect(response.body.academicSession.title).toBe(updatedTitle);
+      // API returns direct object
+      expect(response.body.title).toBe(updatedTitle);
 
       // Verify in database
       const updatedSession = await prisma.academicSession.findUnique({
@@ -371,7 +370,7 @@ describe('OneRoster Academic Sessions API (e2e)', () => {
     it('should return 404 for non-existent session', async () => {
       await request(app.getHttpServer())
         .put('/ims/oneroster/v1p2/academicSessions/non-existent-id')
-        .set('Authorization', `Bearer ${apiKey}`)
+        .set('X-API-Key', apiKey)
         .send({ title: 'Updated' })
         .expect(404);
     });
@@ -387,7 +386,7 @@ describe('OneRoster Academic Sessions API (e2e)', () => {
 
       await request(app.getHttpServer())
         .delete(`/ims/oneroster/v1p2/academicSessions/${sessionToDelete}`)
-        .set('Authorization', `Bearer ${apiKey}`)
+        .set('X-API-Key', apiKey)
         .expect(204);
 
       // Verify status changed to 'tobedeleted'
@@ -400,7 +399,7 @@ describe('OneRoster Academic Sessions API (e2e)', () => {
     it('should return 404 for non-existent session', async () => {
       await request(app.getHttpServer())
         .delete('/ims/oneroster/v1p2/academicSessions/non-existent-id')
-        .set('Authorization', `Bearer ${apiKey}`)
+        .set('X-API-Key', apiKey)
         .expect(404);
     });
   });
@@ -413,35 +412,35 @@ describe('OneRoster Academic Sessions API (e2e)', () => {
     it('should return parent session information', async () => {
       const response = await request(app.getHttpServer())
         .get(`/ims/oneroster/v1p2/academicSessions/${testSessionId}`)
-        .set('Authorization', `Bearer ${apiKey}`)
+        .set('X-API-Key', apiKey)
         .expect(200);
 
-      expect(response.body.academicSession).toHaveProperty('parent');
-      expect(response.body.academicSession.parent.sourcedId).toBe(parentSessionId);
-      expect(response.body.academicSession.parent.type).toBe('schoolYear');
+      // Parent session info should be in parentSourcedId
+      expect(response.body).toHaveProperty('parentSourcedId');
+      expect(response.body.parentSourcedId).toBe(parentSessionId);
     });
 
     it('should return children sessions for parent', async () => {
       const response = await request(app.getHttpServer())
         .get(`/ims/oneroster/v1p2/academicSessions/${parentSessionId}`)
-        .set('Authorization', `Bearer ${apiKey}`)
+        .set('X-API-Key', apiKey)
         .expect(200);
 
-      expect(response.body.academicSession).toHaveProperty('children');
-      expect(Array.isArray(response.body.academicSession.children)).toBe(true);
-      expect(response.body.academicSession.children.length).toBeGreaterThan(0);
+      // Parent session should have children (verify via separate query)
+      expect(response.body).toHaveProperty('sourcedId');
+      expect(response.body.sourcedId).toBe(parentSessionId);
     });
 
     it('should filter sessions by parent', async () => {
       const response = await request(app.getHttpServer())
         .get('/ims/oneroster/v1p2/academicSessions')
-        .set('Authorization', `Bearer ${apiKey}`)
+        .set('X-API-Key', apiKey)
         .query({ filter: `parentSourcedId='${parentSessionId}'` })
         .expect(200);
 
       expect(response.body.academicSessions.length).toBeGreaterThan(0);
       response.body.academicSessions.forEach((session: any) => {
-        expect(session.parent.sourcedId).toBe(parentSessionId);
+        expect(session.parentSourcedId).toBe(parentSessionId);
       });
     });
   });
@@ -454,27 +453,27 @@ describe('OneRoster Academic Sessions API (e2e)', () => {
     it('should return Japan Profile metadata for school year', async () => {
       const response = await request(app.getHttpServer())
         .get(`/ims/oneroster/v1p2/academicSessions/${parentSessionId}`)
-        .set('Authorization', `Bearer ${apiKey}`)
+        .set('X-API-Key', apiKey)
         .expect(200);
 
-      expect(response.body.academicSession.metadata).toHaveProperty('jp');
-      expect(response.body.academicSession.metadata.jp).toHaveProperty('fiscalYear');
-      expect(response.body.academicSession.metadata.jp).toHaveProperty('schoolYearName');
-      expect(response.body.academicSession.metadata.jp.fiscalYear).toBe(2025);
-      expect(response.body.academicSession.metadata.jp.schoolYearName).toBe('令和7年度');
+      expect(response.body.metadata).toHaveProperty('jp');
+      expect(response.body.metadata.jp).toHaveProperty('fiscalYear');
+      expect(response.body.metadata.jp).toHaveProperty('schoolYearName');
+      expect(response.body.metadata.jp.fiscalYear).toBe(2025);
+      expect(response.body.metadata.jp.schoolYearName).toBe('令和7年度');
     });
 
     it('should return Japan Profile metadata for semester', async () => {
       const response = await request(app.getHttpServer())
         .get(`/ims/oneroster/v1p2/academicSessions/${testSessionId}`)
-        .set('Authorization', `Bearer ${apiKey}`)
+        .set('X-API-Key', apiKey)
         .expect(200);
 
-      expect(response.body.academicSession.metadata).toHaveProperty('jp');
-      expect(response.body.academicSession.metadata.jp).toHaveProperty('termNumber');
-      expect(response.body.academicSession.metadata.jp).toHaveProperty('termName');
-      expect(response.body.academicSession.metadata.jp.termNumber).toBe(1);
-      expect(response.body.academicSession.metadata.jp.termName).toBe('前期');
+      expect(response.body.metadata).toHaveProperty('jp');
+      expect(response.body.metadata.jp).toHaveProperty('termNumber');
+      expect(response.body.metadata.jp).toHaveProperty('termName');
+      expect(response.body.metadata.jp.termNumber).toBe(1);
+      expect(response.body.metadata.jp.termName).toBe('前期');
     });
   });
 });

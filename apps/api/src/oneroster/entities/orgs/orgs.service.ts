@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { OrgsRepository } from './orgs.repository';
 import { OrgResponseDto } from './dto/org-response.dto';
 import { QueryOrgsDto } from './dto/query-orgs.dto';
+import { UpdateOrgDto } from './dto/update-org.dto';
 import { FilterParserService } from '../../common/services/filter-parser.service';
 import { FieldSelectionService } from '../../common/services/field-selection.service';
 import { PaginatedResponse } from '../../common/dto/pagination.dto';
@@ -114,5 +115,57 @@ export class OrgsService {
     }
 
     return orgDto;
+  }
+
+  /**
+   * Update org by sourcedId
+   *
+   * @param sourcedId - OneRoster sourcedId
+   * @param updateOrgDto - Update data
+   * @returns Updated org details
+   * @throws NotFoundException if org not found
+   */
+  async update(sourcedId: string, updateOrgDto: UpdateOrgDto): Promise<OrgResponseDto> {
+    const org = await this.orgsRepository.findBySourcedId(sourcedId);
+
+    if (!org) {
+      throw new NotFoundException(`Org with sourcedId '${sourcedId}' not found`);
+    }
+
+    const updateData: any = {
+      ...updateOrgDto,
+      dateLastModified: new Date(),
+    };
+
+    // Handle parent relationship
+    if (updateOrgDto.parentSourcedId !== undefined) {
+      updateData.parent = updateOrgDto.parentSourcedId
+        ? { connect: { sourcedId: updateOrgDto.parentSourcedId } }
+        : { disconnect: true };
+      delete updateData.parentSourcedId;
+    }
+
+    const updated = await this.orgsRepository.update(sourcedId, updateData);
+    return new OrgResponseDto(updated);
+  }
+
+  /**
+   * Delete org by sourcedId (soft delete)
+   *
+   * @param sourcedId - OneRoster sourcedId
+   * @throws NotFoundException if org not found
+   */
+  async delete(sourcedId: string): Promise<void> {
+    const org = await this.orgsRepository.findBySourcedId(sourcedId);
+
+    if (!org) {
+      throw new NotFoundException(`Org with sourcedId '${sourcedId}' not found`);
+    }
+
+    // Soft delete - set status to tobedeleted
+    await this.orgsRepository.update(sourcedId, {
+      status: 'tobedeleted',
+      dateLastModified: new Date(),
+    });
   }
 }

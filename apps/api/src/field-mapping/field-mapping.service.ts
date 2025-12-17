@@ -163,14 +163,14 @@ export class FieldMappingService {
     );
 
     for (const mapping of lookupConfigs) {
-      const tableName = mapping.transformConfig?.tableName;
+      const tableName = (mapping.transformConfig as { tableName?: string })?.tableName;
       if (tableName && !lookupTables.has(tableName)) {
         const table = await this.repository.findLookupTable(
           config.organizationId,
           tableName,
         );
         if (table) {
-          const lookupMap = new Map(
+          const lookupMap = new Map<string, string>(
             table.lookupEntries.map((e) => [e.sourceValue, e.targetValue]),
           );
           lookupTables.set(tableName, lookupMap);

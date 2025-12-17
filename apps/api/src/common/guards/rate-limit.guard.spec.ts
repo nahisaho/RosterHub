@@ -58,7 +58,7 @@ describe('RateLimitGuard', () => {
       expect(result).toBe(true);
       expect(cacheManager.set).toHaveBeenCalled();
       expect(mockResponse.setHeader).toHaveBeenCalledWith(
-        'X-RateLimit-Limit',
+        'x-ratelimit-limit',
         '1000',
       );
     });
@@ -142,7 +142,7 @@ describe('RateLimitGuard', () => {
       await guard.canActivate(mockContext);
 
       expect(mockResponse.setHeader).toHaveBeenCalledWith(
-        'X-RateLimit-Limit',
+        'x-ratelimit-limit',
         '1000', // Default limit
       );
     });
@@ -216,15 +216,15 @@ describe('RateLimitGuard', () => {
       await guard.canActivate(mockContext);
 
       expect(mockResponse.setHeader).toHaveBeenCalledWith(
-        'X-RateLimit-Limit',
+        'x-ratelimit-limit',
         '1000',
       );
       expect(mockResponse.setHeader).toHaveBeenCalledWith(
-        'X-RateLimit-Remaining',
+        'x-ratelimit-remaining',
         '749', // 1000 - 251 (current count after increment)
       );
       expect(mockResponse.setHeader).toHaveBeenCalledWith(
-        'X-RateLimit-Reset',
+        'x-ratelimit-reset',
         expect.any(String),
       );
     });
@@ -275,7 +275,7 @@ describe('RateLimitGuard', () => {
       }
 
       expect(mockResponse.setHeader).toHaveBeenCalledWith(
-        'X-RateLimit-Remaining',
+        'x-ratelimit-remaining',
         '0',
       );
     });

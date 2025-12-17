@@ -71,7 +71,6 @@ describe('OneRoster Courses API (e2e)', () => {
         name: 'Courses E2E Test School',
         type: 'school',
         identifier: 'courses-e2e-001',
-        status: 'active',
       },
     });
     testOrgId = testOrg.sourcedId;
@@ -86,8 +85,6 @@ describe('OneRoster Courses API (e2e)', () => {
         hashedKey: hashedKey,
         name: 'Courses E2E Test Key',
         organizationId: testOrgId,
-        permissions: ['read', 'write'],
-        status: 'active',
       },
     });
 
@@ -99,9 +96,9 @@ describe('OneRoster Courses API (e2e)', () => {
         sourcedId: 'session-courses-e2e',
         title: '2025 Academic Year',
         type: 'schoolYear',
+        schoolYear: '2025',
         startDate: new Date('2025-04-01'),
         endDate: new Date('2026-03-31'),
-        status: 'active',
       },
     });
     testAcademicSessionId = academicSession.sourcedId;
@@ -113,9 +110,8 @@ describe('OneRoster Courses API (e2e)', () => {
           sourcedId: 'course-e2e-001',
           title: 'Mathematics I',
           courseCode: 'MATH101',
-          status: 'active',
-          orgSourcedId: testOrgId,
-          schoolYearSourcedId: testAcademicSessionId,
+          schoolSourcedId: testOrgId,
+          schoolYear: testAcademicSessionId,
           metadata: {
             jp: {
               subjectArea: 'mathematics',
@@ -127,9 +123,8 @@ describe('OneRoster Courses API (e2e)', () => {
           sourcedId: 'course-e2e-002',
           title: 'English Language Arts',
           courseCode: 'ENG101',
-          status: 'active',
-          orgSourcedId: testOrgId,
-          schoolYearSourcedId: testAcademicSessionId,
+          schoolSourcedId: testOrgId,
+          schoolYear: testAcademicSessionId,
           metadata: {
             jp: {
               subjectArea: 'language',
@@ -141,9 +136,8 @@ describe('OneRoster Courses API (e2e)', () => {
           sourcedId: 'course-e2e-003',
           title: 'Physics',
           courseCode: 'PHY201',
-          status: 'active',
-          orgSourcedId: testOrgId,
-          schoolYearSourcedId: testAcademicSessionId,
+          schoolSourcedId: testOrgId,
+          schoolYear: testAcademicSessionId,
           metadata: {
             jp: {
               subjectArea: 'science',
@@ -156,8 +150,14 @@ describe('OneRoster Courses API (e2e)', () => {
           title: 'Chemistry (Archived)',
           courseCode: 'CHEM101',
           status: 'tobedeleted',
-          orgSourcedId: testOrgId,
-          schoolYearSourcedId: testAcademicSessionId,
+          schoolSourcedId: testOrgId,
+          schoolYear: testAcademicSessionId,
+          metadata: {
+            jp: {
+              subjectArea: 'science',
+              credits: 4,
+            },
+          },
         },
       ],
     });
@@ -191,7 +191,7 @@ describe('OneRoster Courses API (e2e)', () => {
     it('should return paginated list of courses', async () => {
       const response = await request(app.getHttpServer())
         .get('/ims/oneroster/v1p2/courses')
-        .set('Authorization', `Bearer ${apiKey}`)
+        .set('X-API-Key', apiKey)
         .query({ limit: 2, offset: 0 })
         .expect(200);
 
@@ -223,21 +223,21 @@ describe('OneRoster Courses API (e2e)', () => {
     it('should return single course', async () => {
       const response = await request(app.getHttpServer())
         .get(`/ims/oneroster/v1p2/courses/${testCourseId}`)
-        .set('Authorization', `Bearer ${apiKey}`)
+        .set('X-API-Key', apiKey)
         .expect(200);
 
-      expect(response.body).toHaveProperty('course');
-      expect(response.body.course.sourcedId).toBe(testCourseId);
-      expect(response.body.course.title).toBe('Mathematics I');
-      expect(response.body.course.courseCode).toBe('MATH101');
-      expect(response.body.course.metadata.jp).toHaveProperty('subjectArea');
-      expect(response.body.course.metadata.jp).toHaveProperty('credits');
+      // API returns direct object, not wrapped
+      expect(response.body.sourcedId).toBe(testCourseId);
+      expect(response.body.title).toBe('Mathematics I');
+      expect(response.body.courseCode).toBe('MATH101');
+      expect(response.body.metadata.jp).toHaveProperty('subjectArea');
+      expect(response.body.metadata.jp).toHaveProperty('credits');
     });
 
     it('should return 404 for non-existent course', async () => {
       await request(app.getHttpServer())
         .get('/ims/oneroster/v1p2/courses/non-existent-id')
-        .set('Authorization', `Bearer ${apiKey}`)
+        .set('X-API-Key', apiKey)
         .expect(404);
     });
   });
@@ -250,7 +250,7 @@ describe('OneRoster Courses API (e2e)', () => {
     it('should filter courses by title (contains)', async () => {
       const response = await request(app.getHttpServer())
         .get('/ims/oneroster/v1p2/courses')
-        .set('Authorization', `Bearer ${apiKey}`)
+        .set('X-API-Key', apiKey)
         .query({ filter: "title~'Mathematics'" })
         .expect(200);
 
@@ -261,7 +261,7 @@ describe('OneRoster Courses API (e2e)', () => {
     it('should filter courses by courseCode', async () => {
       const response = await request(app.getHttpServer())
         .get('/ims/oneroster/v1p2/courses')
-        .set('Authorization', `Bearer ${apiKey}`)
+        .set('X-API-Key', apiKey)
         .query({ filter: "courseCode='MATH101'" })
         .expect(200);
 
@@ -272,7 +272,7 @@ describe('OneRoster Courses API (e2e)', () => {
     it('should filter courses by status', async () => {
       const response = await request(app.getHttpServer())
         .get('/ims/oneroster/v1p2/courses')
-        .set('Authorization', `Bearer ${apiKey}`)
+        .set('X-API-Key', apiKey)
         .query({ filter: "status='active'" })
         .expect(200);
 
@@ -291,7 +291,7 @@ describe('OneRoster Courses API (e2e)', () => {
     it('should return only requested fields', async () => {
       const response = await request(app.getHttpServer())
         .get('/ims/oneroster/v1p2/courses')
-        .set('Authorization', `Bearer ${apiKey}`)
+        .set('X-API-Key', apiKey)
         .query({ fields: 'sourcedId,title,courseCode' })
         .expect(200);
 
@@ -314,7 +314,7 @@ describe('OneRoster Courses API (e2e)', () => {
     it('should sort courses by title ascending', async () => {
       const response = await request(app.getHttpServer())
         .get('/ims/oneroster/v1p2/courses')
-        .set('Authorization', `Bearer ${apiKey}`)
+        .set('X-API-Key', apiKey)
         .query({ sort: 'title', filter: "status='active'" })
         .expect(200);
 
@@ -326,7 +326,7 @@ describe('OneRoster Courses API (e2e)', () => {
     it('should sort courses by courseCode descending', async () => {
       const response = await request(app.getHttpServer())
         .get('/ims/oneroster/v1p2/courses')
-        .set('Authorization', `Bearer ${apiKey}`)
+        .set('X-API-Key', apiKey)
         .query({ sort: '-courseCode', filter: "status='active'" })
         .expect(200);
 
@@ -346,13 +346,14 @@ describe('OneRoster Courses API (e2e)', () => {
 
       const response = await request(app.getHttpServer())
         .put(`/ims/oneroster/v1p2/courses/${testCourseId}`)
-        .set('Authorization', `Bearer ${apiKey}`)
+        .set('X-API-Key', apiKey)
         .send({
           title: updatedTitle,
         })
         .expect(200);
 
-      expect(response.body.course.title).toBe(updatedTitle);
+      // API returns direct object
+      expect(response.body.title).toBe(updatedTitle);
 
       // Verify in database
       const updatedCourse = await prisma.course.findUnique({
@@ -364,7 +365,7 @@ describe('OneRoster Courses API (e2e)', () => {
     it('should return 404 for non-existent course', async () => {
       await request(app.getHttpServer())
         .put('/ims/oneroster/v1p2/courses/non-existent-id')
-        .set('Authorization', `Bearer ${apiKey}`)
+        .set('X-API-Key', apiKey)
         .send({ title: 'Updated' })
         .expect(404);
     });
@@ -380,7 +381,7 @@ describe('OneRoster Courses API (e2e)', () => {
 
       await request(app.getHttpServer())
         .delete(`/ims/oneroster/v1p2/courses/${courseToDelete}`)
-        .set('Authorization', `Bearer ${apiKey}`)
+        .set('X-API-Key', apiKey)
         .expect(204);
 
       // Verify status changed to 'tobedeleted'
@@ -393,7 +394,7 @@ describe('OneRoster Courses API (e2e)', () => {
     it('should return 404 for non-existent course', async () => {
       await request(app.getHttpServer())
         .delete('/ims/oneroster/v1p2/courses/non-existent-id')
-        .set('Authorization', `Bearer ${apiKey}`)
+        .set('X-API-Key', apiKey)
         .expect(404);
     });
   });
@@ -406,14 +407,15 @@ describe('OneRoster Courses API (e2e)', () => {
     it('should return Japan Profile metadata', async () => {
       const response = await request(app.getHttpServer())
         .get(`/ims/oneroster/v1p2/courses/${testCourseId}`)
-        .set('Authorization', `Bearer ${apiKey}`)
+        .set('X-API-Key', apiKey)
         .expect(200);
 
-      expect(response.body.course.metadata).toHaveProperty('jp');
-      expect(response.body.course.metadata.jp).toHaveProperty('subjectArea');
-      expect(response.body.course.metadata.jp).toHaveProperty('credits');
-      expect(response.body.course.metadata.jp.subjectArea).toBe('mathematics');
-      expect(response.body.course.metadata.jp.credits).toBe(4);
+      // API returns direct object
+      expect(response.body.metadata).toHaveProperty('jp');
+      expect(response.body.metadata.jp).toHaveProperty('subjectArea');
+      expect(response.body.metadata.jp).toHaveProperty('credits');
+      expect(response.body.metadata.jp.subjectArea).toBe('mathematics');
+      expect(response.body.metadata.jp.credits).toBe(4);
     });
   });
 });

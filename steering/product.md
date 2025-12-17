@@ -1,20 +1,20 @@
 # Product Context
 
 **Project**: RosterHub
-**Last Updated**: 2025-11-17
+**Last Updated**: 2025-12-17
 **Version**: 1.0
 
 ---
 
 ## Product Vision
 
-**Vision Statement**: {{VISION_STATEMENT}}
+**Vision Statement**: Accelerate Japan's educational DX through standardized educational data integration.
 
-> [1-2 paragraph description of what this product aims to achieve and why it exists]
+> Standardize and automate data exchange between school information systems (SIS) and learning management
+> systems (LMS), improving operational efficiency for boards of education and schools.
 
-**Mission**: {{MISSION_STATEMENT}}
-
-> [How the product achieves its vision]
+**Mission**: Provide a OneRoster Japan Profile 1.2.2 compliant educational data integration hub,
+delivering an enterprise-grade solution for large-scale deployments (10,000-200,000 users).
 
 ---
 
@@ -22,21 +22,27 @@
 
 ### What is RosterHub?
 
-A software project using MUSUBI SDD
+**OneRoster Japan Profile 1.2.2 Educational Data Integration Hub**
 
-> [2-3 paragraphs explaining the product, its purpose, and core value proposition]
+RosterHub is a standardized educational data integration platform designed for large-scale deployments
+at the Board of Education level. It automates data exchange between school information systems (SIS)
+and learning management systems (LMS), reducing administrative burden on teachers and staff.
 
 ### Problem Statement
 
-**Problem**: {{PROBLEM_STATEMENT}}
-
-> [What problem does this product solve? What pain points does it address?]
+**Problem**: Educational institutions currently rely on manual data exchange between multiple systems:
+- Duplicate entry of student and staff data
+- Data inconsistencies between systems
+- Time and cost of large-scale data migrations
+- Burden of supporting vendor-specific formats
 
 ### Solution
 
-**Solution**: {{SOLUTION_STATEMENT}}
-
-> [How does this product solve the problem? What makes it unique?]
+**Solution**: Provide a OneRoster Japan Profile 1.2.2 compliant data integration hub:
+- CSV import/export for bulk data operations
+- REST API for real-time integration
+- Delta sync API for efficient incremental updates
+- Enterprise security (API key authentication, audit logging)
 
 ---
 
@@ -44,10 +50,12 @@ A software project using MUSUBI SDD
 
 ### Primary Users
 
-#### User Persona 1: {{PERSONA_1_NAME}}
+#### User Persona 1: Board of Education IT Administrator
 
 **Demographics**:
-- **Role**: {{ROLE}}
+- **Role**: IT system administrator at Board of Education
+- **Organization Size**: 10,000-200,000 users (managing multiple schools)
+- **Technical Level**: Medium to High
 - **Organization Size**: {{ORG_SIZE}}
 - **Technical Level**: {{TECH_LEVEL}}
 

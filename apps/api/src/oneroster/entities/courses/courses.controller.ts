@@ -1,8 +1,9 @@
-import { Controller, Get, Param, Query, UseGuards, UseInterceptors } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiSecurity } from '@nestjs/swagger';
+import { Controller, Get, Put, Delete, Param, Query, Body, HttpCode, HttpStatus, UseGuards, UseInterceptors } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiSecurity, ApiBody } from '@nestjs/swagger';
 import { CoursesService } from './courses.service';
 import { CourseResponseDto } from './dto/course-response.dto';
 import { QueryCoursesDto } from './dto/query-courses.dto';
+import { UpdateCourseDto } from './dto/update-course.dto';
 import { ApiKeyGuard } from '../../../common/guards/api-key.guard';
 import { AuditInterceptor } from '../../../common/interceptors/audit.interceptor';
 
@@ -27,5 +28,26 @@ export class CoursesController {
   @ApiResponse({ status: 404, description: 'Course not found' })
   async findOne(@Param('sourcedId') sourcedId: string): Promise<CourseResponseDto> {
     return this.coursesService.findOne(sourcedId);
+  }
+
+  @Put(':sourcedId')
+  @ApiOperation({ summary: 'Update course by sourcedId' })
+  @ApiBody({ type: UpdateCourseDto })
+  @ApiResponse({ status: 200, type: CourseResponseDto })
+  @ApiResponse({ status: 404, description: 'Course not found' })
+  async update(
+    @Param('sourcedId') sourcedId: string,
+    @Body() updateDto: UpdateCourseDto,
+  ): Promise<CourseResponseDto> {
+    return this.coursesService.update(sourcedId, updateDto);
+  }
+
+  @Delete(':sourcedId')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Delete course by sourcedId' })
+  @ApiResponse({ status: 204, description: 'Course deleted successfully' })
+  @ApiResponse({ status: 404, description: 'Course not found' })
+  async remove(@Param('sourcedId') sourcedId: string): Promise<void> {
+    return this.coursesService.remove(sourcedId);
   }
 }

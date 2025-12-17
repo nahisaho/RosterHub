@@ -5,8 +5,8 @@
  */
 
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service';
-import { Webhook, WebhookDelivery, Prisma } from '@prisma/client';
+import { PrismaService } from '../../database/prisma.service';
+import { Webhook, WebhookDelivery, Prisma, WebhookEvent, WebhookDeliveryStatus } from '@prisma/client';
 import { CreateWebhookDto } from '../dto/create-webhook.dto';
 import { UpdateWebhookDto } from '../dto/update-webhook.dto';
 import * as crypto from 'crypto';
@@ -56,7 +56,7 @@ export class WebhookRepository {
   /**
    * Find active webhooks subscribed to specific event
    */
-  async findActiveByEvent(event: string): Promise<Webhook[]> {
+  async findActiveByEvent(event: WebhookEvent): Promise<Webhook[]> {
     return this.prisma.webhook.findMany({
       where: {
         isActive: true,
@@ -101,7 +101,7 @@ export class WebhookRepository {
    */
   async createDelivery(
     webhookId: string,
-    event: string,
+    event: WebhookEvent,
     payload: any,
     maxAttempts: number,
   ): Promise<WebhookDelivery> {
@@ -111,7 +111,7 @@ export class WebhookRepository {
         event,
         payload,
         maxAttempts,
-        status: 'pending',
+        status: WebhookDeliveryStatus.pending,
       },
     });
   }
@@ -122,7 +122,7 @@ export class WebhookRepository {
   async updateDelivery(
     id: string,
     data: {
-      status: string;
+      status: WebhookDeliveryStatus;
       attempts: number;
       lastAttemptAt: Date;
       nextRetryAt?: Date;

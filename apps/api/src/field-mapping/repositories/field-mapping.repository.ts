@@ -5,9 +5,19 @@
  */
 
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service';
-import { FieldMappingConfig, FieldMapping, MappingLookupTable, MappingLookupEntry } from '@prisma/client';
+import { PrismaService } from '../../database/prisma.service';
+import { FieldMappingConfig, FieldMapping, MappingLookupTable, MappingLookupEntry, Prisma } from '@prisma/client';
 import { CreateFieldMappingConfigDto } from '../dto/create-field-mapping-config.dto';
+
+// Type for config with field mappings included
+export type FieldMappingConfigWithMappings = FieldMappingConfig & {
+  fieldMappings: FieldMapping[];
+};
+
+// Type for lookup table with entries included
+export type MappingLookupTableWithEntries = MappingLookupTable & {
+  lookupEntries: MappingLookupEntry[];
+};
 
 @Injectable()
 export class FieldMappingRepository {
@@ -53,7 +63,7 @@ export class FieldMappingRepository {
   async findByOrganization(
     organizationId: string,
     entityType?: string,
-  ): Promise<FieldMappingConfig[]> {
+  ): Promise<FieldMappingConfigWithMappings[]> {
     return this.prisma.fieldMappingConfig.findMany({
       where: {
         organizationId,
@@ -72,7 +82,7 @@ export class FieldMappingRepository {
   /**
    * Find configuration by ID
    */
-  async findById(id: string): Promise<FieldMappingConfig | null> {
+  async findById(id: string): Promise<FieldMappingConfigWithMappings | null> {
     return this.prisma.fieldMappingConfig.findUnique({
       where: { id },
       include: {
@@ -89,7 +99,7 @@ export class FieldMappingRepository {
   async findDefault(
     organizationId: string,
     entityType: string,
-  ): Promise<FieldMappingConfig | null> {
+  ): Promise<FieldMappingConfigWithMappings | null> {
     return this.prisma.fieldMappingConfig.findFirst({
       where: {
         organizationId,
@@ -224,7 +234,7 @@ export class FieldMappingRepository {
   async findLookupTable(
     organizationId: string,
     name: string,
-  ): Promise<MappingLookupTable | null> {
+  ): Promise<MappingLookupTableWithEntries | null> {
     return this.prisma.mappingLookupTable.findFirst({
       where: {
         organizationId,
@@ -240,7 +250,7 @@ export class FieldMappingRepository {
   /**
    * Get all lookup tables for an organization
    */
-  async findLookupTables(organizationId: string): Promise<MappingLookupTable[]> {
+  async findLookupTables(organizationId: string): Promise<MappingLookupTableWithEntries[]> {
     return this.prisma.mappingLookupTable.findMany({
       where: {
         organizationId,

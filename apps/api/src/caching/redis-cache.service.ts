@@ -35,7 +35,7 @@ export class RedisCacheService implements OnModuleInit, OnModuleDestroy {
     this.client = createClient({
       url: redisUrl,
       socket: {
-        reconnectStrategy: (retries) => {
+        reconnectStrategy: (retries: number) => {
           if (retries > 10) {
             this.logger.error('Redis connection failed after 10 retries');
             return new Error('Redis connection failed');
@@ -45,7 +45,7 @@ export class RedisCacheService implements OnModuleInit, OnModuleDestroy {
       },
     });
 
-    this.client.on('error', (err) => {
+    this.client.on('error', (err: Error) => {
       this.logger.error(`Redis connection error: ${err.message}`);
       this.isConnected = false;
     });
@@ -177,7 +177,9 @@ export class RedisCacheService implements OnModuleInit, OnModuleDestroy {
       // Use SCAN to avoid blocking the server with KEYS
       const keys: string[] = [];
       for await (const key of this.client.scanIterator({ MATCH: fullPattern, COUNT: 100 })) {
-        keys.push(key);
+        if (typeof key === 'string') {
+          keys.push(key);
+        }
       }
 
       if (keys.length > 0) {

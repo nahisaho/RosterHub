@@ -23,7 +23,7 @@ describe('FilterParserService', () => {
       const result = service.parseFilter(filter);
 
       expect(result).toEqual({
-        status: { equals: 'active' },
+        status: 'active',
       });
     });
 
@@ -32,7 +32,7 @@ describe('FilterParserService', () => {
       const result = service.parseFilter(filter);
 
       expect(result).toEqual({
-        status: { equals: 'active' },
+        status: 'active',
       });
     });
 
@@ -41,7 +41,7 @@ describe('FilterParserService', () => {
       const result = service.parseFilter(filter);
 
       expect(result).toEqual({
-        role: { equals: 'student' },
+        role: 'student',
       });
     });
   });
@@ -104,13 +104,13 @@ describe('FilterParserService', () => {
     });
   });
 
-  describe('Contains Filter (Arrays)', () => {
-    it('should parse contains filter for arrays', () => {
-      const filter = "termSourcedIds~'term-123'";
+  describe('Contains Filter (Strings)', () => {
+    it('should parse contains filter for strings', () => {
+      const filter = "title~'Section A'";
       const result = service.parseFilter(filter);
 
       expect(result).toEqual({
-        termSourcedIds: { has: 'term-123' },
+        title: { contains: 'Section A', mode: 'insensitive' },
       });
     });
   });
@@ -121,7 +121,7 @@ describe('FilterParserService', () => {
       const result = service.parseFilter(filter);
 
       expect(result).toEqual({
-        AND: [{ status: { equals: 'active' } }, { role: { equals: 'student' } }],
+        AND: [{ status: 'active' }, { role: 'student' }],
       });
     });
 
@@ -131,9 +131,9 @@ describe('FilterParserService', () => {
 
       expect(result).toEqual({
         AND: [
-          { status: { equals: 'active' } },
+          { status: 'active' },
           {
-            AND: [{ role: { equals: 'student' } }, { enabledUser: { equals: true } }],
+            AND: [{ role: 'student' }, { enabledUser: true }],
           },
         ],
       });
@@ -144,7 +144,7 @@ describe('FilterParserService', () => {
       const result = service.parseFilter(filter);
 
       expect(result).toEqual({
-        AND: [{ status: { equals: 'active' } }, { score: { gte: 90 } }],
+        AND: [{ status: 'active' }, { score: { gte: 90 } }],
       });
     });
   });
@@ -155,7 +155,7 @@ describe('FilterParserService', () => {
       const result = service.parseFilter(filter);
 
       expect(result).toEqual({
-        OR: [{ role: { equals: 'teacher' } }, { role: { equals: 'administrator' } }],
+        OR: [{ role: 'teacher' }, { role: 'administrator' }],
       });
     });
 
@@ -165,9 +165,9 @@ describe('FilterParserService', () => {
 
       expect(result).toEqual({
         OR: [
-          { role: { equals: 'teacher' } },
+          { role: 'teacher' },
           {
-            OR: [{ role: { equals: 'student' } }, { role: { equals: 'parent' } }],
+            OR: [{ role: 'student' }, { role: 'parent' }],
           },
         ],
       });
@@ -182,9 +182,9 @@ describe('FilterParserService', () => {
       expect(result).toEqual({
         AND: [
           {
-            OR: [{ status: { equals: 'active' } }, { status: { equals: 'tobedeleted' } }],
+            OR: [{ status: 'active' }, { status: 'tobedeleted' }],
           },
-          { role: { equals: 'teacher' } },
+          { role: 'teacher' },
         ],
       });
     });
@@ -197,10 +197,10 @@ describe('FilterParserService', () => {
       expect(result).toEqual({
         AND: [
           {
-            OR: [{ role: { equals: 'teacher' } }, { role: { equals: 'administrator' } }],
+            OR: [{ role: 'teacher' }, { role: 'administrator' }],
           },
           {
-            AND: [{ status: { equals: 'active' } }, { enabledUser: { equals: true } }],
+            AND: [{ status: 'active' }, { enabledUser: true }],
           },
         ],
       });
@@ -213,7 +213,7 @@ describe('FilterParserService', () => {
       const result = service.parseFilter(filter);
 
       expect(result).toEqual({
-        givenName: { equals: 'John' },
+        givenName: 'John',
       });
     });
 
@@ -222,7 +222,7 @@ describe('FilterParserService', () => {
       const result = service.parseFilter(filter);
 
       expect(result).toEqual({
-        score: { equals: 95 },
+        score: 95,
       });
     });
 
@@ -231,7 +231,7 @@ describe('FilterParserService', () => {
       const result = service.parseFilter(filter);
 
       expect(result).toEqual({
-        score: { equals: 95.5 },
+        score: 95.5,
       });
     });
 
@@ -240,7 +240,7 @@ describe('FilterParserService', () => {
       const result = service.parseFilter(filter);
 
       expect(result).toEqual({
-        temperature: { equals: -15 },
+        temperature: -15,
       });
     });
 
@@ -249,7 +249,7 @@ describe('FilterParserService', () => {
       const result = service.parseFilter(filter);
 
       expect(result).toEqual({
-        enabledUser: { equals: true },
+        enabledUser: true,
       });
     });
 
@@ -258,7 +258,7 @@ describe('FilterParserService', () => {
       const result = service.parseFilter(filter);
 
       expect(result).toEqual({
-        enabledUser: { equals: true },
+        enabledUser: true,
       });
     });
 
@@ -267,7 +267,7 @@ describe('FilterParserService', () => {
       const result = service.parseFilter(filter);
 
       expect(result).toEqual({
-        enabledUser: { equals: false },
+        enabledUser: false,
       });
     });
 
@@ -276,7 +276,7 @@ describe('FilterParserService', () => {
       const result = service.parseFilter(filter);
 
       expect(result).toEqual({
-        dateLastModified: { equals: new Date('2025-01-01T00:00:00Z') },
+        dateLastModified: new Date('2025-01-01T00:00:00Z'),
       });
     });
 
@@ -285,7 +285,7 @@ describe('FilterParserService', () => {
       const result = service.parseFilter(filter);
 
       expect(result).toEqual({
-        birthDate: { equals: new Date('2000-05-15') },
+        birthDate: new Date('2000-05-15'),
       });
     });
 
@@ -294,7 +294,7 @@ describe('FilterParserService', () => {
       const result = service.parseFilter(filter);
 
       expect(result).toEqual({
-        dateLastModified: { equals: new Date('2025-01-01T10:30:45.123Z') },
+        dateLastModified: new Date('2025-01-01T10:30:45.123Z'),
       });
     });
   });
@@ -307,7 +307,7 @@ describe('FilterParserService', () => {
       const result = service.parseFilter(filter, allowedFields);
 
       expect(result).toEqual({
-        status: { equals: 'active' },
+        status: 'active',
       });
     });
 
@@ -327,7 +327,7 @@ describe('FilterParserService', () => {
       const result = service.parseFilter(filter, allowedFields);
 
       expect(result).toEqual({
-        AND: [{ status: { equals: 'active' } }, { role: { equals: 'student' } }],
+        AND: [{ status: 'active' }, { role: 'student' }],
       });
     });
 
@@ -361,7 +361,7 @@ describe('FilterParserService', () => {
       const result = service.parseFilter(filter);
 
       expect(result).toEqual({
-        status: { equals: 'active' },
+        status: 'active',
       });
     });
 
@@ -370,7 +370,7 @@ describe('FilterParserService', () => {
       const result = service.parseFilter(filter);
 
       expect(result).toEqual({
-        AND: [{ status: { equals: 'active' } }, { role: { equals: 'student' } }],
+        AND: [{ status: 'active' }, { role: 'student' }],
       });
     });
 
@@ -379,7 +379,7 @@ describe('FilterParserService', () => {
       const result = service.parseFilter(filter);
 
       expect(result).toEqual({
-        givenName: { equals: 'John Doe' },
+        givenName: 'John Doe',
       });
     });
 
@@ -388,7 +388,7 @@ describe('FilterParserService', () => {
       const result = service.parseFilter(filter);
 
       expect(result).toEqual({
-        middleName: { equals: '' },
+        middleName: '',
       });
     });
   });
@@ -440,7 +440,7 @@ describe('FilterParserService', () => {
       const result = service.parseFilter(filter);
 
       expect(result).toEqual({
-        AND: [{ status: { equals: 'active' } }, { role: { equals: 'student' } }],
+        AND: [{ status: 'active' }, { role: 'student' }],
       });
     });
 
@@ -449,16 +449,16 @@ describe('FilterParserService', () => {
       const result = service.parseFilter(filter);
 
       expect(result).toEqual({
-        OR: [{ role: { equals: 'teacher' } }, { role: { equals: 'administrator' } }],
+        OR: [{ role: 'teacher' }, { role: 'administrator' }],
       });
     });
 
-    it('should parse enabled users in specific org', () => {
-      const filter = "enabledUser='true' AND orgSourcedIds~'org-123'";
+    it('should parse enabled users with name contains', () => {
+      const filter = "enabledUser='true' AND givenName~'John'";
       const result = service.parseFilter(filter);
 
       expect(result).toEqual({
-        AND: [{ enabledUser: { equals: true } }, { orgSourcedIds: { has: 'org-123' } }],
+        AND: [{ enabledUser: true }, { givenName: { contains: 'John', mode: 'insensitive' } }],
       });
     });
 
@@ -470,10 +470,10 @@ describe('FilterParserService', () => {
       expect(result).toEqual({
         AND: [
           {
-            OR: [{ status: { equals: 'active' } }, { status: { equals: 'tobedeleted' } }],
+            OR: [{ status: 'active' }, { status: 'tobedeleted' }],
           },
           {
-            AND: [{ role: { equals: 'student' } }, { primary: { equals: true } }],
+            AND: [{ role: 'student' }, { primary: true }],
           },
         ],
       });

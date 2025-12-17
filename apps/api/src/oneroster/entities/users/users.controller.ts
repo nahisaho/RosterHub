@@ -1,8 +1,9 @@
-import { Controller, Get, Param, Query, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Controller, Get, Param, Query, Put, Delete, Body, UseGuards, UseInterceptors, HttpCode } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiSecurity } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { UserResponseDto } from './dto/user-response.dto';
 import { QueryUsersDto } from './dto/query-users.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 import { ApiKeyGuard } from '../../../common/guards/api-key.guard';
 import { RateLimitGuard } from '../../../common/guards/rate-limit.guard';
 import { AuditInterceptor } from '../../../common/interceptors/audit.interceptor';
@@ -103,5 +104,69 @@ export class UsersController {
     const user = await this.usersService.findOne(sourcedId, fields);
     // OneRoster spec requires single entity wrapped in entity name
     return { user };
+  }
+
+  /**
+   * PUT /ims/oneroster/v1p2/users/:sourcedId
+   *
+   * Update an existing user.
+   *
+   * @param sourcedId - OneRoster unique identifier
+   * @param updateUserDto - Update data
+   * @returns Updated user details
+   */
+  @Put(':sourcedId')
+  @ApiOperation({
+    summary: 'Update user',
+    description: 'Update an existing user by sourcedId.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'User updated successfully',
+    type: UserResponseDto,
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'User not found',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - Invalid API key',
+  })
+  async update(
+    @Param('sourcedId') sourcedId: string,
+    @Body() updateUserDto: UpdateUserDto,
+  ) {
+    const user = await this.usersService.update(sourcedId, updateUserDto);
+    return { user };
+  }
+
+  /**
+   * DELETE /ims/oneroster/v1p2/users/:sourcedId
+   *
+   * Delete a user (soft delete - sets status to 'tobedeleted').
+   *
+   * @param sourcedId - OneRoster unique identifier
+   */
+  @Delete(':sourcedId')
+  @HttpCode(204)
+  @ApiOperation({
+    summary: 'Delete user',
+    description: 'Soft delete a user by setting status to tobedeleted.',
+  })
+  @ApiResponse({
+    status: 204,
+    description: 'User deleted successfully',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'User not found',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - Invalid API key',
+  })
+  async delete(@Param('sourcedId') sourcedId: string) {
+    await this.usersService.delete(sourcedId);
   }
 }

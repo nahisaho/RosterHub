@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { UsersRepository } from './users.repository';
 import { UserResponseDto } from './dto/user-response.dto';
 import { QueryUsersDto } from './dto/query-users.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 import { FilterParserService } from '../../common/services/filter-parser.service';
 import { FieldSelectionService } from '../../common/services/field-selection.service';
 import { PaginatedResponse } from '../../common/dto/pagination.dto';
@@ -114,5 +115,49 @@ export class UsersService {
     }
 
     return userDto;
+  }
+
+  /**
+   * Update user by sourcedId
+   *
+   * @param sourcedId - OneRoster sourcedId
+   * @param updateUserDto - Update data
+   * @returns Updated user details
+   * @throws NotFoundException if user not found
+   */
+  async update(sourcedId: string, updateUserDto: UpdateUserDto): Promise<UserResponseDto> {
+    const user = await this.usersRepository.findBySourcedId(sourcedId);
+
+    if (!user) {
+      throw new NotFoundException(`User with sourcedId '${sourcedId}' not found`);
+    }
+
+    const updateData: any = {
+      ...updateUserDto,
+      dateLastModified: new Date(),
+    };
+
+    const updated = await this.usersRepository.update(sourcedId, updateData);
+    return new UserResponseDto(updated);
+  }
+
+  /**
+   * Delete user by sourcedId (soft delete)
+   *
+   * @param sourcedId - OneRoster sourcedId
+   * @throws NotFoundException if user not found
+   */
+  async delete(sourcedId: string): Promise<void> {
+    const user = await this.usersRepository.findBySourcedId(sourcedId);
+
+    if (!user) {
+      throw new NotFoundException(`User with sourcedId '${sourcedId}' not found`);
+    }
+
+    // Soft delete - set status to tobedeleted
+    await this.usersRepository.update(sourcedId, {
+      status: 'tobedeleted',
+      dateLastModified: new Date(),
+    });
   }
 }

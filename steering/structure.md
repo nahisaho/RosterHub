@@ -1,17 +1,17 @@
 # Project Structure
 
 **Project**: RosterHub
-**Last Updated**: 2025-11-17
+**Last Updated**: 2025-12-17
 **Version**: 1.0
 
 ---
 
 ## Architecture Pattern
 
-**Primary Pattern**: {{ARCHITECTURE_PATTERN}}
+**Primary Pattern**: Monorepo + Modular Monolith
 
-> [Description of the architecture pattern used in this project]
-> Examples: Monorepo with Library-First, Microservices, Modular Monolith, Serverless
+> npm workspaces-based monorepo structure with NestJS modular monolith pattern for backend API.
+> Frontend built with React + Vite.
 
 ---
 
@@ -21,33 +21,61 @@
 
 ```
 RosterHub/
-├── lib/                  # Reusable libraries (Article I: Library-First)
-├── app/                  # Application code (Next.js, etc.)
-├── api/                  # API routes/controllers
-├── components/           # UI components
-├── services/             # Business logic services
-├── tests/                # Test suites
-├── docs/                 # Documentation
-├── storage/              # SDD artifacts
-│   ├── specs/            # Requirements, design, tasks
-│   ├── changes/          # Delta specifications (brownfield)
-│   └── validation/       # Validation reports
-├── steering/             # Project memory (this directory)
-│   ├── structure.md      # This file
-│   ├── tech.md           # Technology stack
-│   ├── product.md        # Product context
-│   └── rules/            # Constitutional governance
-├── templates/            # Document templates
-└── [Other directories]
+├── apps/                    # Applications
+│   ├── api/                 # NestJS Backend API
+│   │   ├── src/
+│   │   │   ├── oneroster/   # OneRoster Domain
+│   │   │   │   ├── entities/    # Entity modules
+│   │   │   │   ├── api/         # REST API
+│   │   │   │   ├── csv/         # CSV processing
+│   │   │   │   ├── auth/        # Authentication
+│   │   │   │   ├── audit/       # Audit logging
+│   │   │   │   └── validation/  # Validation
+│   │   │   ├── database/    # Database layer
+│   │   │   ├── common/      # Common utilities
+│   │   │   ├── config/      # Configuration
+│   │   │   └── monitoring/  # Monitoring
+│   │   └── prisma/          # Prisma schema & migrations
+│   └── web/                 # React Frontend
+│       └── src/
+├── packages/                # Shared packages (future)
+├── docs/                    # Documentation
+│   ├── design/              # Design documents
+│   ├── implementation/      # Implementation status
+│   ├── requirements/        # Requirements specs
+│   └── guides/              # Developer guides
+├── design/                  # Database design
+│   └── database/            # DDL, ERD, Prisma schema
+├── steering/                # Project memory
+│   ├── structure.md         # This file
+│   ├── tech.md              # Technology stack
+│   ├── product.md           # Product context
+│   └── rules/               # Constitution & workflow
+├── helm/                    # Helm Charts
+├── k8s/                     # Kubernetes manifests
+├── templates/               # Document templates
+└── storage/                 # SDD artifacts
 ```
 
 ---
 
-## Library-First Pattern (Article I)
+## OneRoster Entity Modules
 
-All features begin as independent libraries in `lib/`.
+Located in `apps/api/src/oneroster/entities/`:
 
-### Library Structure
+| Entity | Description | Status |
+|--------|-------------|--------|
+| users/ | Students, Teachers, Administrators | ✅ Repository |
+| orgs/ | Schools, Boards of Education | ✅ Repository |
+| classes/ | Classes, Homerooms | ✅ Repository |
+| courses/ | Subjects, Courses | ✅ Repository |
+| enrollments/ | Memberships | ✅ Repository |
+| academic-sessions/ | Years, Terms | ✅ Repository |
+| demographics/ | Demographic data | ✅ Repository |
+
+---
+
+## Layer Architecture
 
 Each library follows this structure:
 

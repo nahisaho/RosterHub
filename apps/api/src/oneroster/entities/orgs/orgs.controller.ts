@@ -1,8 +1,9 @@
-import { Controller, Get, Param, Query, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Controller, Get, Param, Query, Put, Delete, Body, UseGuards, UseInterceptors, HttpCode } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiSecurity } from '@nestjs/swagger';
 import { OrgsService } from './orgs.service';
 import { OrgResponseDto } from './dto/org-response.dto';
 import { QueryOrgsDto } from './dto/query-orgs.dto';
+import { UpdateOrgDto } from './dto/update-org.dto';
 import { ApiKeyGuard } from '../../../common/guards/api-key.guard';
 import { RateLimitGuard } from '../../../common/guards/rate-limit.guard';
 import { AuditInterceptor } from '../../../common/interceptors/audit.interceptor';
@@ -103,5 +104,69 @@ export class OrgsController {
     const org = await this.orgsService.findOne(sourcedId, fields);
     // OneRoster spec requires single entity wrapped in entity name
     return { org };
+  }
+
+  /**
+   * PUT /ims/oneroster/v1p2/orgs/:sourcedId
+   *
+   * Update an existing organization.
+   *
+   * @param sourcedId - OneRoster unique identifier
+   * @param updateOrgDto - Update data
+   * @returns Updated org details
+   */
+  @Put(':sourcedId')
+  @ApiOperation({
+    summary: 'Update organization',
+    description: 'Update an existing organization by sourcedId.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Organization updated successfully',
+    type: OrgResponseDto,
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Organization not found',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - Invalid API key',
+  })
+  async update(
+    @Param('sourcedId') sourcedId: string,
+    @Body() updateOrgDto: UpdateOrgDto,
+  ) {
+    const org = await this.orgsService.update(sourcedId, updateOrgDto);
+    return { org };
+  }
+
+  /**
+   * DELETE /ims/oneroster/v1p2/orgs/:sourcedId
+   *
+   * Delete an organization (soft delete - sets status to 'tobedeleted').
+   *
+   * @param sourcedId - OneRoster unique identifier
+   */
+  @Delete(':sourcedId')
+  @HttpCode(204)
+  @ApiOperation({
+    summary: 'Delete organization',
+    description: 'Soft delete an organization by setting status to tobedeleted.',
+  })
+  @ApiResponse({
+    status: 204,
+    description: 'Organization deleted successfully',
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Organization not found',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - Invalid API key',
+  })
+  async delete(@Param('sourcedId') sourcedId: string) {
+    await this.orgsService.delete(sourcedId);
   }
 }

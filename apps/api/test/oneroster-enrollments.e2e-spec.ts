@@ -76,7 +76,6 @@ describe('OneRoster Enrollments API (e2e)', () => {
         name: 'Enrollments E2E Test School',
         type: 'school',
         identifier: 'enrollments-e2e-001',
-        status: 'active',
       },
     });
     testOrgId = testOrg.sourcedId;
@@ -91,8 +90,6 @@ describe('OneRoster Enrollments API (e2e)', () => {
         hashedKey: hashedKey,
         name: 'Enrollments E2E Test Key',
         organizationId: testOrgId,
-        permissions: ['read', 'write'],
-        status: 'active',
       },
     });
 
@@ -104,9 +101,9 @@ describe('OneRoster Enrollments API (e2e)', () => {
         sourcedId: 'session-enrollments-e2e',
         title: '2025 Academic Year',
         type: 'schoolYear',
+        schoolYear: '2025',
         startDate: new Date('2025-04-01'),
         endDate: new Date('2026-03-31'),
-        status: 'active',
       },
     });
     testAcademicSessionId = academicSession.sourcedId;
@@ -117,9 +114,8 @@ describe('OneRoster Enrollments API (e2e)', () => {
         sourcedId: 'course-enrollments-e2e',
         title: 'Mathematics',
         courseCode: 'MATH101',
-        status: 'active',
-        orgSourcedId: testOrgId,
-        schoolYearSourcedId: testAcademicSessionId,
+        schoolSourcedId: testOrgId,
+        schoolYear: testAcademicSessionId,
       },
     });
     testCourseId = course.sourcedId;
@@ -131,10 +127,8 @@ describe('OneRoster Enrollments API (e2e)', () => {
         title: 'Math 101 - Section A',
         classCode: 'MATH101-A',
         classType: 'scheduled',
-        status: 'active',
         courseSourcedId: testCourseId,
         schoolSourcedId: testOrgId,
-        termSourcedIds: [testAcademicSessionId],
       },
     });
     testClassId = testClass.sourcedId;
@@ -148,8 +142,9 @@ describe('OneRoster Enrollments API (e2e)', () => {
         givenName: 'Taro',
         familyName: 'Tanaka',
         role: 'student',
-        status: 'active',
-        orgSourcedIds: [testOrgId],
+        email: 'student1@example.jp',
+        identifier: 'user-enroll-student1-id',
+        userIds: [],
         metadata: {
           jp: {
             kanaGivenName: 'タロウ',
@@ -167,8 +162,9 @@ describe('OneRoster Enrollments API (e2e)', () => {
         givenName: 'Hanako',
         familyName: 'Suzuki',
         role: 'student',
-        status: 'active',
-        orgSourcedIds: [testOrgId],
+        email: 'student2@example.jp',
+        identifier: 'user-enroll-student2-id',
+        userIds: [],
         metadata: {
           jp: {
             kanaGivenName: 'ハナコ',
@@ -186,8 +182,9 @@ describe('OneRoster Enrollments API (e2e)', () => {
         givenName: 'Yuki',
         familyName: 'Sato',
         role: 'teacher',
-        status: 'active',
-        orgSourcedIds: [testOrgId],
+        email: 'teacher1@example.jp',
+        identifier: 'user-enroll-teacher-id',
+        userIds: [],
         metadata: {
           jp: {
             kanaGivenName: 'ユキ',
@@ -207,8 +204,8 @@ describe('OneRoster Enrollments API (e2e)', () => {
           classSourcedId: testClassId,
           schoolSourcedId: testOrgId,
           userSourcedId: student1.sourcedId,
-          role: 'student',
-          status: 'active',
+          role: 'primary',
+          primary: true,
           beginDate: new Date('2025-04-01'),
           endDate: new Date('2026-03-31'),
           metadata: {
@@ -222,8 +219,8 @@ describe('OneRoster Enrollments API (e2e)', () => {
           classSourcedId: testClassId,
           schoolSourcedId: testOrgId,
           userSourcedId: student2.sourcedId,
-          role: 'student',
-          status: 'active',
+          role: 'primary',
+          primary: true,
           beginDate: new Date('2025-04-01'),
           endDate: new Date('2026-03-31'),
           metadata: {
@@ -237,8 +234,8 @@ describe('OneRoster Enrollments API (e2e)', () => {
           classSourcedId: testClassId,
           schoolSourcedId: testOrgId,
           userSourcedId: teacher.sourcedId,
-          role: 'teacher',
-          status: 'active',
+          role: 'aide',
+          primary: true,
           beginDate: new Date('2025-04-01'),
           endDate: new Date('2026-03-31'),
           metadata: {
@@ -246,16 +243,6 @@ describe('OneRoster Enrollments API (e2e)', () => {
               primary: true,
             },
           },
-        },
-        {
-          sourcedId: 'enrollment-e2e-004',
-          classSourcedId: testClassId,
-          schoolSourcedId: testOrgId,
-          userSourcedId: student1.sourcedId,
-          role: 'student',
-          status: 'tobedeleted',
-          beginDate: new Date('2024-04-01'),
-          endDate: new Date('2025-03-31'),
         },
       ],
     });
@@ -298,7 +285,7 @@ describe('OneRoster Enrollments API (e2e)', () => {
     it('should return paginated list of enrollments', async () => {
       const response = await request(app.getHttpServer())
         .get('/ims/oneroster/v1p2/enrollments')
-        .set('Authorization', `Bearer ${apiKey}`)
+        .set('X-API-Key', apiKey)
         .query({ limit: 2, offset: 0 })
         .expect(200);
 
@@ -311,8 +298,8 @@ describe('OneRoster Enrollments API (e2e)', () => {
       expect(firstEnrollment).toHaveProperty('sourcedId');
       expect(firstEnrollment).toHaveProperty('role');
       expect(firstEnrollment).toHaveProperty('status');
-      expect(firstEnrollment).toHaveProperty('user');
-      expect(firstEnrollment).toHaveProperty('class');
+      expect(firstEnrollment).toHaveProperty('userSourcedId');
+      expect(firstEnrollment).toHaveProperty('classSourcedId');
     });
 
     it('should return 401 without API key', async () => {
@@ -330,20 +317,20 @@ describe('OneRoster Enrollments API (e2e)', () => {
     it('should return single enrollment', async () => {
       const response = await request(app.getHttpServer())
         .get(`/ims/oneroster/v1p2/enrollments/${testEnrollmentId}`)
-        .set('Authorization', `Bearer ${apiKey}`)
+        .set('X-API-Key', apiKey)
         .expect(200);
 
-      expect(response.body).toHaveProperty('enrollment');
-      expect(response.body.enrollment.sourcedId).toBe(testEnrollmentId);
-      expect(response.body.enrollment.role).toBe('student');
-      expect(response.body.enrollment.status).toBe('active');
-      expect(response.body.enrollment.metadata.jp).toHaveProperty('attendanceNumber');
+      // API returns direct object, not wrapped
+      expect(response.body.sourcedId).toBe(testEnrollmentId);
+      expect(response.body.role).toBe('primary');
+      expect(response.body.status).toBe('active');
+      expect(response.body.metadata.jp).toHaveProperty('attendanceNumber');
     });
 
     it('should return 404 for non-existent enrollment', async () => {
       await request(app.getHttpServer())
         .get('/ims/oneroster/v1p2/enrollments/non-existent-id')
-        .set('Authorization', `Bearer ${apiKey}`)
+        .set('X-API-Key', apiKey)
         .expect(404);
     });
   });
@@ -356,14 +343,14 @@ describe('OneRoster Enrollments API (e2e)', () => {
     it('should return enrollments for class', async () => {
       const response = await request(app.getHttpServer())
         .get(`/ims/oneroster/v1p2/classes/${testClassId}/enrollments`)
-        .set('Authorization', `Bearer ${apiKey}`)
+        .set('X-API-Key', apiKey)
         .expect(200);
 
       expect(response.body).toHaveProperty('enrollments');
       expect(response.body.enrollments.length).toBeGreaterThan(0);
 
       response.body.enrollments.forEach((enrollment: any) => {
-        expect(enrollment.class.sourcedId).toBe(testClassId);
+        expect(enrollment.classSourcedId).toBe(testClassId);
       });
     });
   });
@@ -376,14 +363,14 @@ describe('OneRoster Enrollments API (e2e)', () => {
     it('should return enrollments for user', async () => {
       const response = await request(app.getHttpServer())
         .get(`/ims/oneroster/v1p2/users/${testUserId}/enrollments`)
-        .set('Authorization', `Bearer ${apiKey}`)
+        .set('X-API-Key', apiKey)
         .expect(200);
 
       expect(response.body).toHaveProperty('enrollments');
       expect(response.body.enrollments.length).toBeGreaterThan(0);
 
       response.body.enrollments.forEach((enrollment: any) => {
-        expect(enrollment.user.sourcedId).toBe(testUserId);
+        expect(enrollment.userSourcedId).toBe(testUserId);
       });
     });
   });
@@ -396,20 +383,20 @@ describe('OneRoster Enrollments API (e2e)', () => {
     it('should filter enrollments by role', async () => {
       const response = await request(app.getHttpServer())
         .get('/ims/oneroster/v1p2/enrollments')
-        .set('Authorization', `Bearer ${apiKey}`)
-        .query({ filter: "role='student'" })
+        .set('X-API-Key', apiKey)
+        .query({ filter: "role='primary'" })
         .expect(200);
 
       expect(response.body.enrollments.length).toBeGreaterThan(0);
       response.body.enrollments.forEach((enrollment: any) => {
-        expect(enrollment.role).toBe('student');
+        expect(enrollment.role).toBe('primary');
       });
     });
 
     it('should filter enrollments by status', async () => {
       const response = await request(app.getHttpServer())
         .get('/ims/oneroster/v1p2/enrollments')
-        .set('Authorization', `Bearer ${apiKey}`)
+        .set('X-API-Key', apiKey)
         .query({ filter: "status='active'" })
         .expect(200);
 
@@ -422,7 +409,7 @@ describe('OneRoster Enrollments API (e2e)', () => {
     it('should filter enrollments by beginDate', async () => {
       const response = await request(app.getHttpServer())
         .get('/ims/oneroster/v1p2/enrollments')
-        .set('Authorization', `Bearer ${apiKey}`)
+        .set('X-API-Key', apiKey)
         .query({ filter: "beginDate>='2025-04-01'" })
         .expect(200);
 
@@ -442,7 +429,7 @@ describe('OneRoster Enrollments API (e2e)', () => {
     it('should return only requested fields', async () => {
       const response = await request(app.getHttpServer())
         .get('/ims/oneroster/v1p2/enrollments')
-        .set('Authorization', `Bearer ${apiKey}`)
+        .set('X-API-Key', apiKey)
         .query({ fields: 'sourcedId,role,status' })
         .expect(200);
 
@@ -465,7 +452,7 @@ describe('OneRoster Enrollments API (e2e)', () => {
     it('should sort enrollments by role', async () => {
       const response = await request(app.getHttpServer())
         .get('/ims/oneroster/v1p2/enrollments')
-        .set('Authorization', `Bearer ${apiKey}`)
+        .set('X-API-Key', apiKey)
         .query({ sort: 'role', filter: "status='active'" })
         .expect(200);
 
@@ -483,13 +470,14 @@ describe('OneRoster Enrollments API (e2e)', () => {
     it('should update enrollment role', async () => {
       const response = await request(app.getHttpServer())
         .put(`/ims/oneroster/v1p2/enrollments/${testEnrollmentId}`)
-        .set('Authorization', `Bearer ${apiKey}`)
+        .set('X-API-Key', apiKey)
         .send({
           role: 'aide',
         })
         .expect(200);
 
-      expect(response.body.enrollment.role).toBe('aide');
+      // API returns direct object
+      expect(response.body.role).toBe('aide');
 
       // Verify in database
       const updatedEnrollment = await prisma.enrollment.findUnique({
@@ -501,8 +489,8 @@ describe('OneRoster Enrollments API (e2e)', () => {
     it('should return 404 for non-existent enrollment', async () => {
       await request(app.getHttpServer())
         .put('/ims/oneroster/v1p2/enrollments/non-existent-id')
-        .set('Authorization', `Bearer ${apiKey}`)
-        .send({ role: 'student' })
+        .set('X-API-Key', apiKey)
+        .send({ role: 'primary' })
         .expect(404);
     });
   });
@@ -517,7 +505,7 @@ describe('OneRoster Enrollments API (e2e)', () => {
 
       await request(app.getHttpServer())
         .delete(`/ims/oneroster/v1p2/enrollments/${enrollmentToDelete}`)
-        .set('Authorization', `Bearer ${apiKey}`)
+        .set('X-API-Key', apiKey)
         .expect(204);
 
       // Verify status changed to 'tobedeleted'
@@ -530,7 +518,7 @@ describe('OneRoster Enrollments API (e2e)', () => {
     it('should return 404 for non-existent enrollment', async () => {
       await request(app.getHttpServer())
         .delete('/ims/oneroster/v1p2/enrollments/non-existent-id')
-        .set('Authorization', `Bearer ${apiKey}`)
+        .set('X-API-Key', apiKey)
         .expect(404);
     });
   });
@@ -543,23 +531,25 @@ describe('OneRoster Enrollments API (e2e)', () => {
     it('should return Japan Profile metadata for student enrollment', async () => {
       const response = await request(app.getHttpServer())
         .get(`/ims/oneroster/v1p2/enrollments/${testEnrollmentId}`)
-        .set('Authorization', `Bearer ${apiKey}`)
+        .set('X-API-Key', apiKey)
         .expect(200);
 
-      expect(response.body.enrollment.metadata).toHaveProperty('jp');
-      expect(response.body.enrollment.metadata.jp).toHaveProperty('attendanceNumber');
-      expect(response.body.enrollment.metadata.jp.attendanceNumber).toBe('001');
+      // API returns direct object
+      expect(response.body.metadata).toHaveProperty('jp');
+      expect(response.body.metadata.jp).toHaveProperty('attendanceNumber');
+      expect(response.body.metadata.jp.attendanceNumber).toBe('001');
     });
 
     it('should return Japan Profile metadata for teacher enrollment', async () => {
       const response = await request(app.getHttpServer())
         .get('/ims/oneroster/v1p2/enrollments/enrollment-e2e-003')
-        .set('Authorization', `Bearer ${apiKey}`)
+        .set('X-API-Key', apiKey)
         .expect(200);
 
-      expect(response.body.enrollment.metadata).toHaveProperty('jp');
-      expect(response.body.enrollment.metadata.jp).toHaveProperty('primary');
-      expect(response.body.enrollment.metadata.jp.primary).toBe(true);
+      // API returns direct object
+      expect(response.body.metadata).toHaveProperty('jp');
+      expect(response.body.metadata.jp).toHaveProperty('primary');
+      expect(response.body.metadata.jp.primary).toBe(true);
     });
   });
 });

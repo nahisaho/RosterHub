@@ -9,10 +9,10 @@ import { FieldMappingController } from './field-mapping.controller';
 import { FieldMappingService } from './field-mapping.service';
 import { FieldMappingRepository } from './repositories/field-mapping.repository';
 import { TransformationEngineService } from './transformations/transformation-engine.service';
-import { PrismaModule } from '../prisma/prisma.module';
+import { DatabaseModule } from '../database/database.module';
 
 @Module({
-  imports: [PrismaModule],
+  imports: [DatabaseModule],
   controllers: [FieldMappingController],
   providers: [
     FieldMappingService,
