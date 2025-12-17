@@ -90,18 +90,28 @@ async function main() {
   console.log('📦 Clearing existing data...');
 
   // Clear existing data in correct order (foreign key constraints)
-  await prisma.enrollment.deleteMany();
-  await prisma.classAcademicSession.deleteMany();
-  await prisma.class.deleteMany();
-  await prisma.course.deleteMany();
-  await prisma.demographic.deleteMany();
-  await prisma.userOrg.deleteMany();
-  await prisma.userAgent.deleteMany();
-  await prisma.academicSession.deleteMany();
-  await prisma.user.deleteMany();
-  await prisma.org.deleteMany();
-
-  console.log('✅ Existing data cleared');
+  // Use try-catch to handle cases where tables don't exist yet
+  try {
+    await prisma.enrollment.deleteMany();
+    await prisma.classAcademicSession.deleteMany();
+    await prisma.class.deleteMany();
+    await prisma.course.deleteMany();
+    await prisma.demographic.deleteMany();
+    await prisma.userOrg.deleteMany();
+    await prisma.userAgent.deleteMany();
+    await prisma.academicSession.deleteMany();
+    await prisma.user.deleteMany();
+    await prisma.org.deleteMany();
+    console.log('✅ Existing data cleared');
+  } catch (error: unknown) {
+    const prismaError = error as { code?: string };
+    if (prismaError.code === 'P2021') {
+      console.log('⚠️ Tables do not exist yet. Running migrations first is recommended.');
+      console.log('   Run: npx prisma migrate deploy');
+      process.exit(1);
+    }
+    throw error;
+  }
 
   // ============================================
   // 1. Create Organizations (3)
