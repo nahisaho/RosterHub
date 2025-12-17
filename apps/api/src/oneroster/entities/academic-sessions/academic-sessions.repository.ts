@@ -84,7 +84,7 @@ export class AcademicSessionsRepository extends BaseRepository<AcademicSession> 
   async findBySourcedIdWithRelations(
     sourcedId: string,
   ): Promise<AcademicSession | null> {
-    return this.prisma.academicSession.findUnique({
+    return await this.prisma.academicSession.findUnique({
       where: { sourcedId },
       include: {
         parent: true,
@@ -221,7 +221,7 @@ export class AcademicSessionsRepository extends BaseRepository<AcademicSession> 
   async findCurrentSchoolYear(): Promise<AcademicSession | null> {
     const now = new Date();
 
-    return this.prisma.academicSession.findFirst({
+    return await this.prisma.academicSession.findFirst({
       where: {
         type: 'schoolYear',
         status: 'active',

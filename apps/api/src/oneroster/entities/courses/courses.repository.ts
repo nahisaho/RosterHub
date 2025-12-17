@@ -80,7 +80,7 @@ export class CoursesRepository extends BaseRepository<Course> {
   async findBySourcedIdWithRelations(
     sourcedId: string,
   ): Promise<Course | null> {
-    return this.prisma.course.findUnique({
+    return await this.prisma.course.findUnique({
       where: { sourcedId },
       include: {
         school: true,
@@ -100,7 +100,7 @@ export class CoursesRepository extends BaseRepository<Course> {
    * @returns Course or null if not found
    */
   async findByCourseCode(courseCode: string): Promise<Course | null> {
-    return this.prisma.course.findFirst({
+    return await this.prisma.course.findFirst({
       where: { courseCode },
     });
   }

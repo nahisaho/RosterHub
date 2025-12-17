@@ -84,7 +84,7 @@ export class ClassesRepository extends BaseRepository<Class> {
    * @returns Class with course, school, enrollments, and academic sessions
    */
   async findBySourcedIdWithRelations(sourcedId: string): Promise<Class | null> {
-    return this.prisma.class.findUnique({
+    return await this.prisma.class.findUnique({
       where: { sourcedId },
       include: {
         course: true,
@@ -173,7 +173,7 @@ export class ClassesRepository extends BaseRepository<Class> {
   ): Promise<Class[]> {
     const { offset = 0, limit = 100 } = options;
 
-    return this.prisma.class.findMany({
+    return await this.prisma.class.findMany({
       where: {
         academicSessions: {
           some: {
@@ -198,7 +198,7 @@ export class ClassesRepository extends BaseRepository<Class> {
   ) {
     const { offset = 0, limit = 100 } = options;
 
-    return this.prisma.enrollment.findMany({
+    return await this.prisma.enrollment.findMany({
       where: {
         classSourcedId,
         user: {
@@ -225,7 +225,7 @@ export class ClassesRepository extends BaseRepository<Class> {
   ) {
     const { offset = 0, limit = 100 } = options;
 
-    return this.prisma.enrollment.findMany({
+    return await this.prisma.enrollment.findMany({
       where: {
         classSourcedId,
         user: {

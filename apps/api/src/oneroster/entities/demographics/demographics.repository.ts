@@ -86,7 +86,7 @@ export class DemographicsRepository extends BaseRepository<Demographic> {
   async findBySourcedIdWithRelations(
     sourcedId: string,
   ): Promise<Demographic | null> {
-    return this.prisma.demographic.findUnique({
+    return await this.prisma.demographic.findUnique({
       where: { sourcedId },
       include: {
         user: {
@@ -111,7 +111,7 @@ export class DemographicsRepository extends BaseRepository<Demographic> {
   async findByUserSourcedId(
     userSourcedId: string,
   ): Promise<Demographic | null> {
-    return this.prisma.demographic.findUnique({
+    return await this.prisma.demographic.findUnique({
       where: { userSourcedId },
     });
   }
