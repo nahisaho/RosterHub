@@ -122,18 +122,42 @@ jobs:
 
       - name: Run database migrations
         run: |
-          echo "Running Prisma migrations..."
-          npx prisma migrate deploy
-          echo "Migration completed successfully"
+          echo "=== Starting Database Migration ==="
+          echo "DATABASE_URL: $DATABASE_URL"
+          echo ""
+          echo "=== Available Migrations ==="
+          ls -la prisma/migrations/
+          echo ""
+          echo "=== Migration Directories Contents ==="
+          for dir in prisma/migrations/*/; do
+            echo "--- $dir ---"
+            head -5 "$dir/migration.sql" 2>/dev/null || echo "No migration.sql found"
+          done
+          echo ""
+          echo "=== Testing Database Connection ==="
+          npx prisma db execute --stdin --schema=prisma/schema.prisma <<< "SELECT 1 as test;" || { echo "Database connection failed!"; exit 1; }
+          echo ""
+          echo "=== Running Prisma Migrate Deploy ==="
+          npx prisma migrate deploy --schema=prisma/schema.prisma 2>&1 || { echo "Migration failed!"; exit 1; }
+          echo ""
+          echo "=== Verifying Tables ==="
+          npx prisma db execute --stdin --schema=prisma/schema.prisma <<< "SELECT tablename FROM pg_tables WHERE schemaname = 'public' ORDER BY tablename;" || echo "Table verification skipped"
+          echo ""
+          echo "=== Migration Complete ==="
         working-directory: apps/api
         env:
           DATABASE_URL: postgresql://rosterhub:rosterhub_password@localhost:5432/rosterhub_test
 
       - name: Seed test database
         run: |
-          echo "Seeding database..."
-          npx prisma db seed
-          echo "Seeding completed successfully"
+          echo "=== Starting Database Seed ==="
+          echo "Checking if tables exist before seeding..."
+          npx prisma db execute --stdin --schema=prisma/schema.prisma <<< "SELECT COUNT(*) as table_count FROM pg_tables WHERE schemaname = 'public';"
+          echo ""
+          echo "=== Running Seed ==="
+          npx prisma db seed 2>&1 || { echo "Seeding failed!"; exit 1; }
+          echo ""
+          echo "=== Seed Complete ==="
         working-directory: apps/api
         env:
           DATABASE_URL: postgresql://rosterhub:rosterhub_password@localhost:5432/rosterhub_test
