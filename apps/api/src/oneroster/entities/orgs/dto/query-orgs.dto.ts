@@ -11,7 +11,8 @@ import { OrgType, StatusType } from '@prisma/client';
  */
 export class QueryOrgsDto {
   @ApiPropertyOptional({
-    description: 'Maximum number of records to return (default: 100, max: 1000)',
+    description:
+      'Maximum number of records to return (default: 100, max: 1000)',
     minimum: 1,
     maximum: 1000,
     default: 100,
@@ -35,7 +36,8 @@ export class QueryOrgsDto {
   offset?: number = 0;
 
   @ApiPropertyOptional({
-    description: 'Filter expression (e.g., dateLastModified>=2025-01-01T00:00:00Z)',
+    description:
+      'Filter expression (e.g., dateLastModified>=2025-01-01T00:00:00Z)',
     example: 'dateLastModified>=2025-01-01T00:00:00Z',
   })
   @IsOptional()

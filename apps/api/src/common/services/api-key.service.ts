@@ -7,7 +7,7 @@ import * as bcrypt from 'bcryptjs';
  *
  * Provides API key validation against the database.
  * Used by ApiKeyGuard for authentication.
- * 
+ *
  * Security Features:
  * - Bcrypt hashing for secure API key storage (12 rounds)
  * - Constant-time comparison to prevent timing attacks

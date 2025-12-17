@@ -1,5 +1,21 @@
-import { Controller, Get, Param, Query, Put, Delete, Body, UseGuards, UseInterceptors, HttpCode } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiSecurity } from '@nestjs/swagger';
+import {
+  Controller,
+  Get,
+  Param,
+  Query,
+  Put,
+  Delete,
+  Body,
+  UseGuards,
+  UseInterceptors,
+  HttpCode,
+} from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiSecurity,
+} from '@nestjs/swagger';
 import { DemographicsService } from './demographics.service';
 import { DemographicResponseDto } from './dto/demographic-response.dto';
 import { QueryDemographicsDto } from './dto/query-demographics.dto';
@@ -26,7 +42,9 @@ export class DemographicsController {
   @ApiOperation({ summary: 'Get demographic by sourcedId' })
   @ApiResponse({ status: 200, type: DemographicResponseDto })
   @ApiResponse({ status: 404, description: 'Demographic not found' })
-  async findOne(@Param('sourcedId') sourcedId: string): Promise<DemographicResponseDto> {
+  async findOne(
+    @Param('sourcedId') sourcedId: string,
+  ): Promise<DemographicResponseDto> {
     return this.demographicsService.findOne(sourcedId);
   }
 
@@ -38,7 +56,10 @@ export class DemographicsController {
     @Param('sourcedId') sourcedId: string,
     @Body() updateDemographicDto: UpdateDemographicDto,
   ) {
-    const demographic = await this.demographicsService.update(sourcedId, updateDemographicDto);
+    const demographic = await this.demographicsService.update(
+      sourcedId,
+      updateDemographicDto,
+    );
     return { demographic };
   }
 

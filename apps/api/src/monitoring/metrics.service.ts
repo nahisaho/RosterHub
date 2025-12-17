@@ -280,10 +280,14 @@ export class MetricsService {
       entity,
       operation: 'import',
     });
-    this.observeHistogram('oneroster_csv_processing_duration_seconds', durationMs / 1000, {
-      entity,
-      operation: 'import',
-    });
+    this.observeHistogram(
+      'oneroster_csv_processing_duration_seconds',
+      durationMs / 1000,
+      {
+        entity,
+        operation: 'import',
+      },
+    );
   }
 
   /**
@@ -300,10 +304,14 @@ export class MetricsService {
       entity,
       operation: 'export',
     });
-    this.observeHistogram('oneroster_csv_processing_duration_seconds', durationMs / 1000, {
-      entity,
-      operation: 'export',
-    });
+    this.observeHistogram(
+      'oneroster_csv_processing_duration_seconds',
+      durationMs / 1000,
+      {
+        entity,
+        operation: 'export',
+      },
+    );
   }
 
   /**
@@ -314,10 +322,14 @@ export class MetricsService {
     table: string,
     durationMs: number,
   ): void {
-    this.observeHistogram('oneroster_db_query_duration_seconds', durationMs / 1000, {
-      operation,
-      table,
-    });
+    this.observeHistogram(
+      'oneroster_db_query_duration_seconds',
+      durationMs / 1000,
+      {
+        operation,
+        table,
+      },
+    );
   }
 
   /**

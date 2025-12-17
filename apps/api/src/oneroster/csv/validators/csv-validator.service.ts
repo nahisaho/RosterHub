@@ -44,12 +44,52 @@ export class CsvValidatorService {
 
   // OneRoster required fields by entity type
   private readonly REQUIRED_FIELDS: Record<string, string[]> = {
-    users: ['sourcedId', 'status', 'dateLastModified', 'enabledUser', 'givenName', 'familyName', 'role', 'username'],
+    users: [
+      'sourcedId',
+      'status',
+      'dateLastModified',
+      'enabledUser',
+      'givenName',
+      'familyName',
+      'role',
+      'username',
+    ],
     orgs: ['sourcedId', 'status', 'dateLastModified', 'name', 'type'],
-    classes: ['sourcedId', 'status', 'dateLastModified', 'title', 'classType', 'courseSourcedId', 'schoolSourcedId'],
-    courses: ['sourcedId', 'status', 'dateLastModified', 'title', 'orgSourcedId'],
-    enrollments: ['sourcedId', 'status', 'dateLastModified', 'classSourcedId', 'schoolSourcedId', 'userSourcedId', 'role'],
-    academicSessions: ['sourcedId', 'status', 'dateLastModified', 'title', 'type', 'startDate', 'endDate', 'schoolYear'],
+    classes: [
+      'sourcedId',
+      'status',
+      'dateLastModified',
+      'title',
+      'classType',
+      'courseSourcedId',
+      'schoolSourcedId',
+    ],
+    courses: [
+      'sourcedId',
+      'status',
+      'dateLastModified',
+      'title',
+      'orgSourcedId',
+    ],
+    enrollments: [
+      'sourcedId',
+      'status',
+      'dateLastModified',
+      'classSourcedId',
+      'schoolSourcedId',
+      'userSourcedId',
+      'role',
+    ],
+    academicSessions: [
+      'sourcedId',
+      'status',
+      'dateLastModified',
+      'title',
+      'type',
+      'startDate',
+      'endDate',
+      'schoolYear',
+    ],
     demographics: ['sourcedId', 'status', 'dateLastModified'],
   };
 
@@ -57,19 +97,46 @@ export class CsvValidatorService {
   private readonly VALID_STATUSES = ['active', 'tobedeleted'];
 
   // Valid role values for users
-  private readonly VALID_USER_ROLES = ['administrator', 'aide', 'guardian', 'parent', 'proctor', 'relative', 'student', 'teacher'];
+  private readonly VALID_USER_ROLES = [
+    'administrator',
+    'aide',
+    'guardian',
+    'parent',
+    'proctor',
+    'relative',
+    'student',
+    'teacher',
+  ];
 
   // Valid role values for enrollments
-  private readonly VALID_ENROLLMENT_ROLES = ['administrator', 'aide', 'proctor', 'student', 'teacher'];
+  private readonly VALID_ENROLLMENT_ROLES = [
+    'administrator',
+    'aide',
+    'proctor',
+    'student',
+    'teacher',
+  ];
 
   // Valid org types
-  private readonly VALID_ORG_TYPES = ['department', 'school', 'district', 'local', 'state', 'national'];
+  private readonly VALID_ORG_TYPES = [
+    'department',
+    'school',
+    'district',
+    'local',
+    'state',
+    'national',
+  ];
 
   // Valid class types
   private readonly VALID_CLASS_TYPES = ['homeroom', 'scheduled'];
 
   // Valid academic session types
-  private readonly VALID_SESSION_TYPES = ['gradingPeriod', 'semester', 'schoolYear', 'term'];
+  private readonly VALID_SESSION_TYPES = [
+    'gradingPeriod',
+    'semester',
+    'schoolYear',
+    'term',
+  ];
 
   /**
    * Validates CSV headers
@@ -109,7 +176,11 @@ export class CsvValidatorService {
    * @param lineNumber - Line number in CSV (for error reporting)
    * @returns Validation result with errors
    */
-  validateRow(row: CsvRow, entityType: string, lineNumber: number): ValidationResult {
+  validateRow(
+    row: CsvRow,
+    entityType: string,
+    lineNumber: number,
+  ): ValidationResult {
     const errors: ValidationError[] = [];
 
     // Check required fields
@@ -185,7 +256,11 @@ export class CsvValidatorService {
   /**
    * Validates User-specific fields
    */
-  private validateUserRow(row: any, lineNumber: number, errors: ValidationError[]): void {
+  private validateUserRow(
+    row: any,
+    lineNumber: number,
+    errors: ValidationError[],
+  ): void {
     // Validate role
     if (row.role && !this.VALID_USER_ROLES.includes(row.role)) {
       errors.push({
@@ -198,7 +273,10 @@ export class CsvValidatorService {
     }
 
     // Validate enabledUser (boolean)
-    if (row.enabledUser && !['true', 'false'].includes(row.enabledUser.toLowerCase())) {
+    if (
+      row.enabledUser &&
+      !['true', 'false'].includes(row.enabledUser.toLowerCase())
+    ) {
       errors.push({
         line: lineNumber,
         field: 'enabledUser',
@@ -223,7 +301,11 @@ export class CsvValidatorService {
   /**
    * Validates Org-specific fields
    */
-  private validateOrgRow(row: any, lineNumber: number, errors: ValidationError[]): void {
+  private validateOrgRow(
+    row: any,
+    lineNumber: number,
+    errors: ValidationError[],
+  ): void {
     // Validate org type
     if (row.type && !this.VALID_ORG_TYPES.includes(row.type)) {
       errors.push({
@@ -239,7 +321,11 @@ export class CsvValidatorService {
   /**
    * Validates Class-specific fields
    */
-  private validateClassRow(row: any, lineNumber: number, errors: ValidationError[]): void {
+  private validateClassRow(
+    row: any,
+    lineNumber: number,
+    errors: ValidationError[],
+  ): void {
     // Validate class type
     if (row.classType && !this.VALID_CLASS_TYPES.includes(row.classType)) {
       errors.push({
@@ -255,14 +341,22 @@ export class CsvValidatorService {
   /**
    * Validates Course-specific fields
    */
-  private validateCourseRow(row: any, lineNumber: number, errors: ValidationError[]): void {
+  private validateCourseRow(
+    _row: unknown,
+    _lineNumber: number,
+    _errors: ValidationError[],
+  ): void {
     // Course-specific validation (if any)
   }
 
   /**
    * Validates Enrollment-specific fields
    */
-  private validateEnrollmentRow(row: any, lineNumber: number, errors: ValidationError[]): void {
+  private validateEnrollmentRow(
+    row: any,
+    lineNumber: number,
+    errors: ValidationError[],
+  ): void {
     // Validate role
     if (row.role && !this.VALID_ENROLLMENT_ROLES.includes(row.role)) {
       errors.push({
@@ -310,7 +404,11 @@ export class CsvValidatorService {
   /**
    * Validates AcademicSession-specific fields
    */
-  private validateAcademicSessionRow(row: any, lineNumber: number, errors: ValidationError[]): void {
+  private validateAcademicSessionRow(
+    row: any,
+    lineNumber: number,
+    errors: ValidationError[],
+  ): void {
     // Validate session type
     if (row.type && !this.VALID_SESSION_TYPES.includes(row.type)) {
       errors.push({
@@ -362,7 +460,11 @@ export class CsvValidatorService {
   /**
    * Validates Demographic-specific fields
    */
-  private validateDemographicRow(row: any, lineNumber: number, errors: ValidationError[]): void {
+  private validateDemographicRow(
+    row: any,
+    lineNumber: number,
+    errors: ValidationError[],
+  ): void {
     // Validate birthDate
     if (row.birthDate && !this.isValidDate(row.birthDate)) {
       errors.push({
@@ -382,7 +484,12 @@ export class CsvValidatorService {
    * - Kana names should be in katakana or hiragana
    * - Kanji names should contain kanji characters
    */
-  private validateJapanProfile(row: any, entityType: string, lineNumber: number, errors: ValidationError[]): void {
+  private validateJapanProfile(
+    row: any,
+    entityType: string,
+    lineNumber: number,
+    errors: ValidationError[],
+  ): void {
     // Validate kana names (should be katakana or hiragana)
     if (row['metadata.jp.kanaGivenName']) {
       if (!this.isKana(row['metadata.jp.kanaGivenName'])) {

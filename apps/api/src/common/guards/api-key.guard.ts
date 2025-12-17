@@ -1,4 +1,10 @@
-import { Injectable, CanActivate, ExecutionContext, UnauthorizedException, Inject } from '@nestjs/common';
+import {
+  Injectable,
+  CanActivate,
+  ExecutionContext,
+  UnauthorizedException,
+  Inject,
+} from '@nestjs/common';
 import type { Request } from 'express';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import type { Cache } from 'cache-manager';
@@ -30,7 +36,7 @@ export class ApiKeyGuard implements CanActivate {
 
   constructor(
     @Inject('API_KEY_SERVICE') private readonly apiKeyService: any, // Inject ApiKeyService
-    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache // Inject Redis cache
+    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache, // Inject Redis cache
   ) {}
 
   /**
@@ -45,7 +51,9 @@ export class ApiKeyGuard implements CanActivate {
     const apiKey = this.extractApiKey(request);
 
     if (!apiKey) {
-      throw new UnauthorizedException('API key is required. Please provide X-API-Key header.');
+      throw new UnauthorizedException(
+        'API key is required. Please provide X-API-Key header.',
+      );
     }
 
     // Check cache first (5-minute TTL)
@@ -60,9 +68,13 @@ export class ApiKeyGuard implements CanActivate {
     } else {
       // Validate API key against database
       try {
-        apiKeyRecord = await this.apiKeyService.validate(apiKey);
-      } catch (error) {
-        throw new UnauthorizedException('Invalid API key or API key is inactive/expired');
+        apiKeyRecord = await (
+          this.apiKeyService as { validate: (key: string) => Promise<unknown> }
+        ).validate(apiKey);
+      } catch {
+        throw new UnauthorizedException(
+          'Invalid API key or API key is inactive/expired',
+        );
       }
 
       // Cache the validated API key record (5 minutes)
@@ -70,10 +82,13 @@ export class ApiKeyGuard implements CanActivate {
     }
 
     // Attach API key metadata to request for logging and downstream guards
-    request['apiKeyRecord'] = apiKeyRecord;
-    request['apiKey'] = apiKey;
-    request['clientIp'] = this.extractClientIp(request);
-    request['organizationId'] = apiKeyRecord.organizationId;
+    (request as Record<string, unknown>)['apiKeyRecord'] = apiKeyRecord;
+    (request as Record<string, unknown>)['apiKey'] = apiKey;
+    (request as Record<string, unknown>)['clientIp'] =
+      this.extractClientIp(request);
+    (request as Record<string, unknown>)['organizationId'] = (
+      apiKeyRecord as { organizationId: string }
+    ).organizationId;
 
     return true;
   }

@@ -4,9 +4,17 @@
  * Business logic for field mapping configuration management
  */
 
-import { Injectable, Logger, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { FieldMappingRepository } from './repositories/field-mapping.repository';
-import { TransformationEngineService, TransformationContext } from './transformations/transformation-engine.service';
+import {
+  TransformationEngineService,
+  TransformationContext,
+} from './transformations/transformation-engine.service';
 import { CreateFieldMappingConfigDto } from './dto/create-field-mapping-config.dto';
 import { FieldMappingConfigResponseDto } from './dto/field-mapping-config-response.dto';
 
@@ -53,7 +61,10 @@ export class FieldMappingService {
     organizationId: string,
     entityType?: string,
   ): Promise<FieldMappingConfigResponseDto[]> {
-    const configs = await this.repository.findByOrganization(organizationId, entityType);
+    const configs = await this.repository.findByOrganization(
+      organizationId,
+      entityType,
+    );
     return configs.map((config) => new FieldMappingConfigResponseDto(config));
   }
 
@@ -64,7 +75,9 @@ export class FieldMappingService {
     const config = await this.repository.findById(id);
 
     if (!config) {
-      throw new NotFoundException(`Field mapping configuration ${id} not found`);
+      throw new NotFoundException(
+        `Field mapping configuration ${id} not found`,
+      );
     }
 
     return new FieldMappingConfigResponseDto(config);
@@ -77,7 +90,10 @@ export class FieldMappingService {
     organizationId: string,
     entityType: string,
   ): Promise<FieldMappingConfigResponseDto | null> {
-    const config = await this.repository.findDefault(organizationId, entityType);
+    const config = await this.repository.findDefault(
+      organizationId,
+      entityType,
+    );
 
     if (!config) {
       return null;
@@ -96,7 +112,9 @@ export class FieldMappingService {
     const existing = await this.repository.findById(id);
 
     if (!existing) {
-      throw new NotFoundException(`Field mapping configuration ${id} not found`);
+      throw new NotFoundException(
+        `Field mapping configuration ${id} not found`,
+      );
     }
 
     const updated = await this.repository.updateConfig(id, updates);
@@ -113,7 +131,9 @@ export class FieldMappingService {
     const existing = await this.repository.findById(id);
 
     if (!existing) {
-      throw new NotFoundException(`Field mapping configuration ${id} not found`);
+      throw new NotFoundException(
+        `Field mapping configuration ${id} not found`,
+      );
     }
 
     await this.repository.deleteConfig(id);
@@ -128,7 +148,9 @@ export class FieldMappingService {
     const config = await this.repository.findById(id);
 
     if (!config) {
-      throw new NotFoundException(`Field mapping configuration ${id} not found`);
+      throw new NotFoundException(
+        `Field mapping configuration ${id} not found`,
+      );
     }
 
     const updated = await this.repository.setAsDefault(
@@ -137,7 +159,9 @@ export class FieldMappingService {
       config.entityType,
     );
 
-    this.logger.log(`Set field mapping config ${id} as default for ${config.entityType}`);
+    this.logger.log(
+      `Set field mapping config ${id} as default for ${config.entityType}`,
+    );
 
     return new FieldMappingConfigResponseDto(updated);
   }
@@ -153,7 +177,9 @@ export class FieldMappingService {
     const config = await this.repository.findById(configId);
 
     if (!config) {
-      throw new NotFoundException(`Field mapping configuration ${configId} not found`);
+      throw new NotFoundException(
+        `Field mapping configuration ${configId} not found`,
+      );
     }
 
     // Load lookup tables if needed
@@ -163,7 +189,8 @@ export class FieldMappingService {
     );
 
     for (const mapping of lookupConfigs) {
-      const tableName = (mapping.transformConfig as { tableName?: string })?.tableName;
+      const tableName = (mapping.transformConfig as { tableName?: string })
+        ?.tableName;
       if (tableName && !lookupTables.has(tableName)) {
         const table = await this.repository.findLookupTable(
           config.organizationId,

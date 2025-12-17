@@ -31,7 +31,14 @@ export class ApiKeyRepository {
    * @returns Array of API keys
    */
   async findAll(options: ApiKeyFilterOptions = {}): Promise<ApiKey[]> {
-    const { isActive, organizationId, name, offset = 0, limit = 100, orderBy } = options;
+    const {
+      isActive,
+      organizationId,
+      name,
+      offset = 0,
+      limit = 100,
+      orderBy,
+    } = options;
 
     const whereClause: Prisma.ApiKeyWhereInput = {
       ...(isActive !== undefined && { isActive }),
@@ -114,7 +121,7 @@ export class ApiKeyRepository {
    */
   async findByOrganization(
     organizationId: string,
-    options: { offset?: number; limit?: number } = {}
+    options: { offset?: number; limit?: number } = {},
   ): Promise<ApiKey[]> {
     const { offset = 0, limit = 100 } = options;
 
@@ -263,7 +270,9 @@ export class ApiKeyRepository {
    * @param options - Pagination options
    * @returns Expired API keys
    */
-  async findExpired(options: { offset?: number; limit?: number } = {}): Promise<ApiKey[]> {
+  async findExpired(
+    options: { offset?: number; limit?: number } = {},
+  ): Promise<ApiKey[]> {
     const { offset = 0, limit = 100 } = options;
     const now = new Date();
 
@@ -310,7 +319,9 @@ export class ApiKeyRepository {
    * @param orderBy - Order by string (e.g., "createdAt" or "-createdAt" for desc)
    * @returns Prisma order by clause
    */
-  private buildOrderByClause(orderBy?: string): Prisma.ApiKeyOrderByWithRelationInput {
+  private buildOrderByClause(
+    orderBy?: string,
+  ): Prisma.ApiKeyOrderByWithRelationInput {
     if (!orderBy) {
       return { createdAt: 'desc' };
     }

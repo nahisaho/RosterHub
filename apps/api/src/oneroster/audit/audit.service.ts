@@ -1,5 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { AuditLogRepository, AuditLogFilterOptions } from './repositories/audit-log.repository';
+import {
+  AuditLogRepository,
+  AuditLogFilterOptions,
+} from './repositories/audit-log.repository';
 import { AuditLog, AuditAction } from '@prisma/client';
 
 /**
@@ -61,9 +64,13 @@ export class AuditService {
   async findByEntity(
     entityType: string,
     entitySourcedId: string,
-    options: { offset?: number; limit?: number } = {}
+    options: { offset?: number; limit?: number } = {},
   ): Promise<AuditLog[]> {
-    return this.auditLogRepository.findByEntity(entityType, entitySourcedId, options);
+    return this.auditLogRepository.findByEntity(
+      entityType,
+      entitySourcedId,
+      options,
+    );
   }
 
   /**
@@ -77,7 +84,7 @@ export class AuditService {
    */
   async findByApiKey(
     apiKeyId: string,
-    options: { offset?: number; limit?: number } = {}
+    options: { offset?: number; limit?: number } = {},
   ): Promise<AuditLog[]> {
     return this.auditLogRepository.findByApiKey(apiKeyId, options);
   }
@@ -91,7 +98,7 @@ export class AuditService {
    */
   async findByAction(
     action: AuditAction,
-    options: { offset?: number; limit?: number } = {}
+    options: { offset?: number; limit?: number } = {},
   ): Promise<AuditLog[]> {
     return this.auditLogRepository.findByAction(action, options);
   }
@@ -107,7 +114,7 @@ export class AuditService {
    */
   async findByIpAddress(
     ipAddress: string,
-    options: { offset?: number; limit?: number } = {}
+    options: { offset?: number; limit?: number } = {},
   ): Promise<AuditLog[]> {
     return this.auditLogRepository.findByIpAddress(ipAddress, options);
   }
@@ -123,7 +130,7 @@ export class AuditService {
   async findByTimeRange(
     from: Date,
     to: Date,
-    options: { offset?: number; limit?: number } = {}
+    options: { offset?: number; limit?: number } = {},
   ): Promise<AuditLog[]> {
     return this.auditLogRepository.findByTimeRange(from, to, options);
   }
@@ -159,7 +166,9 @@ export class AuditService {
     const where: any = {
       ...(options.action && { action: options.action }),
       ...(options.entityType && { entityType: options.entityType }),
-      ...(options.entitySourcedId && { entitySourcedId: options.entitySourcedId }),
+      ...(options.entitySourcedId && {
+        entitySourcedId: options.entitySourcedId,
+      }),
       ...(options.userId && { userId: options.userId }),
       ...(options.apiKeyId && { apiKeyId: options.apiKeyId }),
       ...(options.ipAddress && { ipAddress: options.ipAddress }),
@@ -198,7 +207,8 @@ export class AuditService {
       `Enforcing data retention policy: Deleting audit logs older than ${cutoffDate.toISOString()}`,
     );
 
-    const deletedCount = await this.auditLogRepository.deleteOldLogs(cutoffDate);
+    const deletedCount =
+      await this.auditLogRepository.deleteOldLogs(cutoffDate);
 
     this.logger.log(`Deleted ${deletedCount} old audit logs`);
 
@@ -255,11 +265,11 @@ export class AuditService {
    * @param timeWindowMinutes - Time window to analyze (default: 60 minutes)
    * @returns Suspicious activity report
    */
-  async detectSuspiciousActivity(timeWindowMinutes: number = 60): Promise<{
+  detectSuspiciousActivity(timeWindowMinutes: number = 60): {
     highVolumeIps: { ipAddress: string; count: number }[];
     highFailureRates: { apiKeyId: string; successRate: number }[];
     analysisTime: Date;
-  }> {
+  } {
     const from = new Date();
     from.setMinutes(from.getMinutes() - timeWindowMinutes);
     const to = new Date();

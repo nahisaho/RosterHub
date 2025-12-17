@@ -1,5 +1,23 @@
-import { Controller, Get, Put, Delete, Param, Query, Body, HttpCode, HttpStatus, UseGuards, UseInterceptors } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiSecurity, ApiBody } from '@nestjs/swagger';
+import {
+  Controller,
+  Get,
+  Put,
+  Delete,
+  Param,
+  Query,
+  Body,
+  HttpCode,
+  HttpStatus,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiSecurity,
+  ApiBody,
+} from '@nestjs/swagger';
 import { EnrollmentsService } from './enrollments.service';
 import { EnrollmentResponseDto } from './dto/enrollment-response.dto';
 import { QueryEnrollmentsDto } from './dto/query-enrollments.dto';
@@ -26,7 +44,9 @@ export class EnrollmentsController {
   @ApiOperation({ summary: 'Get enrollment by sourcedId' })
   @ApiResponse({ status: 200, type: EnrollmentResponseDto })
   @ApiResponse({ status: 404, description: 'Enrollment not found' })
-  async findOne(@Param('sourcedId') sourcedId: string): Promise<EnrollmentResponseDto> {
+  async findOne(
+    @Param('sourcedId') sourcedId: string,
+  ): Promise<EnrollmentResponseDto> {
     return this.enrollmentsService.findOne(sourcedId);
   }
 

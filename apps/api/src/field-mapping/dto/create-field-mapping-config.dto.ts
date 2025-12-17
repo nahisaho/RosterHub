@@ -4,7 +4,16 @@
  * Request body for creating field mapping configurations
  */
 
-import { IsString, IsArray, IsBoolean, IsOptional, IsEnum, IsInt, Min, ValidateNested } from 'class-validator';
+import {
+  IsString,
+  IsArray,
+  IsBoolean,
+  IsOptional,
+  IsEnum,
+  IsInt,
+  Min,
+  ValidateNested,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 
@@ -33,7 +42,8 @@ export class FieldMappingRuleDto {
   targetField: string;
 
   @ApiProperty({
-    description: 'Source field names from CSV (can be multiple for concatenation)',
+    description:
+      'Source field names from CSV (can be multiple for concatenation)',
     example: ['first_name'],
   })
   @IsArray()
@@ -112,7 +122,15 @@ export class CreateFieldMappingConfigDto {
   @ApiProperty({
     description: 'OneRoster entity type',
     example: 'users',
-    enum: ['users', 'orgs', 'classes', 'courses', 'enrollments', 'demographics', 'academicSessions'],
+    enum: [
+      'users',
+      'orgs',
+      'classes',
+      'courses',
+      'enrollments',
+      'demographics',
+      'academicSessions',
+    ],
   })
   @IsString()
   entityType: string;

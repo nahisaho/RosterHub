@@ -36,7 +36,9 @@ export class CoursesRepository extends BaseRepository<Course> {
    * @param options - Filter options (Delta API, status, school, schoolYear, courseCode, pagination)
    * @returns Array of courses matching filter criteria
    */
-  async findAllWithFilter(options: CourseFilterOptions = {}): Promise<Course[]> {
+  async findAllWithFilter(
+    options: CourseFilterOptions = {},
+  ): Promise<Course[]> {
     const {
       dateLastModified,
       status,
@@ -53,7 +55,9 @@ export class CoursesRepository extends BaseRepository<Course> {
       ...(status && { status }),
       ...(schoolSourcedId && { schoolSourcedId }),
       ...(schoolYear && { schoolYear }),
-      ...(courseCode && { courseCode: { contains: courseCode, mode: 'insensitive' } }),
+      ...(courseCode && {
+        courseCode: { contains: courseCode, mode: 'insensitive' },
+      }),
     };
 
     return this.findAll({
@@ -73,7 +77,9 @@ export class CoursesRepository extends BaseRepository<Course> {
    * @param sourcedId - OneRoster sourcedId
    * @returns Course with school and classes
    */
-  async findBySourcedIdWithRelations(sourcedId: string): Promise<Course | null> {
+  async findBySourcedIdWithRelations(
+    sourcedId: string,
+  ): Promise<Course | null> {
     return this.prisma.course.findUnique({
       where: { sourcedId },
       include: {
@@ -108,7 +114,7 @@ export class CoursesRepository extends BaseRepository<Course> {
    */
   async findBySchool(
     schoolSourcedId: string,
-    options: { offset?: number; limit?: number } = {}
+    options: { offset?: number; limit?: number } = {},
   ): Promise<Course[]> {
     const { offset = 0, limit = 100 } = options;
 
@@ -127,7 +133,7 @@ export class CoursesRepository extends BaseRepository<Course> {
    */
   async findBySchoolYear(
     schoolYear: string,
-    options: { offset?: number; limit?: number } = {}
+    options: { offset?: number; limit?: number } = {},
   ): Promise<Course[]> {
     const { offset = 0, limit = 100 } = options;
 
@@ -146,7 +152,7 @@ export class CoursesRepository extends BaseRepository<Course> {
    */
   async searchByTitle(
     title: string,
-    options: { offset?: number; limit?: number } = {}
+    options: { offset?: number; limit?: number } = {},
   ): Promise<Course[]> {
     const { offset = 0, limit = 100 } = options;
 

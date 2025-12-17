@@ -71,7 +71,9 @@ export class DemographicsService {
     });
 
     // Convert to DTOs
-    let data: any[] = demographics.map((demographic) => new DemographicResponseDto(demographic));
+    let data: any[] = demographics.map(
+      (demographic) => new DemographicResponseDto(demographic),
+    );
 
     // Apply field selection if requested
     if (fields) {
@@ -85,18 +87,27 @@ export class DemographicsService {
   }
 
   async findOne(sourcedId: string): Promise<DemographicResponseDto> {
-    const demographic = await this.demographicsRepository.findBySourcedId(sourcedId);
+    const demographic =
+      await this.demographicsRepository.findBySourcedId(sourcedId);
     if (!demographic) {
-      throw new NotFoundException(`Demographic with sourcedId '${sourcedId}' not found`);
+      throw new NotFoundException(
+        `Demographic with sourcedId '${sourcedId}' not found`,
+      );
     }
     return new DemographicResponseDto(demographic);
   }
 
-  async update(sourcedId: string, updateDemographicDto: UpdateDemographicDto): Promise<DemographicResponseDto> {
-    const demographic = await this.demographicsRepository.findBySourcedId(sourcedId);
+  async update(
+    sourcedId: string,
+    updateDemographicDto: UpdateDemographicDto,
+  ): Promise<DemographicResponseDto> {
+    const demographic =
+      await this.demographicsRepository.findBySourcedId(sourcedId);
 
     if (!demographic) {
-      throw new NotFoundException(`Demographic with sourcedId '${sourcedId}' not found`);
+      throw new NotFoundException(
+        `Demographic with sourcedId '${sourcedId}' not found`,
+      );
     }
 
     const updateData: any = {
@@ -109,15 +120,21 @@ export class DemographicsService {
       updateData.birthDate = new Date(updateDemographicDto.birthDate);
     }
 
-    const updated = await this.demographicsRepository.update(sourcedId, updateData);
+    const updated = await this.demographicsRepository.update(
+      sourcedId,
+      updateData,
+    );
     return new DemographicResponseDto(updated);
   }
 
   async delete(sourcedId: string): Promise<void> {
-    const demographic = await this.demographicsRepository.findBySourcedId(sourcedId);
+    const demographic =
+      await this.demographicsRepository.findBySourcedId(sourcedId);
 
     if (!demographic) {
-      throw new NotFoundException(`Demographic with sourcedId '${sourcedId}' not found`);
+      throw new NotFoundException(
+        `Demographic with sourcedId '${sourcedId}' not found`,
+      );
     }
 
     // Soft delete - set status to tobedeleted

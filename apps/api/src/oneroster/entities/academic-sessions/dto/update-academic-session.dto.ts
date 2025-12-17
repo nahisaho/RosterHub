@@ -1,5 +1,11 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsOptional, IsString, IsEnum, IsDateString, IsObject } from 'class-validator';
+import {
+  IsOptional,
+  IsString,
+  IsEnum,
+  IsDateString,
+  IsObject,
+} from 'class-validator';
 import { AcademicSessionType, StatusType } from '@prisma/client';
 
 /**
@@ -8,12 +14,18 @@ import { AcademicSessionType, StatusType } from '@prisma/client';
  * OneRoster Japan Profile 1.2.2 compliant academic session update request.
  */
 export class UpdateAcademicSessionDto {
-  @ApiPropertyOptional({ description: 'Session title', example: '2025 First Semester' })
+  @ApiPropertyOptional({
+    description: 'Session title',
+    example: '2025 First Semester',
+  })
   @IsOptional()
   @IsString()
   title?: string;
 
-  @ApiPropertyOptional({ enum: AcademicSessionType, description: 'Session type' })
+  @ApiPropertyOptional({
+    enum: AcademicSessionType,
+    description: 'Session type',
+  })
   @IsOptional()
   @IsEnum(AcademicSessionType)
   type?: AcademicSessionType;

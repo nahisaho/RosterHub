@@ -126,7 +126,8 @@ describe('FilterParserService', () => {
     });
 
     it('should parse AND filter with three conditions', () => {
-      const filter = "status='active' AND role='student' AND enabledUser='true'";
+      const filter =
+        "status='active' AND role='student' AND enabledUser='true'";
       const result = service.parseFilter(filter);
 
       expect(result).toEqual({
@@ -176,7 +177,8 @@ describe('FilterParserService', () => {
 
   describe('Nested Logical Filters (Parentheses)', () => {
     it('should parse nested filters with parentheses', () => {
-      const filter = "(status='active' OR status='tobedeleted') AND role='teacher'";
+      const filter =
+        "(status='active' OR status='tobedeleted') AND role='teacher'";
       const result = service.parseFilter(filter);
 
       expect(result).toEqual({
@@ -458,7 +460,10 @@ describe('FilterParserService', () => {
       const result = service.parseFilter(filter);
 
       expect(result).toEqual({
-        AND: [{ enabledUser: true }, { givenName: { contains: 'John', mode: 'insensitive' } }],
+        AND: [
+          { enabledUser: true },
+          { givenName: { contains: 'John', mode: 'insensitive' } },
+        ],
       });
     });
 

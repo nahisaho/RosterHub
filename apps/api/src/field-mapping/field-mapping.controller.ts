@@ -38,7 +38,8 @@ export class FieldMappingController {
   @Post('configs')
   @ApiOperation({
     summary: 'Create field mapping configuration',
-    description: 'Create a new CSV field mapping configuration for an entity type',
+    description:
+      'Create a new CSV field mapping configuration for an entity type',
   })
   @ApiResponse({
     status: 201,
@@ -91,7 +92,9 @@ export class FieldMappingController {
     type: FieldMappingConfigResponseDto,
   })
   @ApiResponse({ status: 404, description: 'Configuration not found' })
-  async getConfig(@Param('id') id: string): Promise<FieldMappingConfigResponseDto> {
+  async getConfig(
+    @Param('id') id: string,
+  ): Promise<FieldMappingConfigResponseDto> {
     return this.fieldMappingService.getConfigById(id);
   }
 
@@ -101,7 +104,8 @@ export class FieldMappingController {
   @Get('configs/default/:entityType')
   @ApiOperation({
     summary: 'Get default field mapping configuration',
-    description: 'Retrieve the default field mapping configuration for an entity type',
+    description:
+      'Retrieve the default field mapping configuration for an entity type',
   })
   @ApiParam({ name: 'entityType', description: 'Entity type' })
   @ApiQuery({ name: 'organizationId', required: true })
@@ -115,7 +119,10 @@ export class FieldMappingController {
     @Param('entityType') entityType: string,
     @Query('organizationId') organizationId: string,
   ): Promise<FieldMappingConfigResponseDto | null> {
-    return this.fieldMappingService.getDefaultConfig(organizationId, entityType);
+    return this.fieldMappingService.getDefaultConfig(
+      organizationId,
+      entityType,
+    );
   }
 
   /**
@@ -149,7 +156,10 @@ export class FieldMappingController {
     description: 'Delete a field mapping configuration',
   })
   @ApiParam({ name: 'id', description: 'Configuration ID' })
-  @ApiResponse({ status: 204, description: 'Configuration deleted successfully' })
+  @ApiResponse({
+    status: 204,
+    description: 'Configuration deleted successfully',
+  })
   @ApiResponse({ status: 404, description: 'Configuration not found' })
   async deleteConfig(@Param('id') id: string): Promise<void> {
     return this.fieldMappingService.deleteConfig(id);
@@ -170,7 +180,9 @@ export class FieldMappingController {
     type: FieldMappingConfigResponseDto,
   })
   @ApiResponse({ status: 404, description: 'Configuration not found' })
-  async setAsDefault(@Param('id') id: string): Promise<FieldMappingConfigResponseDto> {
+  async setAsDefault(
+    @Param('id') id: string,
+  ): Promise<FieldMappingConfigResponseDto> {
     return this.fieldMappingService.setAsDefault(id);
   }
 }

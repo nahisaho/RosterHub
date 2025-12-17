@@ -31,7 +31,10 @@ export class FieldSelectionService {
       return undefined; // Return all fields
     }
 
-    const fieldList = fields.split(',').map(f => f.trim()).filter(f => f.length > 0);
+    const fieldList = fields
+      .split(',')
+      .map((f) => f.trim())
+      .filter((f) => f.length > 0);
 
     if (fieldList.length === 0) {
       return undefined;
@@ -39,7 +42,7 @@ export class FieldSelectionService {
 
     // Validate fields if allowedFields is provided
     if (allowedFields) {
-      const invalidFields = fieldList.filter(f => !allowedFields.includes(f));
+      const invalidFields = fieldList.filter((f) => !allowedFields.includes(f));
       if (invalidFields.length > 0) {
         throw new BadRequestException(
           `Invalid field names: ${invalidFields.join(', ')}. Allowed fields: ${allowedFields.join(', ')}`,
@@ -70,7 +73,10 @@ export class FieldSelectionService {
       return entity; // Return all fields
     }
 
-    const fieldList = fields.split(',').map(f => f.trim()).filter(f => f.length > 0);
+    const fieldList = fields
+      .split(',')
+      .map((f) => f.trim())
+      .filter((f) => f.length > 0);
 
     if (fieldList.length === 0) {
       return entity;
@@ -98,7 +104,7 @@ export class FieldSelectionService {
       return entities; // Return all fields
     }
 
-    return entities.map(entity => this.filterEntity(entity, fields));
+    return entities.map((entity) => this.filterEntity(entity, fields));
   }
 
   /**

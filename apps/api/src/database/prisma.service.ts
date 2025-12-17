@@ -1,4 +1,9 @@
-import { Injectable, OnModuleInit, OnModuleDestroy, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  OnModuleInit,
+  OnModuleDestroy,
+  Logger,
+} from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 
 /**
@@ -20,7 +25,10 @@ import { PrismaClient } from '@prisma/client';
  * ```
  */
 @Injectable()
-export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
+export class PrismaService
+  extends PrismaClient
+  implements OnModuleInit, OnModuleDestroy
+{
   private readonly logger = new Logger(PrismaService.name);
 
   constructor() {
@@ -96,14 +104,14 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
     }
 
     const models = Object.keys(this).filter(
-      (key) => !key.startsWith('_') && !key.startsWith('$')
+      (key) => !key.startsWith('_') && !key.startsWith('$'),
     );
 
     return Promise.all(
       models.map((model) => {
         // @ts-expect-error - Dynamic model access
         return this[model].deleteMany();
-      })
+      }),
     );
   }
 }

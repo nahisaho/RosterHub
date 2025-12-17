@@ -1,7 +1,6 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsOptional, IsInt, Min, Max, IsString, IsEnum } from 'class-validator';
 import { Type } from 'class-transformer';
-import { UserRole, StatusType } from '@prisma/client';
 
 /**
  * Sort Order Enum
@@ -23,7 +22,8 @@ export enum SortOrder {
  */
 export class QueryUsersDto {
   @ApiPropertyOptional({
-    description: 'Maximum number of records to return (default: 100, max: 1000)',
+    description:
+      'Maximum number of records to return (default: 100, max: 1000)',
     minimum: 1,
     maximum: 1000,
     default: 100,
@@ -47,7 +47,8 @@ export class QueryUsersDto {
   offset?: number = 0;
 
   @ApiPropertyOptional({
-    description: 'OneRoster filter expression (e.g., status=\'active\' AND role=\'student\')',
+    description:
+      "OneRoster filter expression (e.g., status='active' AND role='student')",
     example: "status='active'",
   })
   @IsOptional()

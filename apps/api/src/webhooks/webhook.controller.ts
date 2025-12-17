@@ -26,7 +26,10 @@ import {
 import { WebhookService } from './webhook.service';
 import { CreateWebhookDto } from './dto/create-webhook.dto';
 import { UpdateWebhookDto } from './dto/update-webhook.dto';
-import { WebhookResponseDto, WebhookDeliveryResponseDto } from './dto/webhook-response.dto';
+import {
+  WebhookResponseDto,
+  WebhookDeliveryResponseDto,
+} from './dto/webhook-response.dto';
 import { ApiKeyGuard } from '../common/guards/api-key.guard';
 
 @ApiTags('Webhooks')
@@ -50,7 +53,9 @@ export class WebhookController {
     type: WebhookResponseDto,
   })
   @ApiResponse({ status: 400, description: 'Invalid request body' })
-  async register(@Body() createDto: CreateWebhookDto): Promise<WebhookResponseDto> {
+  async register(
+    @Body() createDto: CreateWebhookDto,
+  ): Promise<WebhookResponseDto> {
     return this.webhookService.register(createDto);
   }
 
@@ -72,7 +77,9 @@ export class WebhookController {
     description: 'Webhooks retrieved successfully',
     type: [WebhookResponseDto],
   })
-  async list(@Query('organizationId') organizationId: string): Promise<WebhookResponseDto[]> {
+  async list(
+    @Query('organizationId') organizationId: string,
+  ): Promise<WebhookResponseDto[]> {
     return this.webhookService.listByOrganization(organizationId);
   }
 
@@ -82,7 +89,8 @@ export class WebhookController {
   @Get(':id')
   @ApiOperation({
     summary: 'Get webhook by ID',
-    description: 'Retrieve webhook details including secret for signature verification',
+    description:
+      'Retrieve webhook details including secret for signature verification',
   })
   @ApiParam({ name: 'id', description: 'Webhook ID' })
   @ApiResponse({

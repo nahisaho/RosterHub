@@ -38,14 +38,24 @@ export class MetricsInterceptor implements NestInterceptor {
         const status = response.statusCode;
 
         // Record HTTP request metrics
-        this.metricsService.recordHttpRequest(method, endpoint, status, duration);
+        this.metricsService.recordHttpRequest(
+          method,
+          endpoint,
+          status,
+          duration,
+        );
       }),
       catchError((error) => {
         const duration = Date.now() - startTime;
         const status = error.status || 500;
 
         // Record HTTP request metrics for errors
-        this.metricsService.recordHttpRequest(method, endpoint, status, duration);
+        this.metricsService.recordHttpRequest(
+          method,
+          endpoint,
+          status,
+          duration,
+        );
 
         // Record error metric
         const errorType = this.getErrorType(error);

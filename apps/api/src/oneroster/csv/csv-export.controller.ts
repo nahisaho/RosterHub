@@ -10,14 +10,19 @@ import {
   BadRequestException,
   InternalServerErrorException,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiQuery, ApiBearerAuth } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiQuery,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import type { Response } from 'express';
 import { createReadStream, existsSync } from 'fs';
 import { v4 as uuidv4 } from 'uuid';
 import { ApiKeyGuard } from '../../common/guards/api-key.guard';
 import { IpWhitelistGuard } from '../../common/guards/ip-whitelist.guard';
 import { RateLimitGuard } from '../../common/guards/rate-limit.guard';
-import { AuditInterceptor } from '../../common/interceptors/audit.interceptor';
 import { CsvExportService } from './services/csv-export.service';
 
 /**
@@ -57,7 +62,11 @@ export class CsvExportController {
    */
   @Get(':entityType')
   @ApiOperation({ summary: 'Export entity data to CSV (Bulk)' })
-  @ApiQuery({ name: 'status', required: false, enum: ['active', 'tobedeleted'] })
+  @ApiQuery({
+    name: 'status',
+    required: false,
+    enum: ['active', 'tobedeleted'],
+  })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'CSV file generated and downloaded successfully',
@@ -101,17 +110,25 @@ export class CsvExportController {
     const filePath = `${this.exportPath}/${filename}`;
 
     // Export to CSV
-    const result = await this.csvExportService.exportToCsv(entityType, filePath, {
-      status,
-    });
+    const result = await this.csvExportService.exportToCsv(
+      entityType,
+      filePath,
+      {
+        status,
+      },
+    );
 
     if (!result.success) {
-      throw new InternalServerErrorException(`CSV export failed: ${result.errorMessage}`);
+      throw new InternalServerErrorException(
+        `CSV export failed: ${result.errorMessage}`,
+      );
     }
 
     // Check if file exists
     if (!existsSync(filePath)) {
-      throw new InternalServerErrorException(`Export file not found: ${filePath}`);
+      throw new InternalServerErrorException(
+        `Export file not found: ${filePath}`,
+      );
     }
 
     // Set response headers for file download
@@ -138,14 +155,20 @@ export class CsvExportController {
    * @returns CSV file stream with delta records
    */
   @Get(':entityType/delta')
-  @ApiOperation({ summary: 'Delta export - Export records modified since date' })
+  @ApiOperation({
+    summary: 'Delta export - Export records modified since date',
+  })
   @ApiQuery({
     name: 'since',
     required: true,
     type: String,
     description: 'ISO 8601 date (e.g., 2025-01-01T00:00:00Z)',
   })
-  @ApiQuery({ name: 'status', required: false, enum: ['active', 'tobedeleted'] })
+  @ApiQuery({
+    name: 'status',
+    required: false,
+    enum: ['active', 'tobedeleted'],
+  })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'Delta CSV file generated successfully',
@@ -192,7 +215,9 @@ export class CsvExportController {
 
     const sinceDate = new Date(since);
     if (isNaN(sinceDate.getTime())) {
-      throw new BadRequestException(`Invalid date format for 'since': ${since}. Expected ISO 8601 format.`);
+      throw new BadRequestException(
+        `Invalid date format for 'since': ${since}. Expected ISO 8601 format.`,
+      );
     }
 
     // Generate unique filename
@@ -200,18 +225,26 @@ export class CsvExportController {
     const filePath = `${this.exportPath}/${filename}`;
 
     // Export delta CSV
-    const result = await this.csvExportService.exportToCsv(entityType, filePath, {
-      since: sinceDate,
-      status,
-    });
+    const result = await this.csvExportService.exportToCsv(
+      entityType,
+      filePath,
+      {
+        since: sinceDate,
+        status,
+      },
+    );
 
     if (!result.success) {
-      throw new InternalServerErrorException(`Delta CSV export failed: ${result.errorMessage}`);
+      throw new InternalServerErrorException(
+        `Delta CSV export failed: ${result.errorMessage}`,
+      );
     }
 
     // Check if file exists
     if (!existsSync(filePath)) {
-      throw new InternalServerErrorException(`Export file not found: ${filePath}`);
+      throw new InternalServerErrorException(
+        `Export file not found: ${filePath}`,
+      );
     }
 
     // Set response headers

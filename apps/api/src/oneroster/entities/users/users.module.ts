@@ -16,7 +16,12 @@ import { EnrollmentsModule } from '../enrollments/enrollments.module';
  * and exports service for use by other modules.
  */
 @Module({
-  imports: [DatabaseModule, CommonModule, OneRosterCommonModule, forwardRef(() => EnrollmentsModule)],
+  imports: [
+    DatabaseModule,
+    CommonModule,
+    OneRosterCommonModule,
+    forwardRef(() => EnrollmentsModule),
+  ],
   controllers: [UsersController, UsersEnrollmentsController],
   providers: [UsersService, UsersRepository],
   exports: [UsersService],

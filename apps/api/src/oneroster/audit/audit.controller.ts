@@ -7,7 +7,13 @@ import {
   HttpStatus,
   Delete,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiQuery, ApiBearerAuth } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiQuery,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { AuditService } from './audit.service';
 import { ApiKeyGuard } from '../../common/guards/api-key.guard';
 import { IpWhitelistGuard } from '../../common/guards/ip-whitelist.guard';
@@ -180,7 +186,11 @@ export class AuditController {
       limit: Math.min(limit ? parseInt(limit, 10) : 100, 1000),
     };
 
-    const auditLogs = await this.auditService.findByEntity(entityType, sourcedId, options);
+    const auditLogs = await this.auditService.findByEntity(
+      entityType,
+      sourcedId,
+      options,
+    );
 
     return {
       data: auditLogs,
@@ -211,10 +221,7 @@ export class AuditController {
     status: HttpStatus.OK,
     description: 'Audit statistics retrieved successfully',
   })
-  async getStatistics(
-    @Query('from') from: string,
-    @Query('to') to: string,
-  ) {
+  async getStatistics(@Query('from') from: string, @Query('to') to: string) {
     const fromDate = new Date(from);
     const toDate = new Date(to);
 
@@ -256,7 +263,11 @@ export class AuditController {
     const fromDate = from ? new Date(from) : undefined;
     const toDate = to ? new Date(to) : undefined;
 
-    const report = await this.auditService.generateGdprReport(userId, fromDate, toDate);
+    const report = await this.auditService.generateGdprReport(
+      userId,
+      fromDate,
+      toDate,
+    );
 
     return {
       data: report,

@@ -108,7 +108,10 @@ export class FilterParserService {
       const char = expression[i];
 
       // Track quote state
-      if ((char === "'" || char === '"') && (i === 0 || expression[i - 1] !== '\\')) {
+      if (
+        (char === "'" || char === '"') &&
+        (i === 0 || expression[i - 1] !== '\\')
+      ) {
         if (!inQuote) {
           inQuote = true;
           quoteChar = char;
@@ -180,12 +183,16 @@ export class FilterParserService {
       throw new Error(`Missing field name in expression: ${expression}`);
     }
     if (!value) {
-      throw new Error(`Missing value for field '${field}' in expression: ${expression}`);
+      throw new Error(
+        `Missing value for field '${field}' in expression: ${expression}`,
+      );
     }
 
     // Remove quotes from value
-    if ((value.startsWith("'") && value.endsWith("'")) ||
-        (value.startsWith('"') && value.endsWith('"'))) {
+    if (
+      (value.startsWith("'") && value.endsWith("'")) ||
+      (value.startsWith('"') && value.endsWith('"'))
+    ) {
       value = value.substring(1, value.length - 1);
     }
 
@@ -239,7 +246,11 @@ export class FilterParserService {
    * @param value - Value to compare
    * @returns Prisma filter condition
    */
-  private comparisonToPrisma(field: string, operator: ComparisonOperator, value: string): any {
+  private comparisonToPrisma(
+    field: string,
+    operator: ComparisonOperator,
+    value: string,
+  ): any {
     // Type conversion
     const convertedValue = this.convertValue(value);
 
@@ -263,7 +274,7 @@ export class FilterParserService {
         // For strings (e.g., title~'Section A'), use contains with case-insensitive mode
         return { [field]: { contains: convertedValue, mode: 'insensitive' } };
       default:
-        throw new Error(`Unsupported operator: ${operator}`);
+        throw new Error(`Unsupported operator: ${String(operator)}`);
     }
   }
 

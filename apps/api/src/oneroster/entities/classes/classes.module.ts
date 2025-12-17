@@ -1,6 +1,5 @@
 import { Module, forwardRef } from '@nestjs/common';
 import { DatabaseModule } from '../../../database/database.module';
-import { CommonModule } from '../../../common/common.module';
 import { OneRosterCommonModule } from '../../common/oneroster-common.module';
 import { ClassesController } from './classes.controller';
 import { ClassesEnrollmentsController } from './classes-enrollments.controller';
@@ -14,7 +13,11 @@ import { EnrollmentsModule } from '../enrollments/enrollments.module';
  * Provides class entity operations for OneRoster Japan Profile.
  */
 @Module({
-  imports: [DatabaseModule, OneRosterCommonModule, forwardRef(() => EnrollmentsModule)],
+  imports: [
+    DatabaseModule,
+    OneRosterCommonModule,
+    forwardRef(() => EnrollmentsModule),
+  ],
   controllers: [ClassesController, ClassesEnrollmentsController],
   providers: [ClassesService, ClassesRepository],
   exports: [ClassesService],

@@ -54,7 +54,10 @@ export class CsvImportJobDto {
   @IsOptional()
   processedRecords?: number;
 
-  @ApiProperty({ description: 'Successfully imported records', required: false })
+  @ApiProperty({
+    description: 'Successfully imported records',
+    required: false,
+  })
   @IsOptional()
   successCount?: number;
 
@@ -62,7 +65,11 @@ export class CsvImportJobDto {
   @IsOptional()
   errorCount?: number;
 
-  @ApiProperty({ description: 'Validation errors', type: [Object], required: false })
+  @ApiProperty({
+    description: 'Validation errors',
+    type: [Object],
+    required: false,
+  })
   @IsOptional()
   errors?: Array<{
     line: number;
@@ -100,7 +107,7 @@ export class CreateCsvImportJobDto {
   @ApiProperty({
     description: 'CSV file',
     type: 'string',
-    format: 'binary'
+    format: 'binary',
   })
   file: any;
 }

@@ -2,7 +2,10 @@ import { Injectable, Logger } from '@nestjs/common';
 import { createReadStream } from 'fs';
 import { parse } from 'csv-parse';
 import { CsvEntityMapper, CsvRow } from '../mappers/csv-entity.mapper';
-import { CsvValidatorService, ValidationError } from '../validators/csv-validator.service';
+import {
+  CsvValidatorService,
+  ValidationError,
+} from '../validators/csv-validator.service';
 import { CsvImportJobDto, CsvImportJobStatus } from '../dto/csv-import-job.dto';
 import { PrismaService } from '../../../database/prisma.service';
 import { UsersRepository } from '../../entities/users/users.repository';
@@ -64,7 +67,9 @@ export class CsvImportService {
    * @returns Updated job with results
    */
   async importCsv(job: CsvImportJobDto): Promise<CsvImportJobDto> {
-    this.logger.log(`Starting CSV import job ${job.id} for entity type: ${job.entityType}`);
+    this.logger.log(
+      `Starting CSV import job ${job.id} for entity type: ${job.entityType}`,
+    );
 
     // Update job status to processing
     job.status = CsvImportJobStatus.PROCESSING;
@@ -90,7 +95,7 @@ export class CsvImportService {
           trim: true,
           cast: false, // Keep all values as strings for validation
           relax_column_count: true, // Allow varying column counts
-        })
+        }),
       );
 
       // Handle stream errors
@@ -162,7 +167,10 @@ export class CsvImportService {
       }
 
       // Update job status
-      job.status = job.errorCount > 0 ? CsvImportJobStatus.COMPLETED : CsvImportJobStatus.COMPLETED;
+      job.status =
+        job.errorCount > 0
+          ? CsvImportJobStatus.COMPLETED
+          : CsvImportJobStatus.COMPLETED;
       job.completedAt = new Date();
       job.progress = 100;
 
@@ -194,10 +202,14 @@ export class CsvImportService {
    * @param batch - Batch of entity data
    * @param job - Import job (for tracking)
    */
-  private async insertBatch(repository: any, batch: any[], job: CsvImportJobDto): Promise<void> {
+  private async insertBatch(
+    repository: any,
+    batch: any[],
+    job: CsvImportJobDto,
+  ): Promise<void> {
     try {
       // Use transaction for batch insert
-      await this.prisma.$transaction(async (tx) => {
+      await this.prisma.$transaction(async (_tx) => {
         for (const entityData of batch) {
           try {
             // Upsert: update if exists, insert if not
@@ -220,7 +232,10 @@ export class CsvImportService {
 
       this.logger.debug(`Inserted batch of ${batch.length} records`);
     } catch (error) {
-      this.logger.error(`Failed to insert batch: ${error.message}`, error.stack);
+      this.logger.error(
+        `Failed to insert batch: ${error.message}`,
+        error.stack,
+      );
       throw error;
     }
   }
@@ -294,7 +309,7 @@ export class CsvImportService {
         parse({
           columns: true,
           skip_empty_lines: true,
-        })
+        }),
       );
 
       parser.on('data', () => {

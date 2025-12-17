@@ -38,7 +38,7 @@ export interface IBaseRepository<T> {
 export abstract class BaseRepository<T> implements IBaseRepository<T> {
   constructor(
     protected readonly prisma: PrismaService,
-    protected readonly modelName: string
+    protected readonly modelName: string,
   ) {}
 
   /**
@@ -56,7 +56,7 @@ export abstract class BaseRepository<T> implements IBaseRepository<T> {
    * @returns Array of entities
    */
   async findAll(filter?: any): Promise<T[]> {
-    return this.model.findMany(filter);
+    return await this.model.findMany(filter);
   }
 
   /**
@@ -66,7 +66,7 @@ export abstract class BaseRepository<T> implements IBaseRepository<T> {
    * @returns Entity or null if not found
    */
   async findBySourcedId(sourcedId: string): Promise<T | null> {
-    return this.model.findUnique({
+    return await this.model.findUnique({
       where: { sourcedId },
     });
   }
@@ -78,7 +78,7 @@ export abstract class BaseRepository<T> implements IBaseRepository<T> {
    * @returns Created entity
    */
   async create(data: any): Promise<T> {
-    return this.model.create({
+    return await this.model.create({
       data: {
         ...data,
         dateCreated: new Date(),
@@ -95,7 +95,7 @@ export abstract class BaseRepository<T> implements IBaseRepository<T> {
    * @returns Updated entity
    */
   async update(sourcedId: string, data: any): Promise<T> {
-    return this.model.update({
+    return await this.model.update({
       where: { sourcedId },
       data: {
         ...data,
@@ -112,7 +112,7 @@ export abstract class BaseRepository<T> implements IBaseRepository<T> {
    * @returns Updated entity with status 'tobedeleted'
    */
   async softDelete(sourcedId: string): Promise<T> {
-    return this.model.update({
+    return await this.model.update({
       where: { sourcedId },
       data: {
         status: 'tobedeleted',
@@ -128,7 +128,7 @@ export abstract class BaseRepository<T> implements IBaseRepository<T> {
    * @returns Number of matching records
    */
   async count(filter?: any): Promise<number> {
-    return this.model.count(filter);
+    return await this.model.count(filter);
   }
 
   /**

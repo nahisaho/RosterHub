@@ -34,8 +34,17 @@ export class OrgsService {
    * @param query - Query parameters (limit, offset, filter, sort, orderBy, fields)
    * @returns Paginated orgs with metadata
    */
-  async findAll(query: QueryOrgsDto): Promise<PaginatedResponse<OrgResponseDto>> {
-    const { limit = 100, offset = 0, filter, sort, orderBy = 'asc', fields } = query;
+  async findAll(
+    query: QueryOrgsDto,
+  ): Promise<PaginatedResponse<OrgResponseDto>> {
+    const {
+      limit = 100,
+      offset = 0,
+      filter,
+      sort,
+      orderBy = 'asc',
+      fields,
+    } = query;
 
     // Parse OneRoster filter expression
     const filterableFields = this.fieldSelection.getFilterableFields('orgs');
@@ -100,11 +109,16 @@ export class OrgsService {
    * @returns Org details
    * @throws NotFoundException if org not found
    */
-  async findOne(sourcedId: string, fields?: string): Promise<OrgResponseDto | any> {
+  async findOne(
+    sourcedId: string,
+    fields?: string,
+  ): Promise<OrgResponseDto | any> {
     const org = await this.orgsRepository.findBySourcedId(sourcedId);
 
     if (!org) {
-      throw new NotFoundException(`Org with sourcedId '${sourcedId}' not found`);
+      throw new NotFoundException(
+        `Org with sourcedId '${sourcedId}' not found`,
+      );
     }
 
     const orgDto = new OrgResponseDto(org);
@@ -125,11 +139,16 @@ export class OrgsService {
    * @returns Updated org details
    * @throws NotFoundException if org not found
    */
-  async update(sourcedId: string, updateOrgDto: UpdateOrgDto): Promise<OrgResponseDto> {
+  async update(
+    sourcedId: string,
+    updateOrgDto: UpdateOrgDto,
+  ): Promise<OrgResponseDto> {
     const org = await this.orgsRepository.findBySourcedId(sourcedId);
 
     if (!org) {
-      throw new NotFoundException(`Org with sourcedId '${sourcedId}' not found`);
+      throw new NotFoundException(
+        `Org with sourcedId '${sourcedId}' not found`,
+      );
     }
 
     const updateData: any = {
@@ -159,7 +178,9 @@ export class OrgsService {
     const org = await this.orgsRepository.findBySourcedId(sourcedId);
 
     if (!org) {
-      throw new NotFoundException(`Org with sourcedId '${sourcedId}' not found`);
+      throw new NotFoundException(
+        `Org with sourcedId '${sourcedId}' not found`,
+      );
     }
 
     // Soft delete - set status to tobedeleted

@@ -48,7 +48,9 @@ export class AuditInterceptor implements NestInterceptor {
   private readonly logger = new Logger(AuditInterceptor.name);
 
   constructor(
-    @Optional() @Inject(AuditLogRepository) private readonly auditLogRepository?: AuditLogRepository,
+    @Optional()
+    @Inject(AuditLogRepository)
+    private readonly auditLogRepository?: AuditLogRepository,
   ) {}
 
   /**
@@ -68,9 +70,9 @@ export class AuditInterceptor implements NestInterceptor {
 
     return next.handle().pipe(
       tap({
-        next: async (responseData) => {
+        next: (responseData) => {
           const duration = Date.now() - startTime;
-          await this.logAudit({
+          void this.logAudit({
             ...auditContext,
             statusCode: response.statusCode,
             duration,
@@ -78,15 +80,20 @@ export class AuditInterceptor implements NestInterceptor {
             responseData: this.sanitizeResponseData(responseData),
           });
         },
-        error: async (error) => {
+        error: (error: {
+          status?: number;
+          message?: string;
+          stack?: string;
+        }) => {
           const duration = Date.now() - startTime;
-          await this.logAudit({
+          void this.logAudit({
             ...auditContext,
             statusCode: error.status || 500,
             duration,
             success: false,
             errorMessage: error.message || 'Unknown error',
-            errorStack: process.env.NODE_ENV !== 'production' ? error.stack : undefined,
+            errorStack:
+              process.env.NODE_ENV !== 'production' ? error.stack : undefined,
           });
         },
       }),
@@ -104,13 +111,17 @@ export class AuditInterceptor implements NestInterceptor {
    * @param context - Execution context
    * @returns Audit context data
    */
-  private extractAuditContext(request: Request, context: ExecutionContext): any {
+  private extractAuditContext(
+    request: Request,
+    context: ExecutionContext,
+  ): any {
     const apiKey = (request as any).apiKey;
     const handler = context.getHandler();
     const controllerClass = context.getClass();
 
     // Extract entity type and action from route
-    const { entityType, action, entitySourcedId } = this.extractEntityContext(request);
+    const { entityType, action, entitySourcedId } =
+      this.extractEntityContext(request);
 
     return {
       timestamp: new Date(),
@@ -212,7 +223,9 @@ export class AuditInterceptor implements NestInterceptor {
   private extractClientIp(request: Request): string {
     const xForwardedFor = request.headers['x-forwarded-for'];
     if (xForwardedFor) {
-      const ips = Array.isArray(xForwardedFor) ? xForwardedFor[0] : xForwardedFor;
+      const ips = Array.isArray(xForwardedFor)
+        ? xForwardedFor[0]
+        : xForwardedFor;
       return ips.split(',')[0].trim();
     }
 
@@ -251,13 +264,19 @@ export class AuditInterceptor implements NestInterceptor {
           userAgent: auditData.userAgent,
           requestMethod: auditData.method,
           requestPath: auditData.path,
-          requestQuery: auditData.query ? JSON.stringify(auditData.query) : null,
+          requestQuery: auditData.query
+            ? JSON.stringify(auditData.query)
+            : null,
           requestBody: auditData.body ? JSON.stringify(auditData.body) : null,
           responseStatus: auditData.statusCode,
-          responseBody: auditData.responseData ? JSON.stringify(auditData.responseData) : null,
+          responseBody: auditData.responseData
+            ? JSON.stringify(auditData.responseData)
+            : null,
           errorMessage: auditData.errorMessage,
           duration: auditData.duration,
-          apiKey: auditData.apiKeyId ? { connect: { id: auditData.apiKeyId } } : undefined,
+          apiKey: auditData.apiKeyId
+            ? { connect: { id: auditData.apiKeyId } }
+            : undefined,
         } as Prisma.AuditLogCreateInput);
       }
     } catch (error) {

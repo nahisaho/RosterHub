@@ -34,8 +34,17 @@ export class UsersService {
    * @param query - Query parameters (limit, offset, filter, sort, orderBy, fields)
    * @returns Paginated users with metadata
    */
-  async findAll(query: QueryUsersDto): Promise<PaginatedResponse<UserResponseDto>> {
-    const { limit = 100, offset = 0, filter, sort, orderBy = 'asc', fields } = query;
+  async findAll(
+    query: QueryUsersDto,
+  ): Promise<PaginatedResponse<UserResponseDto>> {
+    const {
+      limit = 100,
+      offset = 0,
+      filter,
+      sort,
+      orderBy = 'asc',
+      fields,
+    } = query;
 
     // Parse OneRoster filter expression
     const filterableFields = this.fieldSelection.getFilterableFields('users');
@@ -100,11 +109,16 @@ export class UsersService {
    * @returns User details
    * @throws NotFoundException if user not found
    */
-  async findOne(sourcedId: string, fields?: string): Promise<UserResponseDto | any> {
+  async findOne(
+    sourcedId: string,
+    fields?: string,
+  ): Promise<UserResponseDto | any> {
     const user = await this.usersRepository.findBySourcedId(sourcedId);
 
     if (!user) {
-      throw new NotFoundException(`User with sourcedId '${sourcedId}' not found`);
+      throw new NotFoundException(
+        `User with sourcedId '${sourcedId}' not found`,
+      );
     }
 
     const userDto = new UserResponseDto(user);
@@ -125,11 +139,16 @@ export class UsersService {
    * @returns Updated user details
    * @throws NotFoundException if user not found
    */
-  async update(sourcedId: string, updateUserDto: UpdateUserDto): Promise<UserResponseDto> {
+  async update(
+    sourcedId: string,
+    updateUserDto: UpdateUserDto,
+  ): Promise<UserResponseDto> {
     const user = await this.usersRepository.findBySourcedId(sourcedId);
 
     if (!user) {
-      throw new NotFoundException(`User with sourcedId '${sourcedId}' not found`);
+      throw new NotFoundException(
+        `User with sourcedId '${sourcedId}' not found`,
+      );
     }
 
     const updateData: any = {
@@ -151,7 +170,9 @@ export class UsersService {
     const user = await this.usersRepository.findBySourcedId(sourcedId);
 
     if (!user) {
-      throw new NotFoundException(`User with sourcedId '${sourcedId}' not found`);
+      throw new NotFoundException(
+        `User with sourcedId '${sourcedId}' not found`,
+      );
     }
 
     // Soft delete - set status to tobedeleted

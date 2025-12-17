@@ -62,7 +62,10 @@ export class RateLimitSlidingWindowGuard implements CanActivate {
     });
 
     this.redis.on('error', (error) => {
-      this.logger.error(`Redis connection error: ${error.message}`, error.stack);
+      this.logger.error(
+        `Redis connection error: ${error.message}`,
+        error.stack,
+      );
     });
 
     this.redis.on('connect', () => {
@@ -120,10 +123,7 @@ export class RateLimitSlidingWindowGuard implements CanActivate {
         );
 
         // Add Retry-After header
-        response.setHeader(
-          'Retry-After',
-          Math.ceil(result.resetTimeMs / 1000),
-        );
+        response.setHeader('Retry-After', Math.ceil(result.resetTimeMs / 1000));
 
         throw new HttpException(
           {
@@ -202,9 +202,8 @@ export class RateLimitSlidingWindowGuard implements CanActivate {
     if (currentCount >= limit) {
       // Find oldest entry to calculate reset time
       const oldestEntry = await this.redis.zrange(redisKey, 0, 0, 'WITHSCORES');
-      const oldestTimestamp = oldestEntry.length > 1
-        ? parseInt(oldestEntry[1], 10)
-        : now;
+      const oldestTimestamp =
+        oldestEntry.length > 1 ? parseInt(oldestEntry[1], 10) : now;
       const resetTimeMs = Math.max(0, oldestTimestamp + windowMs - now);
 
       return {
@@ -226,9 +225,8 @@ export class RateLimitSlidingWindowGuard implements CanActivate {
 
     // Calculate reset time (time until oldest entry expires)
     const oldestEntry = await this.redis.zrange(redisKey, 0, 0, 'WITHSCORES');
-    const oldestTimestamp = oldestEntry.length > 1
-      ? parseInt(oldestEntry[1], 10)
-      : now;
+    const oldestTimestamp =
+      oldestEntry.length > 1 ? parseInt(oldestEntry[1], 10) : now;
     const resetTimeMs = Math.max(0, oldestTimestamp + windowMs - now);
 
     return {

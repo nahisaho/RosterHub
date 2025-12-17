@@ -5,7 +5,12 @@
  * Provides automatic serialization, TTL management, and cache invalidation.
  */
 
-import { Injectable, Logger, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  OnModuleInit,
+  OnModuleDestroy,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { createClient, RedisClientType } from 'redis';
 
@@ -30,7 +35,10 @@ export class RedisCacheService implements OnModuleInit, OnModuleDestroy {
    * Initialize Redis connection on module startup
    */
   async onModuleInit(): Promise<void> {
-    const redisUrl = this.configService.get<string>('REDIS_URL', 'redis://localhost:6379');
+    const redisUrl = this.configService.get<string>(
+      'REDIS_URL',
+      'redis://localhost:6379',
+    );
 
     this.client = createClient({
       url: redisUrl,
@@ -63,7 +71,9 @@ export class RedisCacheService implements OnModuleInit, OnModuleDestroy {
       await this.client.connect();
       this.logger.log('Redis cache service initialized');
     } catch (error) {
-      this.logger.error(`Failed to connect to Redis: ${error.message}`);
+      this.logger.error(
+        `Failed to connect to Redis: ${(error as Error).message}`,
+      );
       this.isConnected = false;
     }
   }
@@ -109,7 +119,9 @@ export class RedisCacheService implements OnModuleInit, OnModuleDestroy {
 
       return JSON.parse(value) as T;
     } catch (error) {
-      this.logger.error(`Cache get error for key ${key}: ${error.message}`);
+      this.logger.error(
+        `Cache get error for key ${key}: ${(error as Error).message}`,
+      );
       return null;
     }
   }
@@ -134,7 +146,9 @@ export class RedisCacheService implements OnModuleInit, OnModuleDestroy {
 
       await this.client.setEx(cacheKey, ttl, serialized);
     } catch (error) {
-      this.logger.error(`Cache set error for key ${key}: ${error.message}`);
+      this.logger.error(
+        `Cache set error for key ${key}: ${(error as Error).message}`,
+      );
     }
   }
 
@@ -154,7 +168,9 @@ export class RedisCacheService implements OnModuleInit, OnModuleDestroy {
       const cacheKey = this.buildKey(key, options?.prefix);
       await this.client.del(cacheKey);
     } catch (error) {
-      this.logger.error(`Cache delete error for key ${key}: ${error.message}`);
+      this.logger.error(
+        `Cache delete error for key ${key}: ${(error as Error).message}`,
+      );
     }
   }
 
@@ -176,7 +192,10 @@ export class RedisCacheService implements OnModuleInit, OnModuleDestroy {
 
       // Use SCAN to avoid blocking the server with KEYS
       const keys: string[] = [];
-      for await (const key of this.client.scanIterator({ MATCH: fullPattern, COUNT: 100 })) {
+      for await (const key of this.client.scanIterator({
+        MATCH: fullPattern,
+        COUNT: 100,
+      })) {
         if (typeof key === 'string') {
           keys.push(key);
         }
@@ -184,10 +203,14 @@ export class RedisCacheService implements OnModuleInit, OnModuleDestroy {
 
       if (keys.length > 0) {
         await this.client.del(keys);
-        this.logger.log(`Deleted ${keys.length} cache keys matching pattern: ${fullPattern}`);
+        this.logger.log(
+          `Deleted ${keys.length} cache keys matching pattern: ${fullPattern}`,
+        );
       }
     } catch (error) {
-      this.logger.error(`Cache pattern delete error for pattern ${pattern}: ${error.message}`);
+      this.logger.error(
+        `Cache pattern delete error for pattern ${pattern}: ${(error as Error).message}`,
+      );
     }
   }
 
@@ -207,7 +230,9 @@ export class RedisCacheService implements OnModuleInit, OnModuleDestroy {
       const exists = await this.client.exists(cacheKey);
       return exists === 1;
     } catch (error) {
-      this.logger.error(`Cache exists error for key ${key}: ${error.message}`);
+      this.logger.error(
+        `Cache exists error for key ${key}: ${(error as Error).message}`,
+      );
       return false;
     }
   }
@@ -228,7 +253,9 @@ export class RedisCacheService implements OnModuleInit, OnModuleDestroy {
       const cacheKey = this.buildKey(key, options?.prefix);
       return await this.client.ttl(cacheKey);
     } catch (error) {
-      this.logger.error(`Cache TTL error for key ${key}: ${error.message}`);
+      this.logger.error(
+        `Cache TTL error for key ${key}: ${(error as Error).message}`,
+      );
       return -2;
     }
   }
@@ -248,7 +275,7 @@ export class RedisCacheService implements OnModuleInit, OnModuleDestroy {
       const pattern = prefix ? `${prefix}:*` : '*';
       await this.deletePattern(pattern);
     } catch (error) {
-      this.logger.error(`Cache clear error: ${error.message}`);
+      this.logger.error(`Cache clear error: ${(error as Error).message}`);
     }
   }
 
@@ -285,7 +312,11 @@ export class RedisCacheService implements OnModuleInit, OnModuleDestroy {
    * @param options - Cache options
    * @returns New value after increment
    */
-  async increment(key: string, amount: number = 1, options?: CacheOptions): Promise<number> {
+  async increment(
+    key: string,
+    amount: number = 1,
+    options?: CacheOptions,
+  ): Promise<number> {
     if (!this.isConnected) {
       this.logger.warn('Redis not connected, skipping cache increment');
       return 0;
@@ -303,7 +334,9 @@ export class RedisCacheService implements OnModuleInit, OnModuleDestroy {
 
       return newValue;
     } catch (error) {
-      this.logger.error(`Cache increment error for key ${key}: ${error.message}`);
+      this.logger.error(
+        `Cache increment error for key ${key}: ${(error as Error).message}`,
+      );
       return 0;
     }
   }

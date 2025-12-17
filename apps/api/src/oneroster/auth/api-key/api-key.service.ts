@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { ApiKeyRepository } from '../repositories/api-key.repository';
 import { CreateApiKeyDto } from '../dto/create-api-key.dto';
 import { ApiKeyResponseDto } from '../dto/api-key-response.dto';
@@ -195,8 +199,11 @@ export class ApiKeyService {
    * console.log(apiKeys.length); // 3
    * ```
    */
-  async findByOrganization(organizationId: string): Promise<ApiKeyResponseDto[]> {
-    const apiKeys = await this.apiKeyRepository.findByOrganization(organizationId);
+  async findByOrganization(
+    organizationId: string,
+  ): Promise<ApiKeyResponseDto[]> {
+    const apiKeys =
+      await this.apiKeyRepository.findByOrganization(organizationId);
 
     return apiKeys.map(
       (apiKey) =>
@@ -211,7 +218,7 @@ export class ApiKeyService {
           expiresAt: apiKey.expiresAt,
           createdAt: apiKey.createdAt,
           lastUsedAt: apiKey.lastUsedAt,
-        })
+        }),
     );
   }
 

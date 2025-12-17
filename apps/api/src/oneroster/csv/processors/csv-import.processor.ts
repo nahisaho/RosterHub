@@ -77,14 +77,14 @@ export class CsvImportProcessor extends WorkerHost {
   /**
    * Hook: Called when job completes successfully
    */
-  async onCompleted(job: Job<CsvImportJobDto>, result: CsvImportJobDto) {
+  onCompleted(job: Job<CsvImportJobDto>, _result: CsvImportJobDto): void {
     this.logger.log(`Job ${job.id} completed successfully`);
   }
 
   /**
    * Hook: Called when job fails
    */
-  async onFailed(job: Job<CsvImportJobDto>, error: Error) {
+  onFailed(job: Job<CsvImportJobDto>, error: Error): void {
     this.logger.error(
       `Job ${job.id} failed after ${job.attemptsMade} attempts: ${error.message}`,
       error.stack,
@@ -94,14 +94,14 @@ export class CsvImportProcessor extends WorkerHost {
   /**
    * Hook: Called when job is active (processing)
    */
-  async onActive(job: Job<CsvImportJobDto>) {
+  onActive(job: Job<CsvImportJobDto>): void {
     this.logger.log(`Job ${job.id} is now active`);
   }
 
   /**
    * Hook: Called when job progress is updated
    */
-  async onProgress(job: Job<CsvImportJobDto>, progress: number) {
+  onProgress(job: Job<CsvImportJobDto>, progress: number): void {
     this.logger.debug(`Job ${job.id} progress: ${progress}%`);
   }
 }

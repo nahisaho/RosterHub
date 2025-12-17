@@ -1,5 +1,21 @@
-import { Controller, Post, Delete, Get, Body, Param, Query, HttpCode, HttpStatus } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiQuery } from '@nestjs/swagger';
+import {
+  Controller,
+  Post,
+  Delete,
+  Get,
+  Body,
+  Param,
+  Query,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiParam,
+  ApiQuery,
+} from '@nestjs/swagger';
 import { ApiKeyService } from './api-key.service';
 import { CreateApiKeyDto } from '../dto/create-api-key.dto';
 import { ApiKeyResponseDto } from '../dto/api-key-response.dto';
@@ -66,7 +82,8 @@ export class ApiKeyController {
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({
     summary: 'Create a new API key',
-    description: 'Generates a new API key with specified configuration. The plain-text key is returned only once.',
+    description:
+      'Generates a new API key with specified configuration. The plain-text key is returned only once.',
   })
   @ApiResponse({
     status: 201,
@@ -77,7 +94,9 @@ export class ApiKeyController {
     status: 400,
     description: 'Invalid input data',
   })
-  async create(@Body() createApiKeyDto: CreateApiKeyDto): Promise<ApiKeyResponseDto> {
+  async create(
+    @Body() createApiKeyDto: CreateApiKeyDto,
+  ): Promise<ApiKeyResponseDto> {
     return this.apiKeyService.create(createApiKeyDto);
   }
 
@@ -169,7 +188,8 @@ export class ApiKeyController {
   @Get()
   @ApiOperation({
     summary: 'List API keys for an organization',
-    description: 'Returns all API keys for the specified organization (active and inactive)',
+    description:
+      'Returns all API keys for the specified organization (active and inactive)',
   })
   @ApiQuery({
     name: 'organizationId',
@@ -182,7 +202,9 @@ export class ApiKeyController {
     description: 'API keys retrieved successfully',
     type: [ApiKeyResponseDto],
   })
-  async findByOrganization(@Query('organizationId') organizationId: string): Promise<ApiKeyResponseDto[]> {
+  async findByOrganization(
+    @Query('organizationId') organizationId: string,
+  ): Promise<ApiKeyResponseDto[]> {
     return this.apiKeyService.findByOrganization(organizationId);
   }
 

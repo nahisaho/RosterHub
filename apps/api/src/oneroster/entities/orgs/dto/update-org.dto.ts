@@ -8,7 +8,10 @@ import { OrgType, StatusType } from '@prisma/client';
  * OneRoster Japan Profile 1.2.2 compliant organization update request.
  */
 export class UpdateOrgDto {
-  @ApiPropertyOptional({ description: 'Organization name', example: 'Tokyo Central High School' })
+  @ApiPropertyOptional({
+    description: 'Organization name',
+    example: 'Tokyo Central High School',
+  })
   @IsOptional()
   @IsString()
   name?: string;
@@ -21,12 +24,18 @@ export class UpdateOrgDto {
   @IsEnum(OrgType)
   type?: OrgType;
 
-  @ApiPropertyOptional({ description: 'Unique external identifier', example: 'school-001' })
+  @ApiPropertyOptional({
+    description: 'Unique external identifier',
+    example: 'school-001',
+  })
   @IsOptional()
   @IsString()
   identifier?: string;
 
-  @ApiPropertyOptional({ description: 'Parent organization sourcedId', example: 'org-district456' })
+  @ApiPropertyOptional({
+    description: 'Parent organization sourcedId',
+    example: 'org-district456',
+  })
   @IsOptional()
   @IsString()
   parentSourcedId?: string;

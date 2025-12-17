@@ -1,5 +1,9 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { AcademicSession, StatusType, AcademicSessionType } from '@prisma/client';
+import {
+  AcademicSession,
+  StatusType,
+  AcademicSessionType,
+} from '@prisma/client';
 
 export class AcademicSessionResponseDto {
   @ApiProperty({ example: 'session-abc123' })

@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { CoursesRepository } from './courses.repository';
 import { CourseResponseDto } from './dto/course-response.dto';
 import { QueryCoursesDto } from './dto/query-courses.dto';
@@ -15,12 +19,20 @@ export class CoursesService {
   ) {}
 
   async findAll(query: QueryCoursesDto) {
-    const { limit = 100, offset = 0, filter, sort, orderBy = 'asc', fields, status } = query;
+    const {
+      limit = 100,
+      offset = 0,
+      filter,
+      sort,
+      orderBy = 'asc',
+      fields,
+      status,
+    } = query;
 
     // Parse OneRoster filter expression
     const filterableFields = this.fieldSelection.getFilterableFields('courses');
     let whereClause: any = {};
-    
+
     if (filter) {
       whereClause = this.filterParser.parseFilter(filter, filterableFields);
     }
@@ -33,7 +45,7 @@ export class CoursesService {
 
     if (sort) {
       let sortField = sort;
-      let sortOrder: 'asc' | 'desc' = orderBy as 'asc' | 'desc';
+      let sortOrder: 'asc' | 'desc' = orderBy;
 
       if (sort.startsWith('-')) {
         sortField = sort.substring(1);
@@ -72,15 +84,22 @@ export class CoursesService {
   async findOne(sourcedId: string): Promise<CourseResponseDto> {
     const course = await this.coursesRepository.findBySourcedId(sourcedId);
     if (!course) {
-      throw new NotFoundException(`Course with sourcedId '${sourcedId}' not found`);
+      throw new NotFoundException(
+        `Course with sourcedId '${sourcedId}' not found`,
+      );
     }
     return new CourseResponseDto(course);
   }
 
-  async update(sourcedId: string, updateDto: UpdateCourseDto): Promise<CourseResponseDto> {
+  async update(
+    sourcedId: string,
+    updateDto: UpdateCourseDto,
+  ): Promise<CourseResponseDto> {
     const existing = await this.coursesRepository.findBySourcedId(sourcedId);
     if (!existing) {
-      throw new NotFoundException(`Course with sourcedId '${sourcedId}' not found`);
+      throw new NotFoundException(
+        `Course with sourcedId '${sourcedId}' not found`,
+      );
     }
     const updated = await this.coursesRepository.update(sourcedId, updateDto);
     return new CourseResponseDto(updated);
@@ -89,7 +108,9 @@ export class CoursesService {
   async remove(sourcedId: string): Promise<void> {
     const existing = await this.coursesRepository.findBySourcedId(sourcedId);
     if (!existing) {
-      throw new NotFoundException(`Course with sourcedId '${sourcedId}' not found`);
+      throw new NotFoundException(
+        `Course with sourcedId '${sourcedId}' not found`,
+      );
     }
     await this.coursesRepository.softDelete(sourcedId);
   }

@@ -8,7 +8,10 @@ import { User, UserRole, StatusType } from '@prisma/client';
  * Transforms Prisma User entity to OneRoster JSON format.
  */
 export class UserResponseDto {
-  @ApiProperty({ description: 'OneRoster unique identifier', example: 'user-abc123' })
+  @ApiProperty({
+    description: 'OneRoster unique identifier',
+    example: 'user-abc123',
+  })
   sourcedId: string;
 
   @ApiProperty({ description: 'Record creation timestamp' })
@@ -23,10 +26,16 @@ export class UserResponseDto {
   @ApiProperty({ description: 'Is user account enabled?', example: true })
   enabledUser: boolean;
 
-  @ApiProperty({ description: 'Username for authentication', example: 'john.doe' })
+  @ApiProperty({
+    description: 'Username for authentication',
+    example: 'john.doe',
+  })
   username: string;
 
-  @ApiProperty({ description: 'Array of external user IDs', example: ['id123'] })
+  @ApiProperty({
+    description: 'Array of external user IDs',
+    example: ['id123'],
+  })
   userIds: string[];
 
   @ApiProperty({ description: 'Given name (first name)', example: 'John' })
@@ -41,10 +50,16 @@ export class UserResponseDto {
   @ApiProperty({ enum: UserRole, description: 'User role', example: 'student' })
   role: UserRole;
 
-  @ApiProperty({ description: 'Unique external identifier', example: 'student-12345' })
+  @ApiProperty({
+    description: 'Unique external identifier',
+    example: 'student-12345',
+  })
   identifier: string;
 
-  @ApiProperty({ description: 'Email address', example: 'john.doe@example.com' })
+  @ApiProperty({
+    description: 'Email address',
+    example: 'john.doe@example.com',
+  })
   email: string;
 
   @ApiPropertyOptional({ description: 'SMS phone number' })
@@ -88,6 +103,6 @@ export class UserResponseDto {
     this.email = user.email;
     this.sms = user.sms || undefined;
     this.phone = user.phone || undefined;
-    this.metadata = user.metadata as any || undefined;
+    this.metadata = (user.metadata as any) || undefined;
   }
 }

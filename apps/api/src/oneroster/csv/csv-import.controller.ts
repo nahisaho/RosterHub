@@ -7,7 +7,6 @@ import {
   UploadedFile,
   ParseFilePipe,
   MaxFileSizeValidator,
-  FileTypeValidator,
   UseGuards,
   HttpStatus,
   HttpCode,
@@ -17,7 +16,14 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiTags, ApiOperation, ApiResponse, ApiConsumes, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiConsumes,
+  ApiBody,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { diskStorage } from 'multer';
@@ -26,16 +32,13 @@ import { extname } from 'path';
 import { ApiKeyGuard } from '../../common/guards/api-key.guard';
 import { IpWhitelistGuard } from '../../common/guards/ip-whitelist.guard';
 import { RateLimitGuard } from '../../common/guards/rate-limit.guard';
-import { AuditInterceptor } from '../../common/interceptors/audit.interceptor';
 import {
-  CreateCsvImportJobDto,
   CsvImportJobDto,
   CsvImportJobResponseDto,
   CsvImportJobStatus,
 } from './dto/csv-import-job.dto';
 import { CsvValidatorService } from './validators/csv-validator.service';
 import * as fs from 'fs';
-import { parse } from 'csv-parse/sync';
 
 /**
  * CSV Import Controller
@@ -99,7 +102,15 @@ export class CsvImportController {
         },
         entityType: {
           type: 'string',
-          enum: ['users', 'orgs', 'classes', 'courses', 'enrollments', 'academicSessions', 'demographics'],
+          enum: [
+            'users',
+            'orgs',
+            'classes',
+            'courses',
+            'enrollments',
+            'academicSessions',
+            'demographics',
+          ],
           description: 'Entity type to import',
         },
       },
@@ -167,15 +178,20 @@ export class CsvImportController {
       }
 
       const headerLine = lines[0].trim();
-      const headers = headerLine.split(',').map(h => h.trim());
+      const headers = headerLine.split(',').map((h) => h.trim());
 
-      const validationResult = this.csvValidatorService.validateHeaders(headers, entityType);
+      const validationResult = this.csvValidatorService.validateHeaders(
+        headers,
+        entityType,
+      );
 
       if (!validationResult.valid) {
         // Clean up uploaded file on validation failure
         fs.unlinkSync(file.path);
 
-        const errorMessages = validationResult.errors.map(e => e.message).join('; ');
+        const errorMessages = validationResult.errors
+          .map((e) => e.message)
+          .join('; ');
         throw new BadRequestException(
           `CSV validation failed: ${errorMessages}`,
         );
@@ -192,7 +208,9 @@ export class CsvImportController {
       }
 
       // Wrap other errors
-      throw new BadRequestException(`Failed to validate CSV file: ${error.message}`);
+      throw new BadRequestException(
+        `Failed to validate CSV file: ${error.message}`,
+      );
     }
 
     // Create import job
@@ -245,7 +263,9 @@ export class CsvImportController {
     status: HttpStatus.NOT_FOUND,
     description: 'Import job not found',
   })
-  async getJobStatus(@Param('jobId') jobId: string): Promise<CsvImportJobResponseDto> {
+  async getJobStatus(
+    @Param('jobId') jobId: string,
+  ): Promise<CsvImportJobResponseDto> {
     const job = await this.csvImportQueue.getJob(jobId);
 
     if (!job) {

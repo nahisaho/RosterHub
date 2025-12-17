@@ -80,14 +80,16 @@ export class CsvExportService {
       });
 
       // Create readable stream from database query
-      const dataStream = await this.createDataStream(repository, entityType, options);
+      const dataStream = this.createDataStream(repository, entityType, options);
 
       // Pipeline: dataStream -> csvStringifier -> writeStream
       await pipeline(dataStream, csvStringifier, writeStream);
 
       const recordCount = (dataStream as any).recordCount || 0;
 
-      this.logger.log(`CSV export completed: ${recordCount} records exported to ${filePath}`);
+      this.logger.log(
+        `CSV export completed: ${recordCount} records exported to ${filePath}`,
+      );
 
       return {
         success: true,
@@ -111,67 +113,69 @@ export class CsvExportService {
    * @param options - Export options
    * @returns Readable stream
    */
-  private async createDataStream(
+  private createDataStream(
     repository: any,
     entityType: string,
     options: CsvExportOptions,
-  ): Promise<Readable> {
+  ): Readable {
     let offset = 0;
     let hasMore = true;
     let recordCount = 0;
     const batchSize = this.BATCH_SIZE;
-    const self = this;
+    const entityToCsvRowFn = this.entityToCsvRow.bind(this);
 
     const stream = new Readable({
       objectMode: true,
-      async read() {
+      read() {
         if (!hasMore) {
           this.push(null); // End stream
           return;
         }
 
-        try {
-          // Fetch batch of records using Prisma format
-          const whereClause: any = {};
+        // Fetch batch of records using Prisma format
+        const whereClause: any = {};
 
-          // Delta export: filter by dateLastModified
-          if (options.since) {
-            whereClause.dateLastModified = { gte: options.since };
-          }
-
-          // Status filter
-          if (options.status) {
-            whereClause.status = options.status;
-          }
-
-          const records = await repository.findAll({
-            where: whereClause,
-            skip: offset,
-            take: batchSize,
-          });
-
-          if (records.length === 0) {
-            hasMore = false;
-            this.push(null); // End stream
-            return;
-          }
-
-          // Convert records to CSV rows
-          for (const record of records) {
-            const csvRow = self.entityToCsvRow(record, entityType);
-            this.push(csvRow);
-            recordCount++;
-          }
-
-          offset += records.length;
-
-          // Check if we have more records
-          if (records.length < batchSize) {
-            hasMore = false;
-          }
-        } catch (error) {
-          this.destroy(error);
+        // Delta export: filter by dateLastModified
+        if (options.since) {
+          whereClause.dateLastModified = { gte: options.since };
         }
+
+        // Status filter
+        if (options.status) {
+          whereClause.status = options.status;
+        }
+
+        void (async () => {
+          try {
+            const records = await repository.findAll({
+              where: whereClause,
+              skip: offset,
+              take: batchSize,
+            });
+
+            if (records.length === 0) {
+              hasMore = false;
+              this.push(null); // End stream
+              return;
+            }
+
+            // Convert records to CSV rows
+            for (const record of records) {
+              const csvRow = entityToCsvRowFn(record, entityType);
+              this.push(csvRow);
+              recordCount++;
+            }
+
+            offset += records.length;
+
+            // Check if we have more records
+            if (records.length < batchSize) {
+              hasMore = false;
+            }
+          } catch (error) {
+            this.destroy(error as Error);
+          }
+        })();
       },
     });
 
@@ -284,7 +288,9 @@ export class CsvExportService {
     const row: any = {
       sourcedId: classEntity.sourcedId,
       status: classEntity.status,
-      dateLastModified: classEntity.dateLastModified?.toISOString().split('T')[0],
+      dateLastModified: classEntity.dateLastModified
+        ?.toISOString()
+        .split('T')[0],
       title: classEntity.title,
       classCode: classEntity.classCode || '',
       classType: classEntity.classType,
@@ -301,7 +307,8 @@ export class CsvExportService {
     // Japan Profile metadata
     if (classEntity.metadata?.jp) {
       row['metadata.jp.kanaTitle'] = classEntity.metadata.jp.kanaTitle || '';
-      row['metadata.jp.specialNeeds'] = classEntity.metadata.jp.specialNeeds || '';
+      row['metadata.jp.specialNeeds'] =
+        classEntity.metadata.jp.specialNeeds || '';
     }
 
     return row;
@@ -339,7 +346,9 @@ export class CsvExportService {
     return {
       sourcedId: enrollment.sourcedId,
       status: enrollment.status,
-      dateLastModified: enrollment.dateLastModified?.toISOString().split('T')[0],
+      dateLastModified: enrollment.dateLastModified
+        ?.toISOString()
+        .split('T')[0],
       classSourcedId: enrollment.classSourcedId,
       schoolSourcedId: enrollment.schoolSourcedId,
       userSourcedId: enrollment.userSourcedId,
@@ -381,34 +390,51 @@ export class CsvExportService {
     return {
       sourcedId: demographic.sourcedId,
       status: demographic.status,
-      dateLastModified: demographic.dateLastModified?.toISOString().split('T')[0],
+      dateLastModified: demographic.dateLastModified
+        ?.toISOString()
+        .split('T')[0],
       birthDate: demographic.birthDate?.toISOString().split('T')[0] || '',
       sex: demographic.sex || '',
-      americanIndianOrAlaskaNative: demographic.americanIndianOrAlaskaNative ? 'true' : 'false',
+      americanIndianOrAlaskaNative: demographic.americanIndianOrAlaskaNative
+        ? 'true'
+        : 'false',
       asian: demographic.asian ? 'true' : 'false',
-      blackOrAfricanAmerican: demographic.blackOrAfricanAmerican ? 'true' : 'false',
-      nativeHawaiianOrOtherPacificIslander: demographic.nativeHawaiianOrOtherPacificIslander ? 'true' : 'false',
+      blackOrAfricanAmerican: demographic.blackOrAfricanAmerican
+        ? 'true'
+        : 'false',
+      nativeHawaiianOrOtherPacificIslander:
+        demographic.nativeHawaiianOrOtherPacificIslander ? 'true' : 'false',
       white: demographic.white ? 'true' : 'false',
-      demographicRaceTwoOrMoreRaces: demographic.demographicRaceTwoOrMoreRaces ? 'true' : 'false',
-      hispanicOrLatinoEthnicity: demographic.hispanicOrLatinoEthnicity ? 'true' : 'false',
+      demographicRaceTwoOrMoreRaces: demographic.demographicRaceTwoOrMoreRaces
+        ? 'true'
+        : 'false',
+      hispanicOrLatinoEthnicity: demographic.hispanicOrLatinoEthnicity
+        ? 'true'
+        : 'false',
       countryOfBirthCode: demographic.countryOfBirthCode || '',
       stateOfBirthAbbreviation: demographic.stateOfBirthAbbreviation || '',
       cityOfBirth: demographic.cityOfBirth || '',
-      publicSchoolResidenceStatus: demographic.publicSchoolResidenceStatus || '',
+      publicSchoolResidenceStatus:
+        demographic.publicSchoolResidenceStatus || '',
     };
   }
 
   /**
    * Gets CSV columns for entity type
    */
-  private getEntityColumns(entityType: string): Array<{ key: string; header: string }> {
+  private getEntityColumns(
+    entityType: string,
+  ): Array<{ key: string; header: string }> {
     const baseColumns = [
       { key: 'sourcedId', header: 'sourcedId' },
       { key: 'status', header: 'status' },
       { key: 'dateLastModified', header: 'dateLastModified' },
     ];
 
-    const entityColumns: Record<string, Array<{ key: string; header: string }>> = {
+    const entityColumns: Record<
+      string,
+      Array<{ key: string; header: string }>
+    > = {
       users: [
         ...baseColumns,
         { key: 'enabledUser', header: 'enabledUser' },
@@ -426,8 +452,14 @@ export class CsvExportService {
         { key: 'agentSourcedIds', header: 'agentSourcedIds' },
         { key: 'grades', header: 'grades' },
         { key: 'password', header: 'password' },
-        { key: 'metadata.jp.kanaGivenName', header: 'metadata.jp.kanaGivenName' },
-        { key: 'metadata.jp.kanaFamilyName', header: 'metadata.jp.kanaFamilyName' },
+        {
+          key: 'metadata.jp.kanaGivenName',
+          header: 'metadata.jp.kanaGivenName',
+        },
+        {
+          key: 'metadata.jp.kanaFamilyName',
+          header: 'metadata.jp.kanaFamilyName',
+        },
         { key: 'metadata.jp.homeClass', header: 'metadata.jp.homeClass' },
       ],
       orgs: [

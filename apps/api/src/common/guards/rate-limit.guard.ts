@@ -53,9 +53,7 @@ export class RateLimitGuard implements CanActivate {
   private readonly DEFAULT_RATE_LIMIT = 1000;
   private readonly DEFAULT_WINDOW_MS = 60 * 60 * 1000; // 1 hour in milliseconds
 
-  constructor(
-    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
-  ) {}
+  constructor(@Inject(CACHE_MANAGER) private readonly cacheManager: Cache) {}
 
   /**
    * Determines if the current request should be allowed based on rate limits
@@ -103,10 +101,7 @@ export class RateLimitGuard implements CanActivate {
         );
 
         // Add Retry-After header
-        response.setHeader(
-          'Retry-After',
-          Math.ceil(result.resetTimeMs / 1000),
-        );
+        response.setHeader('Retry-After', Math.ceil(result.resetTimeMs / 1000));
 
         throw new HttpException(
           {
@@ -156,7 +151,6 @@ export class RateLimitGuard implements CanActivate {
     windowMs: number,
   ): Promise<RateLimitResult> {
     const now = Date.now();
-    const windowStart = now - windowMs;
 
     // Note: cache-manager doesn't support Redis sorted sets directly
     // We need to use ioredis client directly for this advanced feature

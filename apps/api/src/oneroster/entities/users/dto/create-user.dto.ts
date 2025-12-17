@@ -20,7 +20,9 @@ import { UserRole } from '@prisma/client';
  * Conforms to OneRoster Japan Profile 1.2.2 specification.
  */
 export class CreateUserDto {
-  @ApiProperty({ description: 'OneRoster unique identifier (auto-generated if not provided)' })
+  @ApiProperty({
+    description: 'OneRoster unique identifier (auto-generated if not provided)',
+  })
   @IsOptional()
   @IsString()
   @MaxLength(255)
@@ -31,14 +33,20 @@ export class CreateUserDto {
   @IsNotEmpty()
   enabledUser: boolean;
 
-  @ApiProperty({ description: 'Username for authentication', example: 'john.doe' })
+  @ApiProperty({
+    description: 'Username for authentication',
+    example: 'john.doe',
+  })
   @IsString()
   @IsNotEmpty()
   @MaxLength(255)
   @MinLength(3)
   username: string;
 
-  @ApiProperty({ description: 'Array of external user IDs', example: ['id123', 'external456'] })
+  @ApiProperty({
+    description: 'Array of external user IDs',
+    example: ['id123', 'external456'],
+  })
   @IsArray()
   @IsString({ each: true })
   userIds: string[];
@@ -66,25 +74,37 @@ export class CreateUserDto {
   @IsNotEmpty()
   role: UserRole;
 
-  @ApiProperty({ description: 'Unique external identifier', example: 'student-12345' })
+  @ApiProperty({
+    description: 'Unique external identifier',
+    example: 'student-12345',
+  })
   @IsString()
   @IsNotEmpty()
   @MaxLength(255)
   identifier: string;
 
-  @ApiProperty({ description: 'Email address', example: 'john.doe@example.com' })
+  @ApiProperty({
+    description: 'Email address',
+    example: 'john.doe@example.com',
+  })
   @IsEmail()
   @IsNotEmpty()
   @MaxLength(255)
   email: string;
 
-  @ApiPropertyOptional({ description: 'SMS phone number', example: '+81-90-1234-5678' })
+  @ApiPropertyOptional({
+    description: 'SMS phone number',
+    example: '+81-90-1234-5678',
+  })
   @IsOptional()
   @IsString()
   @MaxLength(50)
   sms?: string;
 
-  @ApiPropertyOptional({ description: 'Phone number', example: '+81-3-1234-5678' })
+  @ApiPropertyOptional({
+    description: 'Phone number',
+    example: '+81-3-1234-5678',
+  })
   @IsOptional()
   @IsString()
   @MaxLength(50)

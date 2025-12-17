@@ -4,7 +4,16 @@
  * Request body for webhook registration
  */
 
-import { IsUrl, IsArray, IsEnum, IsString, IsOptional, IsInt, Min, Max } from 'class-validator';
+import {
+  IsUrl,
+  IsArray,
+  IsEnum,
+  IsString,
+  IsOptional,
+  IsInt,
+  Min,
+  Max,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export enum WebhookEvent {
@@ -28,7 +37,10 @@ export class CreateWebhookDto {
     description: 'Events to subscribe to',
     enum: WebhookEvent,
     isArray: true,
-    example: [WebhookEvent.CSV_IMPORT_COMPLETED, WebhookEvent.CSV_IMPORT_FAILED],
+    example: [
+      WebhookEvent.CSV_IMPORT_COMPLETED,
+      WebhookEvent.CSV_IMPORT_FAILED,
+    ],
   })
   @IsArray()
   @IsEnum(WebhookEvent, { each: true })

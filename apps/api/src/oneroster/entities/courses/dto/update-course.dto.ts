@@ -1,5 +1,11 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsOptional, IsString, IsEnum, IsObject, IsArray } from 'class-validator';
+import {
+  IsOptional,
+  IsString,
+  IsEnum,
+  IsObject,
+  IsArray,
+} from 'class-validator';
 import { StatusType } from '@prisma/client';
 
 /**
@@ -8,7 +14,10 @@ import { StatusType } from '@prisma/client';
  * OneRoster Japan Profile 1.2.2 compliant course update request.
  */
 export class UpdateCourseDto {
-  @ApiPropertyOptional({ description: 'Course title', example: 'Mathematics I' })
+  @ApiPropertyOptional({
+    description: 'Course title',
+    example: 'Mathematics I',
+  })
   @IsOptional()
   @IsString()
   title?: string;

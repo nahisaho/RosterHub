@@ -1,5 +1,23 @@
-import { Controller, Get, Put, Delete, Param, Query, Body, HttpCode, HttpStatus, UseGuards, UseInterceptors } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiSecurity, ApiBody } from '@nestjs/swagger';
+import {
+  Controller,
+  Get,
+  Put,
+  Delete,
+  Param,
+  Query,
+  Body,
+  HttpCode,
+  HttpStatus,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiSecurity,
+  ApiBody,
+} from '@nestjs/swagger';
 import { CoursesService } from './courses.service';
 import { CourseResponseDto } from './dto/course-response.dto';
 import { QueryCoursesDto } from './dto/query-courses.dto';
@@ -26,7 +44,9 @@ export class CoursesController {
   @ApiOperation({ summary: 'Get course by sourcedId' })
   @ApiResponse({ status: 200, type: CourseResponseDto })
   @ApiResponse({ status: 404, description: 'Course not found' })
-  async findOne(@Param('sourcedId') sourcedId: string): Promise<CourseResponseDto> {
+  async findOne(
+    @Param('sourcedId') sourcedId: string,
+  ): Promise<CourseResponseDto> {
     return this.coursesService.findOne(sourcedId);
   }
 

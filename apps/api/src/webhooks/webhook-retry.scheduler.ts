@@ -24,7 +24,10 @@ export class WebhookRetryScheduler {
     try {
       await this.webhookService.processRetries();
     } catch (error) {
-      this.logger.error(`Error processing webhook retries: ${error.message}`, error.stack);
+      this.logger.error(
+        `Error processing webhook retries: ${error.message}`,
+        error.stack,
+      );
     }
   }
 }

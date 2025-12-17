@@ -35,8 +35,15 @@ export class OrgsRepository extends BaseRepository<Org> {
    * @returns Array of orgs matching filter criteria
    */
   async findAllWithFilter(options: OrgFilterOptions = {}): Promise<Org[]> {
-    const { dateLastModified, status, type, parentSourcedId, offset = 0, limit = 100, orderBy } =
-      options;
+    const {
+      dateLastModified,
+      status,
+      type,
+      parentSourcedId,
+      offset = 0,
+      limit = 100,
+      orderBy,
+    } = options;
 
     const whereClause: Prisma.OrgWhereInput = {
       ...this.buildDeltaWhereClause(dateLastModified),
@@ -100,7 +107,7 @@ export class OrgsRepository extends BaseRepository<Org> {
    */
   async findByType(
     type: OrgType,
-    options: { offset?: number; limit?: number } = {}
+    options: { offset?: number; limit?: number } = {},
   ): Promise<Org[]> {
     const { offset = 0, limit = 100 } = options;
 
@@ -119,7 +126,7 @@ export class OrgsRepository extends BaseRepository<Org> {
    */
   async findChildren(
     parentSourcedId: string,
-    options: { offset?: number; limit?: number } = {}
+    options: { offset?: number; limit?: number } = {},
   ): Promise<Org[]> {
     const { offset = 0, limit = 100 } = options;
 
@@ -135,7 +142,9 @@ export class OrgsRepository extends BaseRepository<Org> {
    * @param options - Pagination options
    * @returns Root organizations
    */
-  async findRoots(options: { offset?: number; limit?: number } = {}): Promise<Org[]> {
+  async findRoots(
+    options: { offset?: number; limit?: number } = {},
+  ): Promise<Org[]> {
     const { offset = 0, limit = 100 } = options;
 
     return this.findAll({

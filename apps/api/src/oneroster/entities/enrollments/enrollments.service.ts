@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { EnrollmentsRepository } from './enrollments.repository';
 import { EnrollmentResponseDto } from './dto/enrollment-response.dto';
 import { QueryEnrollmentsDto } from './dto/query-enrollments.dto';
@@ -15,12 +19,22 @@ export class EnrollmentsService {
   ) {}
 
   async findAll(query: QueryEnrollmentsDto) {
-    const { limit = 100, offset = 0, filter, sort, orderBy = 'asc', fields, role, status } = query;
+    const {
+      limit = 100,
+      offset = 0,
+      filter,
+      sort,
+      orderBy = 'asc',
+      fields,
+      role,
+      status,
+    } = query;
 
     // Parse OneRoster filter expression
-    const filterableFields = this.fieldSelection.getFilterableFields('enrollments');
+    const filterableFields =
+      this.fieldSelection.getFilterableFields('enrollments');
     let whereClause: any = {};
-    
+
     if (filter) {
       whereClause = this.filterParser.parseFilter(filter, filterableFields);
     }
@@ -34,7 +48,7 @@ export class EnrollmentsService {
 
     if (sort) {
       let sortField = sort;
-      let sortOrder: 'asc' | 'desc' = orderBy as 'asc' | 'desc';
+      let sortOrder: 'asc' | 'desc' = orderBy;
 
       if (sort.startsWith('-')) {
         sortField = sort.substring(1);
@@ -56,9 +70,13 @@ export class EnrollmentsService {
       take: limit,
     });
 
-    const total = await this.enrollmentsRepository.count({ where: whereClause });
+    const total = await this.enrollmentsRepository.count({
+      where: whereClause,
+    });
 
-    const enrollmentDtos = enrollments.map((enrollment) => new EnrollmentResponseDto(enrollment));
+    const enrollmentDtos = enrollments.map(
+      (enrollment) => new EnrollmentResponseDto(enrollment),
+    );
 
     const filteredDtos = fields
       ? this.fieldSelection.filterEntities(enrollmentDtos, fields)
@@ -71,30 +89,44 @@ export class EnrollmentsService {
   }
 
   async findOne(sourcedId: string): Promise<EnrollmentResponseDto> {
-    const enrollment = await this.enrollmentsRepository.findBySourcedId(sourcedId);
+    const enrollment =
+      await this.enrollmentsRepository.findBySourcedId(sourcedId);
     if (!enrollment) {
-      throw new NotFoundException(`Enrollment with sourcedId '${sourcedId}' not found`);
+      throw new NotFoundException(
+        `Enrollment with sourcedId '${sourcedId}' not found`,
+      );
     }
     return new EnrollmentResponseDto(enrollment);
   }
 
-  async update(sourcedId: string, updateDto: UpdateEnrollmentDto): Promise<EnrollmentResponseDto> {
-    const existing = await this.enrollmentsRepository.findBySourcedId(sourcedId);
+  async update(
+    sourcedId: string,
+    updateDto: UpdateEnrollmentDto,
+  ): Promise<EnrollmentResponseDto> {
+    const existing =
+      await this.enrollmentsRepository.findBySourcedId(sourcedId);
     if (!existing) {
-      throw new NotFoundException(`Enrollment with sourcedId '${sourcedId}' not found`);
+      throw new NotFoundException(
+        `Enrollment with sourcedId '${sourcedId}' not found`,
+      );
     }
     const updated = await this.enrollmentsRepository.update(sourcedId, {
       ...updateDto,
-      beginDate: updateDto.beginDate ? new Date(updateDto.beginDate) : undefined,
+      beginDate: updateDto.beginDate
+        ? new Date(updateDto.beginDate)
+        : undefined,
       endDate: updateDto.endDate ? new Date(updateDto.endDate) : undefined,
     });
     return new EnrollmentResponseDto(updated);
   }
 
   async remove(sourcedId: string): Promise<void> {
-    const existing = await this.enrollmentsRepository.findBySourcedId(sourcedId);
+    const existing =
+      await this.enrollmentsRepository.findBySourcedId(sourcedId);
     if (!existing) {
-      throw new NotFoundException(`Enrollment with sourcedId '${sourcedId}' not found`);
+      throw new NotFoundException(
+        `Enrollment with sourcedId '${sourcedId}' not found`,
+      );
     }
     await this.enrollmentsRepository.softDelete(sourcedId);
   }
@@ -103,7 +135,10 @@ export class EnrollmentsService {
    * Get enrollments for a specific class
    */
   async findByClass(classSourcedId: string, query: QueryEnrollmentsDto) {
-    const modifiedQuery = { ...query, filter: `classSourcedId='${classSourcedId}'` };
+    const modifiedQuery = {
+      ...query,
+      filter: `classSourcedId='${classSourcedId}'`,
+    };
     return this.findAll(modifiedQuery);
   }
 
@@ -111,7 +146,10 @@ export class EnrollmentsService {
    * Get enrollments for a specific user
    */
   async findByUser(userSourcedId: string, query: QueryEnrollmentsDto) {
-    const modifiedQuery = { ...query, filter: `userSourcedId='${userSourcedId}'` };
+    const modifiedQuery = {
+      ...query,
+      filter: `userSourcedId='${userSourcedId}'`,
+    };
     return this.findAll(modifiedQuery);
   }
 }

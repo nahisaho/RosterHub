@@ -8,7 +8,10 @@ import { ClassType, StatusType } from '@prisma/client';
  * OneRoster Japan Profile 1.2.2 compliant class update request.
  */
 export class UpdateClassDto {
-  @ApiPropertyOptional({ description: 'Class title', example: 'Math 101 - Section A' })
+  @ApiPropertyOptional({
+    description: 'Class title',
+    example: 'Math 101 - Section A',
+  })
   @IsOptional()
   @IsString()
   title?: string;

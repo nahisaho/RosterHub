@@ -40,13 +40,16 @@ export class IpWhitelistGuard implements CanActivate {
    * @returns Promise<boolean> - true if IP is whitelisted, throws UnauthorizedException otherwise
    * @throws UnauthorizedException if IP is not in whitelist or validation fails
    */
+  // eslint-disable-next-line @typescript-eslint/require-await
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<Request>();
     const apiKey = (request as any).apiKey; // Set by ApiKeyGuard
 
     // If no API key found (shouldn't happen if ApiKeyGuard runs first)
     if (!apiKey) {
-      this.logger.error('IP whitelist check failed: No API key found in request');
+      this.logger.error(
+        'IP whitelist check failed: No API key found in request',
+      );
       throw new UnauthorizedException('API key required for IP validation');
     }
 

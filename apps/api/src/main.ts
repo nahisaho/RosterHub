@@ -17,7 +17,7 @@ async function bootstrap() {
       whitelist: true,
       forbidNonWhitelisted: true,
       transform: true,
-    })
+    }),
   );
 
   // CORS
@@ -49,6 +49,8 @@ async function bootstrap() {
   await app.listen(port);
 
   logger.log(`Application is running on: http://localhost:${port}`);
-  logger.log(`API documentation available at: http://localhost:${port}/api/docs`);
+  logger.log(
+    `API documentation available at: http://localhost:${port}/api/docs`,
+  );
 }
 bootstrap();

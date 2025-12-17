@@ -8,7 +8,10 @@ import { Org, OrgType, StatusType } from '@prisma/client';
  * Transforms Prisma Org entity to OneRoster JSON format.
  */
 export class OrgResponseDto {
-  @ApiProperty({ description: 'OneRoster unique identifier', example: 'org-school123' })
+  @ApiProperty({
+    description: 'OneRoster unique identifier',
+    example: 'org-school123',
+  })
   sourcedId: string;
 
   @ApiProperty({ description: 'Record creation timestamp' })
@@ -20,7 +23,10 @@ export class OrgResponseDto {
   @ApiProperty({ enum: StatusType, description: 'Record status' })
   status: StatusType;
 
-  @ApiProperty({ description: 'Organization name', example: 'Tokyo Central High School' })
+  @ApiProperty({
+    description: 'Organization name',
+    example: 'Tokyo Central High School',
+  })
   name: string;
 
   @ApiProperty({
@@ -30,7 +36,10 @@ export class OrgResponseDto {
   })
   type: OrgType;
 
-  @ApiProperty({ description: 'Unique external identifier', example: 'school-001' })
+  @ApiProperty({
+    description: 'Unique external identifier',
+    example: 'school-001',
+  })
   identifier: string;
 
   @ApiPropertyOptional({
@@ -65,6 +74,6 @@ export class OrgResponseDto {
     this.type = org.type;
     this.identifier = org.identifier;
     this.parentSourcedId = org.parentSourcedId || undefined;
-    this.metadata = org.metadata as any || undefined;
+    this.metadata = (org.metadata as any) || undefined;
   }
 }

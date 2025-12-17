@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { ClassesRepository } from './classes.repository';
 import { ClassResponseDto } from './dto/class-response.dto';
 import { QueryClassesDto } from './dto/query-classes.dto';
@@ -20,12 +24,21 @@ export class ClassesService {
   ) {}
 
   async findAll(query: QueryClassesDto) {
-    const { limit = 100, offset = 0, filter, sort, orderBy = 'asc', fields, classType, status } = query;
+    const {
+      limit = 100,
+      offset = 0,
+      filter,
+      sort,
+      orderBy = 'asc',
+      fields,
+      classType,
+      status,
+    } = query;
 
     // Parse OneRoster filter expression
     const filterableFields = this.fieldSelection.getFilterableFields('classes');
     let whereClause: any = {};
-    
+
     if (filter) {
       whereClause = this.filterParser.parseFilter(filter, filterableFields);
     }
@@ -40,7 +53,7 @@ export class ClassesService {
 
     if (sort) {
       let sortField = sort;
-      let sortOrder: 'asc' | 'desc' = orderBy as 'asc' | 'desc';
+      let sortOrder: 'asc' | 'desc' = orderBy;
 
       if (sort.startsWith('-')) {
         sortField = sort.substring(1);
@@ -80,7 +93,9 @@ export class ClassesService {
     const classEntity = await this.classesRepository.findBySourcedId(sourcedId);
 
     if (!classEntity) {
-      throw new NotFoundException(`Class with sourcedId '${sourcedId}' not found`);
+      throw new NotFoundException(
+        `Class with sourcedId '${sourcedId}' not found`,
+      );
     }
 
     return new ClassResponseDto(classEntity);
@@ -89,10 +104,15 @@ export class ClassesService {
   /**
    * Update class by sourcedId
    */
-  async update(sourcedId: string, updateDto: UpdateClassDto): Promise<ClassResponseDto> {
+  async update(
+    sourcedId: string,
+    updateDto: UpdateClassDto,
+  ): Promise<ClassResponseDto> {
     const existing = await this.classesRepository.findBySourcedId(sourcedId);
     if (!existing) {
-      throw new NotFoundException(`Class with sourcedId '${sourcedId}' not found`);
+      throw new NotFoundException(
+        `Class with sourcedId '${sourcedId}' not found`,
+      );
     }
 
     const updated = await this.classesRepository.update(sourcedId, updateDto);
@@ -105,7 +125,9 @@ export class ClassesService {
   async remove(sourcedId: string): Promise<void> {
     const existing = await this.classesRepository.findBySourcedId(sourcedId);
     if (!existing) {
-      throw new NotFoundException(`Class with sourcedId '${sourcedId}' not found`);
+      throw new NotFoundException(
+        `Class with sourcedId '${sourcedId}' not found`,
+      );
     }
 
     await this.classesRepository.softDelete(sourcedId);

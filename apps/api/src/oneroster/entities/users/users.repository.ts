@@ -35,7 +35,15 @@ export class UsersRepository extends BaseRepository<User> {
    * @returns Array of users matching filter criteria
    */
   async findAllWithFilter(options: UserFilterOptions = {}): Promise<User[]> {
-    const { dateLastModified, status, role, email, offset = 0, limit = 100, orderBy } = options;
+    const {
+      dateLastModified,
+      status,
+      role,
+      email,
+      offset = 0,
+      limit = 100,
+      orderBy,
+    } = options;
 
     const whereClause: Prisma.UserWhereInput = {
       ...this.buildDeltaWhereClause(dateLastModified),
@@ -123,7 +131,7 @@ export class UsersRepository extends BaseRepository<User> {
    */
   async findByRole(
     role: UserRole,
-    options: { offset?: number; limit?: number } = {}
+    options: { offset?: number; limit?: number } = {},
   ): Promise<User[]> {
     const { offset = 0, limit = 100 } = options;
 
@@ -142,7 +150,7 @@ export class UsersRepository extends BaseRepository<User> {
    */
   async findByOrg(
     orgSourcedId: string,
-    options: { offset?: number; limit?: number } = {}
+    options: { offset?: number; limit?: number } = {},
   ): Promise<User[]> {
     const { offset = 0, limit = 100 } = options;
 

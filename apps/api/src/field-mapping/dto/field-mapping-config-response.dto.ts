@@ -17,7 +17,10 @@ export class FieldMappingResponseDto {
   @ApiProperty({ description: 'Source field names' })
   sourceFields: string[];
 
-  @ApiProperty({ description: 'Transformation type', enum: MappingTransformationType })
+  @ApiProperty({
+    description: 'Transformation type',
+    enum: MappingTransformationType,
+  })
   transformationType: MappingTransformationType;
 
   @ApiProperty({ description: 'Transformation configuration', required: false })
@@ -82,7 +85,10 @@ export class FieldMappingConfigResponseDto {
   @ApiProperty({ description: 'Last update timestamp' })
   updatedAt: Date;
 
-  @ApiProperty({ description: 'Field mappings', type: [FieldMappingResponseDto] })
+  @ApiProperty({
+    description: 'Field mappings',
+    type: [FieldMappingResponseDto],
+  })
   fieldMappings: FieldMappingResponseDto[];
 
   constructor(config: any) {

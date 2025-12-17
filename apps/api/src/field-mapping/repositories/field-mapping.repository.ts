@@ -6,7 +6,12 @@
 
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../database/prisma.service';
-import { FieldMappingConfig, FieldMapping, MappingLookupTable, MappingLookupEntry, Prisma } from '@prisma/client';
+import {
+  FieldMappingConfig,
+  FieldMapping,
+  MappingLookupTable,
+  MappingLookupEntry,
+} from '@prisma/client';
 import { CreateFieldMappingConfigDto } from '../dto/create-field-mapping-config.dto';
 
 // Type for config with field mappings included
@@ -133,8 +138,12 @@ export class FieldMappingRepository {
       where: { id },
       data: {
         ...(updates.name && { name: updates.name }),
-        ...(updates.description !== undefined && { description: updates.description }),
-        ...(updates.isDefault !== undefined && { isDefault: updates.isDefault }),
+        ...(updates.description !== undefined && {
+          description: updates.description,
+        }),
+        ...(updates.isDefault !== undefined && {
+          isDefault: updates.isDefault,
+        }),
         ...(updates.fieldMappings && {
           fieldMappings: {
             create: updates.fieldMappings.map((mapping, index) => ({
@@ -207,7 +216,11 @@ export class FieldMappingRepository {
     name: string,
     description: string | undefined,
     organizationId: string,
-    entries: Array<{ sourceValue: string; targetValue: string; metadata?: any }>,
+    entries: Array<{
+      sourceValue: string;
+      targetValue: string;
+      metadata?: any;
+    }>,
   ): Promise<MappingLookupTable> {
     return this.prisma.mappingLookupTable.create({
       data: {
@@ -250,7 +263,9 @@ export class FieldMappingRepository {
   /**
    * Get all lookup tables for an organization
    */
-  async findLookupTables(organizationId: string): Promise<MappingLookupTableWithEntries[]> {
+  async findLookupTables(
+    organizationId: string,
+  ): Promise<MappingLookupTableWithEntries[]> {
     return this.prisma.mappingLookupTable.findMany({
       where: {
         organizationId,

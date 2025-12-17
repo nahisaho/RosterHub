@@ -381,9 +381,11 @@ export class CsvEntityMapper {
       americanIndianOrAlaskaNative: row.americanIndianOrAlaskaNative === 'true',
       asian: row.asian === 'true',
       blackOrAfricanAmerican: row.blackOrAfricanAmerican === 'true',
-      nativeHawaiianOrOtherPacificIslander: row.nativeHawaiianOrOtherPacificIslander === 'true',
+      nativeHawaiianOrOtherPacificIslander:
+        row.nativeHawaiianOrOtherPacificIslander === 'true',
       white: row.white === 'true',
-      demographicRaceTwoOrMoreRaces: row.demographicRaceTwoOrMoreRaces === 'true',
+      demographicRaceTwoOrMoreRaces:
+        row.demographicRaceTwoOrMoreRaces === 'true',
       hispanicOrLatinoEthnicity: row.hispanicOrLatinoEthnicity === 'true',
       countryOfBirthCode: row.countryOfBirthCode,
       stateOfBirthAbbreviation: row.stateOfBirthAbbreviation,

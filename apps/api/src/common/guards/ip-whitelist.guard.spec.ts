@@ -2,10 +2,10 @@ import { ExecutionContext, UnauthorizedException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { IpWhitelistGuard } from './ip-whitelist.guard';
 
-describe('IpWhitelistGuard', () => {
+describe('IpWhitelistGuard', (): void => {
   let guard: IpWhitelistGuard;
 
-  beforeEach(async () => {
+  beforeEach(async (): Promise<void> => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [IpWhitelistGuard],
     }).compile();
@@ -13,12 +13,12 @@ describe('IpWhitelistGuard', () => {
     guard = module.get<IpWhitelistGuard>(IpWhitelistGuard);
   });
 
-  it('should be defined', () => {
+  it('should be defined', (): void => {
     expect(guard).toBeDefined();
   });
 
-  describe('canActivate', () => {
-    it('should allow request when API key has no IP whitelist', async () => {
+  describe('canActivate', (): void => {
+    it('should allow request when API key has no IP whitelist', async (): Promise<void> => {
       const mockRequest = {
         apiKey: {
           id: 'key-123',
@@ -34,7 +34,7 @@ describe('IpWhitelistGuard', () => {
       expect(result).toBe(true);
     });
 
-    it('should allow request when client IP matches whitelist (IPv4 exact)', async () => {
+    it('should allow request when client IP matches whitelist (IPv4 exact)', async (): Promise<void> => {
       const mockRequest = {
         apiKey: {
           id: 'key-123',
@@ -50,7 +50,7 @@ describe('IpWhitelistGuard', () => {
       expect(result).toBe(true);
     });
 
-    it('should allow request when client IP is in CIDR range (IPv4)', async () => {
+    it('should allow request when client IP is in CIDR range (IPv4)', async (): Promise<void> => {
       const mockRequest = {
         apiKey: {
           id: 'key-123',
@@ -66,7 +66,7 @@ describe('IpWhitelistGuard', () => {
       expect(result).toBe(true);
     });
 
-    it('should allow request when client IP matches whitelist (IPv6 exact)', async () => {
+    it('should allow request when client IP matches whitelist (IPv6 exact)', async (): Promise<void> => {
       const mockRequest = {
         apiKey: {
           id: 'key-123',
@@ -82,7 +82,7 @@ describe('IpWhitelistGuard', () => {
       expect(result).toBe(true);
     });
 
-    it('should allow request when client IP is in CIDR range (IPv6)', async () => {
+    it('should allow request when client IP is in CIDR range (IPv6)', async (): Promise<void> => {
       const mockRequest = {
         apiKey: {
           id: 'key-123',
@@ -98,7 +98,7 @@ describe('IpWhitelistGuard', () => {
       expect(result).toBe(true);
     });
 
-    it('should extract IP from X-Forwarded-For header', async () => {
+    it('should extract IP from X-Forwarded-For header', async (): Promise<void> => {
       const mockRequest = {
         apiKey: {
           id: 'key-123',
@@ -116,7 +116,7 @@ describe('IpWhitelistGuard', () => {
       expect(result).toBe(true);
     });
 
-    it('should extract IP from X-Real-IP header', async () => {
+    it('should extract IP from X-Real-IP header', async (): Promise<void> => {
       const mockRequest = {
         apiKey: {
           id: 'key-123',
@@ -134,7 +134,7 @@ describe('IpWhitelistGuard', () => {
       expect(result).toBe(true);
     });
 
-    it('should deny request when client IP not in whitelist', async () => {
+    it('should deny request when client IP not in whitelist', async (): Promise<void> => {
       const mockRequest = {
         apiKey: {
           id: 'key-123',
@@ -154,7 +154,7 @@ describe('IpWhitelistGuard', () => {
       );
     });
 
-    it('should deny request when client IP not in CIDR range', async () => {
+    it('should deny request when client IP not in CIDR range', async (): Promise<void> => {
       const mockRequest = {
         apiKey: {
           id: 'key-123',
@@ -171,7 +171,7 @@ describe('IpWhitelistGuard', () => {
       );
     });
 
-    it('should deny request when no API key found', async () => {
+    it('should deny request when no API key found', async (): Promise<void> => {
       const mockRequest = {
         apiKey: null,
         ip: '192.168.1.100',
@@ -188,7 +188,7 @@ describe('IpWhitelistGuard', () => {
       );
     });
 
-    it('should deny request when client IP cannot be determined', async () => {
+    it('should deny request when client IP cannot be determined', async (): Promise<void> => {
       const mockRequest = {
         apiKey: {
           id: 'key-123',
@@ -208,7 +208,7 @@ describe('IpWhitelistGuard', () => {
       );
     });
 
-    it('should handle multiple whitelist entries correctly', async () => {
+    it('should handle multiple whitelist entries correctly', async (): Promise<void> => {
       const mockRequest = {
         apiKey: {
           id: 'key-123',
@@ -229,7 +229,7 @@ describe('IpWhitelistGuard', () => {
       expect(result).toBe(true);
     });
 
-    it('should handle IPv4-mapped IPv6 addresses', async () => {
+    it('should handle IPv4-mapped IPv6 addresses', async (): Promise<void> => {
       const mockRequest = {
         apiKey: {
           id: 'key-123',
@@ -245,7 +245,7 @@ describe('IpWhitelistGuard', () => {
       expect(result).toBe(true);
     });
 
-    it('should handle invalid IP in whitelist gracefully', async () => {
+    it('should handle invalid IP in whitelist gracefully', async (): Promise<void> => {
       const mockRequest = {
         apiKey: {
           id: 'key-123',
@@ -261,7 +261,7 @@ describe('IpWhitelistGuard', () => {
       expect(result).toBe(true);
     });
 
-    it('should handle invalid CIDR notation gracefully', async () => {
+    it('should handle invalid CIDR notation gracefully', async (): Promise<void> => {
       const mockRequest = {
         apiKey: {
           id: 'key-123',
@@ -277,7 +277,7 @@ describe('IpWhitelistGuard', () => {
       expect(result).toBe(true);
     });
 
-    it('should deny when all whitelist entries are invalid', async () => {
+    it('should deny when all whitelist entries are invalid', async (): Promise<void> => {
       const mockRequest = {
         apiKey: {
           id: 'key-123',
@@ -298,7 +298,9 @@ describe('IpWhitelistGuard', () => {
   /**
    * Helper function to create mock execution context
    */
-  function createMockContext(request: any): ExecutionContext {
+  function createMockContext(
+    request: Record<string, unknown>,
+  ): ExecutionContext {
     return {
       switchToHttp: () => ({
         getRequest: () => request,

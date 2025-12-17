@@ -14,10 +14,16 @@ export class WebhookResponseDto {
   @ApiProperty({ description: 'Webhook endpoint URL' })
   url: string;
 
-  @ApiProperty({ description: 'Subscribed events', enum: WebhookEvent, isArray: true })
+  @ApiProperty({
+    description: 'Subscribed events',
+    enum: WebhookEvent,
+    isArray: true,
+  })
   events: WebhookEvent[];
 
-  @ApiProperty({ description: 'Webhook secret (for HMAC signature validation)' })
+  @ApiProperty({
+    description: 'Webhook secret (for HMAC signature validation)',
+  })
   secret: string;
 
   @ApiProperty({ description: 'Active status' })

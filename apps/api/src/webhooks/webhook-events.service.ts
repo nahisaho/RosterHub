@@ -48,17 +48,26 @@ export class WebhookEventsService {
    */
   private registerEventListeners(): void {
     // CSV Import events
-    this.eventEmitter.on('csv.import.processing', (payload: CsvImportEventPayload) => {
-      this.handleCsvImportProcessing(payload);
-    });
+    this.eventEmitter.on(
+      'csv.import.processing',
+      (payload: CsvImportEventPayload) => {
+        this.handleCsvImportProcessing(payload);
+      },
+    );
 
-    this.eventEmitter.on('csv.import.completed', (payload: CsvImportEventPayload) => {
-      this.handleCsvImportCompleted(payload);
-    });
+    this.eventEmitter.on(
+      'csv.import.completed',
+      (payload: CsvImportEventPayload) => {
+        this.handleCsvImportCompleted(payload);
+      },
+    );
 
-    this.eventEmitter.on('csv.import.failed', (payload: CsvImportEventPayload) => {
-      this.handleCsvImportFailed(payload);
-    });
+    this.eventEmitter.on(
+      'csv.import.failed',
+      (payload: CsvImportEventPayload) => {
+        this.handleCsvImportFailed(payload);
+      },
+    );
 
     // Entity events
     this.eventEmitter.on('entity.created', (payload: EntityEventPayload) => {
@@ -79,140 +88,140 @@ export class WebhookEventsService {
   /**
    * Handle CSV import processing event
    */
-  private async handleCsvImportProcessing(payload: CsvImportEventPayload): Promise<void> {
+  private async handleCsvImportProcessing(
+    payload: CsvImportEventPayload,
+  ): Promise<void> {
     this.logger.debug(`CSV import processing event: ${payload.jobId}`);
 
-    await this.webhookService.triggerEvent(
-      WebhookEvent.CSV_IMPORT_PROCESSING,
-      {
-        event: WebhookEvent.CSV_IMPORT_PROCESSING,
-        timestamp: new Date().toISOString(),
-        data: {
-          jobId: payload.jobId,
-          entityType: payload.entityType,
-          fileName: payload.fileName,
-          status: payload.status,
-          totalRecords: payload.totalRecords,
-          processedRecords: payload.processedRecords,
-          startedAt: payload.startedAt?.toISOString(),
-        },
+    await this.webhookService.triggerEvent(WebhookEvent.CSV_IMPORT_PROCESSING, {
+      event: WebhookEvent.CSV_IMPORT_PROCESSING,
+      timestamp: new Date().toISOString(),
+      data: {
+        jobId: payload.jobId,
+        entityType: payload.entityType,
+        fileName: payload.fileName,
+        status: payload.status,
+        totalRecords: payload.totalRecords,
+        processedRecords: payload.processedRecords,
+        startedAt: payload.startedAt?.toISOString(),
       },
-    );
+    });
   }
 
   /**
    * Handle CSV import completed event
    */
-  private async handleCsvImportCompleted(payload: CsvImportEventPayload): Promise<void> {
+  private async handleCsvImportCompleted(
+    payload: CsvImportEventPayload,
+  ): Promise<void> {
     this.logger.log(`CSV import completed event: ${payload.jobId}`);
 
-    await this.webhookService.triggerEvent(
-      WebhookEvent.CSV_IMPORT_COMPLETED,
-      {
-        event: WebhookEvent.CSV_IMPORT_COMPLETED,
-        timestamp: new Date().toISOString(),
-        data: {
-          jobId: payload.jobId,
-          entityType: payload.entityType,
-          fileName: payload.fileName,
-          status: payload.status,
-          totalRecords: payload.totalRecords,
-          processedRecords: payload.processedRecords,
-          successRecords: payload.successRecords,
-          failedRecords: payload.failedRecords,
-          startedAt: payload.startedAt?.toISOString(),
-          completedAt: payload.completedAt?.toISOString(),
-        },
+    await this.webhookService.triggerEvent(WebhookEvent.CSV_IMPORT_COMPLETED, {
+      event: WebhookEvent.CSV_IMPORT_COMPLETED,
+      timestamp: new Date().toISOString(),
+      data: {
+        jobId: payload.jobId,
+        entityType: payload.entityType,
+        fileName: payload.fileName,
+        status: payload.status,
+        totalRecords: payload.totalRecords,
+        processedRecords: payload.processedRecords,
+        successRecords: payload.successRecords,
+        failedRecords: payload.failedRecords,
+        startedAt: payload.startedAt?.toISOString(),
+        completedAt: payload.completedAt?.toISOString(),
       },
-    );
+    });
   }
 
   /**
    * Handle CSV import failed event
    */
-  private async handleCsvImportFailed(payload: CsvImportEventPayload): Promise<void> {
+  private async handleCsvImportFailed(
+    payload: CsvImportEventPayload,
+  ): Promise<void> {
     this.logger.warn(`CSV import failed event: ${payload.jobId}`);
 
-    await this.webhookService.triggerEvent(
-      WebhookEvent.CSV_IMPORT_FAILED,
-      {
-        event: WebhookEvent.CSV_IMPORT_FAILED,
-        timestamp: new Date().toISOString(),
-        data: {
-          jobId: payload.jobId,
-          entityType: payload.entityType,
-          fileName: payload.fileName,
-          status: payload.status,
-          totalRecords: payload.totalRecords,
-          processedRecords: payload.processedRecords,
-          errors: payload.errors?.slice(0, 10), // Limit to first 10 errors
-          startedAt: payload.startedAt?.toISOString(),
-          completedAt: payload.completedAt?.toISOString(),
-        },
+    await this.webhookService.triggerEvent(WebhookEvent.CSV_IMPORT_FAILED, {
+      event: WebhookEvent.CSV_IMPORT_FAILED,
+      timestamp: new Date().toISOString(),
+      data: {
+        jobId: payload.jobId,
+        entityType: payload.entityType,
+        fileName: payload.fileName,
+        status: payload.status,
+        totalRecords: payload.totalRecords,
+        processedRecords: payload.processedRecords,
+        errors: payload.errors?.slice(0, 10), // Limit to first 10 errors
+        startedAt: payload.startedAt?.toISOString(),
+        completedAt: payload.completedAt?.toISOString(),
       },
-    );
+    });
   }
 
   /**
    * Handle entity created event
    */
-  private async handleEntityCreated(payload: EntityEventPayload): Promise<void> {
-    this.logger.debug(`Entity created event: ${payload.entityType}/${payload.sourcedId}`);
-
-    await this.webhookService.triggerEvent(
-      WebhookEvent.ENTITY_CREATED,
-      {
-        event: WebhookEvent.ENTITY_CREATED,
-        timestamp: payload.timestamp.toISOString(),
-        data: {
-          entityType: payload.entityType,
-          sourcedId: payload.sourcedId,
-          action: payload.action,
-          data: payload.data,
-        },
-      },
+  private async handleEntityCreated(
+    payload: EntityEventPayload,
+  ): Promise<void> {
+    this.logger.debug(
+      `Entity created event: ${payload.entityType}/${payload.sourcedId}`,
     );
+
+    await this.webhookService.triggerEvent(WebhookEvent.ENTITY_CREATED, {
+      event: WebhookEvent.ENTITY_CREATED,
+      timestamp: payload.timestamp.toISOString(),
+      data: {
+        entityType: payload.entityType,
+        sourcedId: payload.sourcedId,
+        action: payload.action,
+        data: payload.data,
+      },
+    });
   }
 
   /**
    * Handle entity updated event
    */
-  private async handleEntityUpdated(payload: EntityEventPayload): Promise<void> {
-    this.logger.debug(`Entity updated event: ${payload.entityType}/${payload.sourcedId}`);
-
-    await this.webhookService.triggerEvent(
-      WebhookEvent.ENTITY_UPDATED,
-      {
-        event: WebhookEvent.ENTITY_UPDATED,
-        timestamp: payload.timestamp.toISOString(),
-        data: {
-          entityType: payload.entityType,
-          sourcedId: payload.sourcedId,
-          action: payload.action,
-          data: payload.data,
-        },
-      },
+  private async handleEntityUpdated(
+    payload: EntityEventPayload,
+  ): Promise<void> {
+    this.logger.debug(
+      `Entity updated event: ${payload.entityType}/${payload.sourcedId}`,
     );
+
+    await this.webhookService.triggerEvent(WebhookEvent.ENTITY_UPDATED, {
+      event: WebhookEvent.ENTITY_UPDATED,
+      timestamp: payload.timestamp.toISOString(),
+      data: {
+        entityType: payload.entityType,
+        sourcedId: payload.sourcedId,
+        action: payload.action,
+        data: payload.data,
+      },
+    });
   }
 
   /**
    * Handle entity deleted event
    */
-  private async handleEntityDeleted(payload: EntityEventPayload): Promise<void> {
-    this.logger.debug(`Entity deleted event: ${payload.entityType}/${payload.sourcedId}`);
-
-    await this.webhookService.triggerEvent(
-      WebhookEvent.ENTITY_DELETED,
-      {
-        event: WebhookEvent.ENTITY_DELETED,
-        timestamp: payload.timestamp.toISOString(),
-        data: {
-          entityType: payload.entityType,
-          sourcedId: payload.sourcedId,
-          action: payload.action,
-        },
-      },
+  private async handleEntityDeleted(
+    payload: EntityEventPayload,
+  ): Promise<void> {
+    this.logger.debug(
+      `Entity deleted event: ${payload.entityType}/${payload.sourcedId}`,
     );
+
+    await this.webhookService.triggerEvent(WebhookEvent.ENTITY_DELETED, {
+      event: WebhookEvent.ENTITY_DELETED,
+      timestamp: payload.timestamp.toISOString(),
+      data: {
+        entityType: payload.entityType,
+        sourcedId: payload.sourcedId,
+        action: payload.action,
+      },
+    });
   }
 
   /**

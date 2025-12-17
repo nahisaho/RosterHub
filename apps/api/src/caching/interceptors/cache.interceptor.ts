@@ -37,10 +37,18 @@ export const CACHE_PREFIX_METADATA = 'cache:prefix';
  * ```
  */
 export const UseCache = (ttl: number = 300, prefix?: string) => {
-  return (target: any, propertyKey: string, descriptor: PropertyDescriptor) => {
-    Reflect.defineMetadata(CACHE_TTL_METADATA, ttl, descriptor.value);
+  return (
+    _target: unknown,
+    _propertyKey: string,
+    descriptor: PropertyDescriptor,
+  ): PropertyDescriptor => {
+    Reflect.defineMetadata(CACHE_TTL_METADATA, ttl, descriptor.value as object);
     if (prefix) {
-      Reflect.defineMetadata(CACHE_PREFIX_METADATA, prefix, descriptor.value);
+      Reflect.defineMetadata(
+        CACHE_PREFIX_METADATA,
+        prefix,
+        descriptor.value as object,
+      );
     }
     return descriptor;
   };
@@ -61,14 +69,23 @@ export const UseCache = (ttl: number = 300, prefix?: string) => {
  * ```
  */
 export const InvalidateCache = (...patterns: string[]) => {
-  return (target: any, propertyKey: string, descriptor: PropertyDescriptor) => {
-    const originalMethod = descriptor.value;
+  return (
+    _target: unknown,
+    _propertyKey: string,
+    descriptor: PropertyDescriptor,
+  ): PropertyDescriptor => {
+    const originalMethod = descriptor.value as (
+      ...args: unknown[]
+    ) => Promise<unknown>;
 
-    descriptor.value = async function (...args: any[]) {
+    descriptor.value = async function (
+      this: { cacheService?: RedisCacheService },
+      ...args: unknown[]
+    ): Promise<unknown> {
       const result = await originalMethod.apply(this, args);
 
       // Get cache service from the class (injected as dependency)
-      const cacheService = this['cacheService'] as RedisCacheService;
+      const cacheService = this.cacheService;
 
       if (cacheService) {
         for (const pattern of patterns) {
@@ -95,8 +112,15 @@ export class CacheInterceptor implements NestInterceptor {
   /**
    * Intercept HTTP requests and cache GET responses
    */
-  async intercept(context: ExecutionContext, next: CallHandler): Promise<Observable<any>> {
-    const request = context.switchToHttp().getRequest();
+  async intercept(
+    context: ExecutionContext,
+    next: CallHandler,
+  ): Promise<Observable<unknown>> {
+    const request = context.switchToHttp().getRequest<{
+      method: string;
+      url: string;
+      query: Record<string, string>;
+    }>();
     const handler = context.getHandler();
 
     // Only cache GET requests
@@ -110,13 +134,17 @@ export class CacheInterceptor implements NestInterceptor {
       return next.handle();
     }
 
-    const prefix = this.reflector.get<string>(CACHE_PREFIX_METADATA, handler) || 'api';
+    const prefix =
+      this.reflector.get<string>(CACHE_PREFIX_METADATA, handler) || 'api';
 
     // Build cache key from request URL and query parameters
     const cacheKey = this.buildCacheKey(request);
 
     // Try to get cached response
-    const cachedResponse = await this.cacheService.get(cacheKey, { prefix, ttl });
+    const cachedResponse = await this.cacheService.get(cacheKey, {
+      prefix,
+      ttl,
+    });
 
     if (cachedResponse !== null) {
       this.logger.debug(`Cache hit for key: ${prefix}:${cacheKey}`);
@@ -127,8 +155,8 @@ export class CacheInterceptor implements NestInterceptor {
     this.logger.debug(`Cache miss for key: ${prefix}:${cacheKey}`);
 
     return next.handle().pipe(
-      tap(async (response) => {
-        await this.cacheService.set(cacheKey, response, { prefix, ttl });
+      tap((response) => {
+        void this.cacheService.set(cacheKey, response, { prefix, ttl });
         this.logger.debug(`Cached response for key: ${prefix}:${cacheKey}`);
       }),
     );
@@ -137,7 +165,10 @@ export class CacheInterceptor implements NestInterceptor {
   /**
    * Build cache key from request URL and query parameters
    */
-  private buildCacheKey(request: any): string {
+  private buildCacheKey(request: {
+    url: string;
+    query: Record<string, string>;
+  }): string {
     const url = request.url.split('?')[0]; // Remove query string
     const queryParams = request.query;
 

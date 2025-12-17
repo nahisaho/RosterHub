@@ -38,7 +38,9 @@ export class EnrollmentsRepository extends BaseRepository<Enrollment> {
    * @param options - Filter options (Delta API, status, role, user, class, school, pagination)
    * @returns Array of enrollments matching filter criteria
    */
-  async findAllWithFilter(options: EnrollmentFilterOptions = {}): Promise<Enrollment[]> {
+  async findAllWithFilter(
+    options: EnrollmentFilterOptions = {},
+  ): Promise<Enrollment[]> {
     const {
       dateLastModified,
       status,
@@ -80,7 +82,9 @@ export class EnrollmentsRepository extends BaseRepository<Enrollment> {
    * @param sourcedId - OneRoster sourcedId
    * @returns Enrollment with user, class, and school
    */
-  async findBySourcedIdWithRelations(sourcedId: string): Promise<Enrollment | null> {
+  async findBySourcedIdWithRelations(
+    sourcedId: string,
+  ): Promise<Enrollment | null> {
     return this.prisma.enrollment.findUnique({
       where: { sourcedId },
       include: {
@@ -108,7 +112,7 @@ export class EnrollmentsRepository extends BaseRepository<Enrollment> {
    */
   async findByUser(
     userSourcedId: string,
-    options: { offset?: number; limit?: number } = {}
+    options: { offset?: number; limit?: number } = {},
   ): Promise<Enrollment[]> {
     const { offset = 0, limit = 100 } = options;
 
@@ -135,7 +139,7 @@ export class EnrollmentsRepository extends BaseRepository<Enrollment> {
    */
   async findByClass(
     classSourcedId: string,
-    options: { offset?: number; limit?: number } = {}
+    options: { offset?: number; limit?: number } = {},
   ): Promise<Enrollment[]> {
     const { offset = 0, limit = 100 } = options;
 
@@ -157,7 +161,7 @@ export class EnrollmentsRepository extends BaseRepository<Enrollment> {
    */
   async findBySchool(
     schoolSourcedId: string,
-    options: { offset?: number; limit?: number } = {}
+    options: { offset?: number; limit?: number } = {},
   ): Promise<Enrollment[]> {
     const { offset = 0, limit = 100 } = options;
 
@@ -180,7 +184,7 @@ export class EnrollmentsRepository extends BaseRepository<Enrollment> {
    */
   async findByRole(
     role: EnrollmentRole,
-    options: { offset?: number; limit?: number } = {}
+    options: { offset?: number; limit?: number } = {},
   ): Promise<Enrollment[]> {
     const { offset = 0, limit = 100 } = options;
 
@@ -199,7 +203,7 @@ export class EnrollmentsRepository extends BaseRepository<Enrollment> {
    */
   async findStudentsByClass(
     classSourcedId: string,
-    options: { offset?: number; limit?: number } = {}
+    options: { offset?: number; limit?: number } = {},
   ): Promise<Enrollment[]> {
     const { offset = 0, limit = 100 } = options;
 
@@ -230,7 +234,7 @@ export class EnrollmentsRepository extends BaseRepository<Enrollment> {
    */
   async findTeachersByClass(
     classSourcedId: string,
-    options: { offset?: number; limit?: number } = {}
+    options: { offset?: number; limit?: number } = {},
   ): Promise<Enrollment[]> {
     const { offset = 0, limit = 100 } = options;
 
@@ -257,7 +261,7 @@ export class EnrollmentsRepository extends BaseRepository<Enrollment> {
    */
   async findByUserAndClass(
     userSourcedId: string,
-    classSourcedId: string
+    classSourcedId: string,
   ): Promise<Enrollment | null> {
     return this.prisma.enrollment.findUnique({
       where: {
@@ -278,7 +282,7 @@ export class EnrollmentsRepository extends BaseRepository<Enrollment> {
    */
   async findActive(
     date: Date = new Date(),
-    options: { offset?: number; limit?: number } = {}
+    options: { offset?: number; limit?: number } = {},
   ): Promise<Enrollment[]> {
     const { offset = 0, limit = 100 } = options;
 
@@ -343,7 +347,7 @@ export class EnrollmentsRepository extends BaseRepository<Enrollment> {
    */
   async existsByUserAndClass(
     userSourcedId: string,
-    classSourcedId: string
+    classSourcedId: string,
   ): Promise<boolean> {
     const count = await this.prisma.enrollment.count({
       where: {

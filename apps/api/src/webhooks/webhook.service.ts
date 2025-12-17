@@ -8,8 +8,16 @@ import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { WebhookRepository } from './repositories/webhook.repository';
 import { CreateWebhookDto } from './dto/create-webhook.dto';
 import { UpdateWebhookDto } from './dto/update-webhook.dto';
-import { WebhookResponseDto, WebhookDeliveryResponseDto } from './dto/webhook-response.dto';
-import { Webhook, WebhookDelivery, WebhookDeliveryStatus, WebhookEvent } from '@prisma/client';
+import {
+  WebhookResponseDto,
+  WebhookDeliveryResponseDto,
+} from './dto/webhook-response.dto';
+import {
+  Webhook,
+  WebhookDelivery,
+  WebhookDeliveryStatus,
+  WebhookEvent,
+} from '@prisma/client';
 import * as crypto from 'crypto';
 import axios, { AxiosError } from 'axios';
 
@@ -26,7 +34,9 @@ export class WebhookService {
    * Register a new webhook
    */
   async register(createDto: CreateWebhookDto): Promise<WebhookResponseDto> {
-    this.logger.log(`Registering webhook for organization: ${createDto.organizationId}`);
+    this.logger.log(
+      `Registering webhook for organization: ${createDto.organizationId}`,
+    );
 
     const webhook = await this.webhookRepository.create(createDto);
 
@@ -36,8 +46,11 @@ export class WebhookService {
   /**
    * List webhooks for an organization
    */
-  async listByOrganization(organizationId: string): Promise<WebhookResponseDto[]> {
-    const webhooks = await this.webhookRepository.findByOrganization(organizationId);
+  async listByOrganization(
+    organizationId: string,
+  ): Promise<WebhookResponseDto[]> {
+    const webhooks =
+      await this.webhookRepository.findByOrganization(organizationId);
     return webhooks.map((webhook) => new WebhookResponseDto(webhook));
   }
 
@@ -57,7 +70,10 @@ export class WebhookService {
   /**
    * Update webhook
    */
-  async update(id: string, updateDto: UpdateWebhookDto): Promise<WebhookResponseDto> {
+  async update(
+    id: string,
+    updateDto: UpdateWebhookDto,
+  ): Promise<WebhookResponseDto> {
     const webhook = await this.webhookRepository.findById(id);
 
     if (!webhook) {
@@ -97,7 +113,9 @@ export class WebhookService {
       return;
     }
 
-    this.logger.log(`Triggering ${webhooks.length} webhooks for event: ${event}`);
+    this.logger.log(
+      `Triggering ${webhooks.length} webhooks for event: ${event}`,
+    );
 
     // Create delivery records for all webhooks
     const deliveryPromises = webhooks.map((webhook) =>
@@ -145,7 +163,10 @@ export class WebhookService {
 
     try {
       // Generate HMAC signature for payload verification
-      const signature = this.generateSignature(delivery.payload, webhook.secret);
+      const signature = this.generateSignature(
+        delivery.payload,
+        webhook.secret,
+      );
 
       // Send POST request to webhook URL
       const response = await axios.post(webhook.url, delivery.payload, {
@@ -185,11 +206,15 @@ export class WebhookService {
       // Determine if retry is needed
       const shouldRetry = attempt < delivery.maxAttempts;
       const nextRetryAt = shouldRetry
-        ? new Date(Date.now() + webhook.retryBackoff * 1000 * Math.pow(2, attempt - 1)) // Exponential backoff
+        ? new Date(
+            Date.now() + webhook.retryBackoff * 1000 * Math.pow(2, attempt - 1),
+          ) // Exponential backoff
         : undefined;
 
       await this.webhookRepository.updateDelivery(delivery.id, {
-        status: shouldRetry ? WebhookDeliveryStatus.retrying : WebhookDeliveryStatus.failed,
+        status: shouldRetry
+          ? WebhookDeliveryStatus.retrying
+          : WebhookDeliveryStatus.failed,
         attempts: attempt,
         lastAttemptAt: new Date(),
         nextRetryAt,
@@ -205,13 +230,16 @@ export class WebhookService {
    * Called by scheduled task (e.g., every minute)
    */
   async processRetries(): Promise<void> {
-    const pendingDeliveries = await this.webhookRepository.findPendingRetries() as WebhookDeliveryWithWebhook[];
+    const pendingDeliveries =
+      (await this.webhookRepository.findPendingRetries()) as WebhookDeliveryWithWebhook[];
 
     if (pendingDeliveries.length === 0) {
       return;
     }
 
-    this.logger.log(`Processing ${pendingDeliveries.length} pending webhook retries`);
+    this.logger.log(
+      `Processing ${pendingDeliveries.length} pending webhook retries`,
+    );
 
     for (const delivery of pendingDeliveries) {
       try {
@@ -227,16 +255,24 @@ export class WebhookService {
   /**
    * Get delivery history for a webhook
    */
-  async getDeliveries(webhookId: string, limit: number = 50): Promise<WebhookDeliveryResponseDto[]> {
+  async getDeliveries(
+    webhookId: string,
+    limit: number = 50,
+  ): Promise<WebhookDeliveryResponseDto[]> {
     const webhook = await this.webhookRepository.findById(webhookId);
 
     if (!webhook) {
       throw new NotFoundException(`Webhook with ID ${webhookId} not found`);
     }
 
-    const deliveries = await this.webhookRepository.findDeliveriesByWebhook(webhookId, limit);
+    const deliveries = await this.webhookRepository.findDeliveriesByWebhook(
+      webhookId,
+      limit,
+    );
 
-    return deliveries.map((delivery) => new WebhookDeliveryResponseDto(delivery));
+    return deliveries.map(
+      (delivery) => new WebhookDeliveryResponseDto(delivery),
+    );
   }
 
   /**
@@ -257,7 +293,8 @@ export class WebhookService {
 
     const stats = await this.webhookRepository.getDeliveryStats(webhookId);
 
-    const successRate = stats.total > 0 ? (stats.success / stats.total) * 100 : 0;
+    const successRate =
+      stats.total > 0 ? (stats.success / stats.total) * 100 : 0;
 
     return {
       ...stats,

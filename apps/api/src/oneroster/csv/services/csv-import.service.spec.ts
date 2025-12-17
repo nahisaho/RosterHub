@@ -68,7 +68,10 @@ describe('CsvImportService', () => {
           provide: AcademicSessionsRepository,
           useValue: mockAcademicSessionsRepository,
         },
-        { provide: DemographicsRepository, useValue: mockDemographicsRepository },
+        {
+          provide: DemographicsRepository,
+          useValue: mockDemographicsRepository,
+        },
       ],
     }).compile();
 
@@ -153,7 +156,9 @@ user-001,invalid_status,2025-01-01,true,太郎,山田,student,yamada.taro,yamada
 
     it('should batch insert records', async () => {
       // Create CSV with 2500 records (should be 3 batches: 1000, 1000, 500)
-      const csvRows = ['sourcedId,status,dateLastModified,enabledUser,givenName,familyName,role,username,email'];
+      const csvRows = [
+        'sourcedId,status,dateLastModified,enabledUser,givenName,familyName,role,username,email',
+      ];
 
       for (let i = 1; i <= 2500; i++) {
         csvRows.push(

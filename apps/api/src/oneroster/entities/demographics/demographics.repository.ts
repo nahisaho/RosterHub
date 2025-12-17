@@ -37,7 +37,9 @@ export class DemographicsRepository extends BaseRepository<Demographic> {
    * @param options - Filter options (Delta API, status, sex, birthDate range, pagination)
    * @returns Array of demographics matching filter criteria
    */
-  async findAllWithFilter(options: DemographicFilterOptions = {}): Promise<Demographic[]> {
+  async findAllWithFilter(
+    options: DemographicFilterOptions = {},
+  ): Promise<Demographic[]> {
     const {
       dateLastModified,
       status,
@@ -81,7 +83,9 @@ export class DemographicsRepository extends BaseRepository<Demographic> {
    * @param sourcedId - OneRoster sourcedId
    * @returns Demographic with user information
    */
-  async findBySourcedIdWithRelations(sourcedId: string): Promise<Demographic | null> {
+  async findBySourcedIdWithRelations(
+    sourcedId: string,
+  ): Promise<Demographic | null> {
     return this.prisma.demographic.findUnique({
       where: { sourcedId },
       include: {
@@ -104,7 +108,9 @@ export class DemographicsRepository extends BaseRepository<Demographic> {
    * @param userSourcedId - User sourcedId
    * @returns Demographic or null if not found
    */
-  async findByUserSourcedId(userSourcedId: string): Promise<Demographic | null> {
+  async findByUserSourcedId(
+    userSourcedId: string,
+  ): Promise<Demographic | null> {
     return this.prisma.demographic.findUnique({
       where: { userSourcedId },
     });
@@ -119,7 +125,7 @@ export class DemographicsRepository extends BaseRepository<Demographic> {
    */
   async findBySex(
     sex: Sex,
-    options: { offset?: number; limit?: number } = {}
+    options: { offset?: number; limit?: number } = {},
   ): Promise<Demographic[]> {
     const { offset = 0, limit = 100 } = options;
 
@@ -140,7 +146,7 @@ export class DemographicsRepository extends BaseRepository<Demographic> {
   async findByBirthDateRange(
     from: Date,
     to: Date,
-    options: { offset?: number; limit?: number } = {}
+    options: { offset?: number; limit?: number } = {},
   ): Promise<Demographic[]> {
     const { offset = 0, limit = 100 } = options;
 
@@ -171,10 +177,8 @@ export class DemographicsRepository extends BaseRepository<Demographic> {
     minAge: number,
     maxAge: number,
     referenceDate: Date = new Date(),
-    options: { offset?: number; limit?: number } = {}
+    options: { offset?: number; limit?: number } = {},
   ): Promise<Demographic[]> {
-    const { offset = 0, limit = 100 } = options;
-
     // Calculate birth date range from age range
     const maxBirthDate = new Date(referenceDate);
     maxBirthDate.setFullYear(maxBirthDate.getFullYear() - minAge);
@@ -206,7 +210,7 @@ export class DemographicsRepository extends BaseRepository<Demographic> {
   async countByAgeRange(
     minAge: number,
     maxAge: number,
-    referenceDate: Date = new Date()
+    referenceDate: Date = new Date(),
   ): Promise<number> {
     const maxBirthDate = new Date(referenceDate);
     maxBirthDate.setFullYear(maxBirthDate.getFullYear() - minAge);

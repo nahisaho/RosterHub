@@ -106,7 +106,7 @@ export class AuditLogRepository {
   async findByEntity(
     entityType: string,
     entitySourcedId: string,
-    options: { offset?: number; limit?: number } = {}
+    options: { offset?: number; limit?: number } = {},
   ): Promise<AuditLog[]> {
     const { offset = 0, limit = 100 } = options;
 
@@ -135,7 +135,7 @@ export class AuditLogRepository {
    */
   async findByUser(
     userId: string,
-    options: { offset?: number; limit?: number } = {}
+    options: { offset?: number; limit?: number } = {},
   ): Promise<AuditLog[]> {
     const { offset = 0, limit = 100 } = options;
 
@@ -158,7 +158,7 @@ export class AuditLogRepository {
    */
   async findByApiKey(
     apiKeyId: string,
-    options: { offset?: number; limit?: number } = {}
+    options: { offset?: number; limit?: number } = {},
   ): Promise<AuditLog[]> {
     const { offset = 0, limit = 100 } = options;
 
@@ -184,7 +184,7 @@ export class AuditLogRepository {
    */
   async findByAction(
     action: AuditAction,
-    options: { offset?: number; limit?: number } = {}
+    options: { offset?: number; limit?: number } = {},
   ): Promise<AuditLog[]> {
     const { offset = 0, limit = 100 } = options;
 
@@ -207,7 +207,7 @@ export class AuditLogRepository {
    */
   async findByIpAddress(
     ipAddress: string,
-    options: { offset?: number; limit?: number } = {}
+    options: { offset?: number; limit?: number } = {},
   ): Promise<AuditLog[]> {
     const { offset = 0, limit = 100 } = options;
 
@@ -232,7 +232,7 @@ export class AuditLogRepository {
   async findByTimeRange(
     from: Date,
     to: Date,
-    options: { offset?: number; limit?: number } = {}
+    options: { offset?: number; limit?: number } = {},
   ): Promise<AuditLog[]> {
     const { offset = 0, limit = 100 } = options;
 
@@ -320,7 +320,10 @@ export class AuditLogRepository {
    * @param entitySourcedId - Entity sourcedId
    * @returns Number of logs for specified entity
    */
-  async countByEntity(entityType: string, entitySourcedId: string): Promise<number> {
+  async countByEntity(
+    entityType: string,
+    entitySourcedId: string,
+  ): Promise<number> {
     return this.count({
       entityType,
       entitySourcedId,
@@ -335,38 +338,39 @@ export class AuditLogRepository {
    * @returns Aggregated statistics
    */
   async getStatistics(from: Date, to: Date) {
-    const [totalCount, actionDistribution, entityTypeDistribution] = await Promise.all([
-      this.count({
-        timestamp: {
-          gte: from,
-          lte: to,
-        },
-      }),
-      this.prisma.auditLog.groupBy({
-        by: ['action'],
-        where: {
+    const [totalCount, actionDistribution, entityTypeDistribution] =
+      await Promise.all([
+        this.count({
           timestamp: {
             gte: from,
             lte: to,
           },
-        },
-        _count: {
-          action: true,
-        },
-      }),
-      this.prisma.auditLog.groupBy({
-        by: ['entityType'],
-        where: {
-          timestamp: {
-            gte: from,
-            lte: to,
+        }),
+        this.prisma.auditLog.groupBy({
+          by: ['action'],
+          where: {
+            timestamp: {
+              gte: from,
+              lte: to,
+            },
           },
-        },
-        _count: {
-          entityType: true,
-        },
-      }),
-    ]);
+          _count: {
+            action: true,
+          },
+        }),
+        this.prisma.auditLog.groupBy({
+          by: ['entityType'],
+          where: {
+            timestamp: {
+              gte: from,
+              lte: to,
+            },
+          },
+          _count: {
+            entityType: true,
+          },
+        }),
+      ]);
 
     return {
       totalCount,
@@ -387,7 +391,9 @@ export class AuditLogRepository {
    * @param orderBy - Order by string (e.g., "timestamp" or "-timestamp" for desc)
    * @returns Prisma order by clause
    */
-  private buildOrderByClause(orderBy?: string): Prisma.AuditLogOrderByWithRelationInput {
+  private buildOrderByClause(
+    orderBy?: string,
+  ): Prisma.AuditLogOrderByWithRelationInput {
     if (!orderBy) {
       return { timestamp: 'desc' };
     }

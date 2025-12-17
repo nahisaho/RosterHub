@@ -1,5 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { AcademicSession, AcademicSessionType, StatusType, Prisma } from '@prisma/client';
+import {
+  AcademicSession,
+  AcademicSessionType,
+  StatusType,
+  Prisma,
+} from '@prisma/client';
 import { PrismaService } from '../../../database/prisma.service';
 import { BaseRepository } from '../../../database/base.repository';
 
@@ -38,7 +43,7 @@ export class AcademicSessionsRepository extends BaseRepository<AcademicSession> 
    * @returns Array of academic sessions matching filter criteria
    */
   async findAllWithFilter(
-    options: AcademicSessionFilterOptions = {}
+    options: AcademicSessionFilterOptions = {},
   ): Promise<AcademicSession[]> {
     const {
       dateLastModified,
@@ -76,7 +81,9 @@ export class AcademicSessionsRepository extends BaseRepository<AcademicSession> 
    * @param sourcedId - OneRoster sourcedId
    * @returns AcademicSession with parent, children, and classes
    */
-  async findBySourcedIdWithRelations(sourcedId: string): Promise<AcademicSession | null> {
+  async findBySourcedIdWithRelations(
+    sourcedId: string,
+  ): Promise<AcademicSession | null> {
     return this.prisma.academicSession.findUnique({
       where: { sourcedId },
       include: {
@@ -105,7 +112,7 @@ export class AcademicSessionsRepository extends BaseRepository<AcademicSession> 
    */
   async findByType(
     type: AcademicSessionType,
-    options: { offset?: number; limit?: number } = {}
+    options: { offset?: number; limit?: number } = {},
   ): Promise<AcademicSession[]> {
     const { offset = 0, limit = 100 } = options;
 
@@ -124,7 +131,7 @@ export class AcademicSessionsRepository extends BaseRepository<AcademicSession> 
    */
   async findBySchoolYear(
     schoolYear: string,
-    options: { offset?: number; limit?: number } = {}
+    options: { offset?: number; limit?: number } = {},
   ): Promise<AcademicSession[]> {
     const { offset = 0, limit = 100 } = options;
 
@@ -146,7 +153,7 @@ export class AcademicSessionsRepository extends BaseRepository<AcademicSession> 
    */
   async findChildren(
     parentSourcedId: string,
-    options: { offset?: number; limit?: number } = {}
+    options: { offset?: number; limit?: number } = {},
   ): Promise<AcademicSession[]> {
     const { offset = 0, limit = 100 } = options;
 
@@ -165,7 +172,9 @@ export class AcademicSessionsRepository extends BaseRepository<AcademicSession> 
    * @param options - Pagination options
    * @returns Root academic sessions
    */
-  async findRoots(options: { offset?: number; limit?: number } = {}): Promise<AcademicSession[]> {
+  async findRoots(
+    options: { offset?: number; limit?: number } = {},
+  ): Promise<AcademicSession[]> {
     const { offset = 0, limit = 100 } = options;
 
     return this.findAll({
@@ -186,7 +195,7 @@ export class AcademicSessionsRepository extends BaseRepository<AcademicSession> 
    */
   async findActive(
     date: Date = new Date(),
-    options: { offset?: number; limit?: number } = {}
+    options: { offset?: number; limit?: number } = {},
   ): Promise<AcademicSession[]> {
     const { offset = 0, limit = 100 } = options;
 

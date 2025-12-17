@@ -38,11 +38,6 @@ import { DatabaseModule } from '../database/database.module';
       useExisting: ApiKeyService,
     },
   ],
-  exports: [
-    ApiKeyService,
-    ApiKeyGuard,
-    'API_KEY_SERVICE',
-    CacheModule,
-  ],
+  exports: [ApiKeyService, ApiKeyGuard, 'API_KEY_SERVICE', CacheModule],
 })
 export class CommonModule {}

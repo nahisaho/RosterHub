@@ -1,5 +1,21 @@
-import { Controller, Get, Param, Query, Put, Delete, Body, UseGuards, UseInterceptors, HttpCode } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiSecurity } from '@nestjs/swagger';
+import {
+  Controller,
+  Get,
+  Param,
+  Query,
+  Put,
+  Delete,
+  Body,
+  UseGuards,
+  UseInterceptors,
+  HttpCode,
+} from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiSecurity,
+} from '@nestjs/swagger';
 import { OrgsService } from './orgs.service';
 import { OrgResponseDto } from './dto/org-response.dto';
 import { QueryOrgsDto } from './dto/query-orgs.dto';
@@ -152,7 +168,8 @@ export class OrgsController {
   @HttpCode(204)
   @ApiOperation({
     summary: 'Delete organization',
-    description: 'Soft delete an organization by setting status to tobedeleted.',
+    description:
+      'Soft delete an organization by setting status to tobedeleted.',
   })
   @ApiResponse({
     status: 204,

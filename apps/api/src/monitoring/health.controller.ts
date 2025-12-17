@@ -78,7 +78,9 @@ export class HealthController {
       status: 'not_configured',
     };
 
-    const statusCode = allHealthy ? HttpStatus.OK : HttpStatus.SERVICE_UNAVAILABLE;
+    const statusCode = allHealthy
+      ? HttpStatus.OK
+      : HttpStatus.SERVICE_UNAVAILABLE;
 
     return res.status(statusCode).json({
       status: allHealthy ? 'ready' : 'not_ready',

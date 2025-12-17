@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { DatabaseModule } from '../../../database/database.module';
-import { CommonModule } from '../../../common/common.module';
 import { OneRosterCommonModule } from '../../common/oneroster-common.module';
 import { DemographicsController } from './demographics.controller';
 import { DemographicsService } from './demographics.service';

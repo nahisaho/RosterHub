@@ -6,7 +6,12 @@
 
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../database/prisma.service';
-import { Webhook, WebhookDelivery, Prisma, WebhookEvent, WebhookDeliveryStatus } from '@prisma/client';
+import {
+  Webhook,
+  WebhookDelivery,
+  WebhookEvent,
+  WebhookDeliveryStatus,
+} from '@prisma/client';
 import { CreateWebhookDto } from '../dto/create-webhook.dto';
 import { UpdateWebhookDto } from '../dto/update-webhook.dto';
 import * as crypto from 'crypto';

@@ -1,5 +1,5 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsOptional, IsString, IsEnum, IsObject, IsDateString } from 'class-validator';
+import { IsOptional, IsEnum, IsObject, IsDateString } from 'class-validator';
 import { StatusType, Sex } from '@prisma/client';
 
 /**

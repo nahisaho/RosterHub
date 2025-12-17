@@ -159,7 +159,8 @@ describe('FilterParserService - Advanced Edge Cases', () => {
     });
 
     it('should handle date range filter (between dates)', () => {
-      const filter = "dateLastModified>='2025-01-01' AND dateLastModified<='2025-12-31'";
+      const filter =
+        "dateLastModified>='2025-01-01' AND dateLastModified<='2025-12-31'";
       const result = service.parseFilter(filter);
 
       expect(result.AND).toBeDefined();
@@ -176,28 +177,31 @@ describe('FilterParserService - Advanced Edge Cases', () => {
 
   describe('Complex Nested Expressions', () => {
     it('should parse triple nested parentheses', () => {
-      const filter = "((status='active') AND (role='student')) OR status='tobedeleted'";
+      const filter =
+        "((status='active') AND (role='student')) OR status='tobedeleted'";
       const result = service.parseFilter(filter);
 
       expect(result.OR).toBeDefined();
     });
 
     it('should parse alternating AND/OR with parentheses', () => {
-      const filter = "(a='1' AND b='2') OR (c='3' AND d='4') OR (e='5' AND f='6')";
+      const filter =
+        "(a='1' AND b='2') OR (c='3' AND d='4') OR (e='5' AND f='6')";
       const result = service.parseFilter(filter);
 
       expect(result.OR).toBeDefined();
     });
 
     it('should parse deeply nested AND within OR', () => {
-      const filter = "(a='1' AND (b='2' AND c='3')) OR (d='4' AND (e='5' AND f='6'))";
+      const filter =
+        "(a='1' AND (b='2' AND c='3')) OR (d='4' AND (e='5' AND f='6'))";
       const result = service.parseFilter(filter);
 
       expect(result.OR).toBeDefined();
     });
 
     it('should parse multiple conditions for same field', () => {
-      const filter = "score>=60 AND score<=100";
+      const filter = 'score>=60 AND score<=100';
       const result = service.parseFilter(filter);
 
       expect(result.AND).toBeDefined();
@@ -205,14 +209,16 @@ describe('FilterParserService - Advanced Edge Cases', () => {
     });
 
     it('should parse filter with 5 AND conditions', () => {
-      const filter = "status='active' AND role='student' AND enabledUser='true' AND schoolYear=2025 AND grade=10";
+      const filter =
+        "status='active' AND role='student' AND enabledUser='true' AND schoolYear=2025 AND grade=10";
       const result = service.parseFilter(filter);
 
       expect(result.AND).toBeDefined();
     });
 
     it('should parse filter with 5 OR conditions', () => {
-      const filter = "type='school' OR type='district' OR type='local' OR type='state' OR type='national'";
+      const filter =
+        "type='school' OR type='district' OR type='local' OR type='state' OR type='national'";
       const result = service.parseFilter(filter);
 
       expect(result.OR).toBeDefined();
@@ -256,7 +262,7 @@ describe('FilterParserService - Advanced Edge Cases', () => {
     it('should handle very long field name', () => {
       const longFieldName = 'a'.repeat(100);
       const filter = `${longFieldName}='value'`;
-      
+
       // Should not throw (parser handles long field names)
       try {
         const result = service.parseFilter(filter);
@@ -270,7 +276,7 @@ describe('FilterParserService - Advanced Edge Cases', () => {
     it('should handle very long value', () => {
       const longValue = 'a'.repeat(1000);
       const filter = `field='${longValue}'`;
-      
+
       const result = service.parseFilter(filter);
       expect(result.field).toBe(longValue);
     });
@@ -333,7 +339,7 @@ describe('FilterParserService - Advanced Edge Cases', () => {
   describe('Error Recovery and Validation', () => {
     it('should handle missing closing quote (may not throw)', () => {
       const filter = "name='value";
-      
+
       // Implementation may not throw for unclosed quotes, just validate behavior
       try {
         const result = service.parseFilter(filter);
@@ -345,7 +351,7 @@ describe('FilterParserService - Advanced Edge Cases', () => {
 
     it('should provide helpful error for double operator', () => {
       const filter = "status=='active'";
-      
+
       try {
         service.parseFilter(filter);
       } catch (error) {
@@ -355,13 +361,13 @@ describe('FilterParserService - Advanced Edge Cases', () => {
 
     it('should handle null field name gracefully', () => {
       const filter = "='value'";
-      
+
       expect(() => service.parseFilter(filter)).toThrow(BadRequestException);
     });
 
     it('should safely handle SQL-like input', () => {
       const filter = "status='active'; DROP TABLE users;--'";
-      
+
       // Parser should either throw or safely escape - both are valid
       try {
         const result = service.parseFilter(filter);

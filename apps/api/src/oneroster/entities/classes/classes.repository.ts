@@ -112,7 +112,7 @@ export class ClassesRepository extends BaseRepository<Class> {
    */
   async findByCourse(
     courseSourcedId: string,
-    options: { offset?: number; limit?: number } = {}
+    options: { offset?: number; limit?: number } = {},
   ): Promise<Class[]> {
     const { offset = 0, limit = 100 } = options;
 
@@ -131,7 +131,7 @@ export class ClassesRepository extends BaseRepository<Class> {
    */
   async findBySchool(
     schoolSourcedId: string,
-    options: { offset?: number; limit?: number } = {}
+    options: { offset?: number; limit?: number } = {},
   ): Promise<Class[]> {
     const { offset = 0, limit = 100 } = options;
 
@@ -150,7 +150,7 @@ export class ClassesRepository extends BaseRepository<Class> {
    */
   async findByType(
     classType: ClassType,
-    options: { offset?: number; limit?: number } = {}
+    options: { offset?: number; limit?: number } = {},
   ): Promise<Class[]> {
     const { offset = 0, limit = 100 } = options;
 
@@ -169,7 +169,7 @@ export class ClassesRepository extends BaseRepository<Class> {
    */
   async findByAcademicSession(
     academicSessionSourcedId: string,
-    options: { offset?: number; limit?: number } = {}
+    options: { offset?: number; limit?: number } = {},
   ): Promise<Class[]> {
     const { offset = 0, limit = 100 } = options;
 
@@ -194,7 +194,7 @@ export class ClassesRepository extends BaseRepository<Class> {
    */
   async findEnrolledStudents(
     classSourcedId: string,
-    options: { offset?: number; limit?: number } = {}
+    options: { offset?: number; limit?: number } = {},
   ) {
     const { offset = 0, limit = 100 } = options;
 
@@ -221,7 +221,7 @@ export class ClassesRepository extends BaseRepository<Class> {
    */
   async findTeachers(
     classSourcedId: string,
-    options: { offset?: number; limit?: number } = {}
+    options: { offset?: number; limit?: number } = {},
   ) {
     const { offset = 0, limit = 100 } = options;
 

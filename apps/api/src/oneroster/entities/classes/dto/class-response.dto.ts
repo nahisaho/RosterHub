@@ -8,7 +8,10 @@ import { Class, StatusType, ClassType } from '@prisma/client';
  * Transforms Prisma Class entity to OneRoster JSON format.
  */
 export class ClassResponseDto {
-  @ApiProperty({ description: 'OneRoster unique identifier', example: 'class-abc123' })
+  @ApiProperty({
+    description: 'OneRoster unique identifier',
+    example: 'class-abc123',
+  })
   sourcedId: string;
 
   @ApiProperty({ description: 'Record creation timestamp' })
@@ -20,22 +23,34 @@ export class ClassResponseDto {
   @ApiProperty({ enum: StatusType, description: 'Record status' })
   status: StatusType;
 
-  @ApiProperty({ description: 'Class title', example: 'Mathematics Grade 10 - Period 1' })
+  @ApiProperty({
+    description: 'Class title',
+    example: 'Mathematics Grade 10 - Period 1',
+  })
   title: string;
 
   @ApiProperty({ description: 'Class code', example: 'MATH10-01' })
   classCode: string;
 
-  @ApiProperty({ enum: ClassType, description: 'Class type (homeroom or scheduled)' })
+  @ApiProperty({
+    enum: ClassType,
+    description: 'Class type (homeroom or scheduled)',
+  })
   classType: ClassType;
 
-  @ApiPropertyOptional({ description: 'Classroom location', example: 'Room 301' })
+  @ApiPropertyOptional({
+    description: 'Classroom location',
+    example: 'Room 301',
+  })
   location?: string;
 
   @ApiProperty({ description: 'Course sourcedId', example: 'course-math10' })
   courseSourcedId: string;
 
-  @ApiProperty({ description: 'School organization sourcedId', example: 'org-school123' })
+  @ApiProperty({
+    description: 'School organization sourcedId',
+    example: 'org-school123',
+  })
   schoolSourcedId: string;
 
   @ApiPropertyOptional({
@@ -66,6 +81,6 @@ export class ClassResponseDto {
     this.location = classEntity.location || undefined;
     this.courseSourcedId = classEntity.courseSourcedId;
     this.schoolSourcedId = classEntity.schoolSourcedId;
-    this.metadata = classEntity.metadata as any || undefined;
+    this.metadata = (classEntity.metadata as any) || undefined;
   }
 }

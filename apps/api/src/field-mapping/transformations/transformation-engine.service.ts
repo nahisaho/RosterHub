@@ -53,7 +53,11 @@ export class TransformationEngineService {
           break;
 
         case MappingTransformationType.LOOKUP:
-          result = this.transformLookup(sourceValues[0], transformConfig, context);
+          result = this.transformLookup(
+            sourceValues[0],
+            transformConfig,
+            context,
+          );
           break;
 
         case MappingTransformationType.SCRIPT:
@@ -89,7 +93,9 @@ export class TransformationEngineService {
           break;
 
         default:
-          throw new Error(`Unknown transformation type: ${transformationType}`);
+          throw new Error(
+            `Unknown transformation type: ${String(transformationType)}`,
+          );
       }
 
       // Apply default value if result is null/undefined/empty
@@ -207,7 +213,8 @@ export class TransformationEngineService {
       trim: (str: string) => str?.trim(),
       lowercase: (str: string) => str?.toLowerCase(),
       uppercase: (str: string) => str?.toUpperCase(),
-      substring: (str: string, start: number, end?: number) => str?.substring(start, end),
+      substring: (str: string, start: number, end?: number) =>
+        str?.substring(start, end),
       replace: (str: string, search: string, replace: string) =>
         str?.replace(new RegExp(search, 'g'), replace),
       split: (str: string, delimiter: string) => str?.split(delimiter),
@@ -246,9 +253,13 @@ export class TransformationEngineService {
           return date.toISOString().split('T')[0];
         case 'YYYY/MM/DD':
           return date.toISOString().split('T')[0].replace(/-/g, '/');
-        case 'DD/MM/YYYY':
-          const [year, month, day] = date.toISOString().split('T')[0].split('-');
+        case 'DD/MM/YYYY': {
+          const [year, month, day] = date
+            .toISOString()
+            .split('T')[0]
+            .split('-');
           return `${day}/${month}/${year}`;
+        }
         case 'ISO':
           return date.toISOString();
         default:

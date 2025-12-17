@@ -4,7 +4,16 @@
  * Request body for webhook updates
  */
 
-import { IsUrl, IsArray, IsEnum, IsBoolean, IsOptional, IsInt, Min, Max } from 'class-validator';
+import {
+  IsUrl,
+  IsArray,
+  IsEnum,
+  IsBoolean,
+  IsOptional,
+  IsInt,
+  Min,
+  Max,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { WebhookEvent } from './create-webhook.dto';
 
