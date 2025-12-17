@@ -82,11 +82,11 @@ export class ApiKeyGuard implements CanActivate {
     }
 
     // Attach API key metadata to request for logging and downstream guards
-    (request as Record<string, unknown>)['apiKeyRecord'] = apiKeyRecord;
-    (request as Record<string, unknown>)['apiKey'] = apiKey;
-    (request as Record<string, unknown>)['clientIp'] =
+    (request as unknown as Record<string, unknown>)['apiKeyRecord'] = apiKeyRecord;
+    (request as unknown as Record<string, unknown>)['apiKey'] = apiKey;
+    (request as unknown as Record<string, unknown>)['clientIp'] =
       this.extractClientIp(request);
-    (request as Record<string, unknown>)['organizationId'] = (
+    (request as unknown as Record<string, unknown>)['organizationId'] = (
       apiKeyRecord as { organizationId: string }
     ).organizationId;
 

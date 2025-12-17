@@ -32,6 +32,7 @@ import { extname } from 'path';
 import { ApiKeyGuard } from '../../common/guards/api-key.guard';
 import { IpWhitelistGuard } from '../../common/guards/ip-whitelist.guard';
 import { RateLimitGuard } from '../../common/guards/rate-limit.guard';
+import { AuditInterceptor } from '../../common/interceptors/audit.interceptor';
 import {
   CsvImportJobDto,
   CsvImportJobResponseDto,
