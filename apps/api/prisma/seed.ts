@@ -104,10 +104,15 @@ async function main() {
     await prisma.org.deleteMany();
     console.log('✅ Existing data cleared');
   } catch (error: unknown) {
-    const prismaError = error as { code?: string };
+    const prismaError = error as { code?: string; message?: string };
     if (prismaError.code === 'P2021') {
-      console.log('⚠️ Tables do not exist yet. Running migrations first is recommended.');
-      console.log('   Run: npx prisma migrate deploy');
+      console.log('⚠️ Tables do not exist yet. Please run migrations first:');
+      console.log('   npx prisma migrate deploy');
+      console.log('');
+      console.log('Or for development:');
+      console.log('   npx prisma db push');
+      console.log('');
+      console.log('Error details:', prismaError.message);
       process.exit(1);
     }
     throw error;

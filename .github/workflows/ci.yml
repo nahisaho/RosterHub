@@ -121,13 +121,19 @@ jobs:
         working-directory: apps/api
 
       - name: Run database migrations
-        run: npx prisma migrate deploy
+        run: |
+          echo "Running Prisma migrations..."
+          npx prisma migrate deploy
+          echo "Migration completed successfully"
         working-directory: apps/api
         env:
           DATABASE_URL: postgresql://rosterhub:rosterhub_password@localhost:5432/rosterhub_test
 
       - name: Seed test database
-        run: npx prisma db seed
+        run: |
+          echo "Seeding database..."
+          npx prisma db seed
+          echo "Seeding completed successfully"
         working-directory: apps/api
         env:
           DATABASE_URL: postgresql://rosterhub:rosterhub_password@localhost:5432/rosterhub_test
