@@ -19,8 +19,8 @@ describe('CsvImportService', () => {
   let prismaService: PrismaService;
   let usersRepository: UsersRepository;
 
-  const mockPrismaService = {
-    $transaction: jest.fn((callback) => callback(mockPrismaService)),
+  const mockPrismaService: { $transaction: jest.Mock } = {
+    $transaction: jest.fn((callback: (prisma: typeof mockPrismaService) => unknown) => callback(mockPrismaService)),
   };
 
   const mockUsersRepository = {
@@ -148,7 +148,7 @@ user-001,invalid_status,2025-01-01,true,太郎,山田,student,yamada.taro,yamada
 
       expect(result.processedRecords).toBe(1);
       expect(result.errorCount).toBeGreaterThan(0);
-      expect(result.errors.length).toBeGreaterThan(0);
+      expect(result.errors?.length).toBeGreaterThan(0);
 
       // Cleanup
       fs.unlinkSync(tempFilePath);
